@@ -1,0 +1,25 @@
+feature:
+  - head-branch: ["^feature", "feature"]
+patch:
+  - head-branch: ["^patch", "patch"]
+release:
+  - base-branch: main
+github config:
+  - changed-files:
+      - any-glob-to-any-file: .github/**
+config:
+  - changed-files:
+      - any-glob-to-any-file: ["config/**", "bin/**", "*"]
+ruby:
+  - changed-files:
+      - any-glob-to-any-file: "**/*.rb"
+spec:
+  - changed-files:
+      - any-glob-to-any-file: "spec/**"
+documentation:
+  - changed-files:
+      - any-glob-to-any-file: ["docs/**/*", "**/*.md"]
+user scripts:
+  - changed-files:
+      - any-glob-to-any-file: "usr/**"
+
