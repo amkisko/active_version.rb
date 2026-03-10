@@ -100,6 +100,7 @@ RSpec.describe "ActiveVersion Audits Integration", type: :integration do
         end
 
         include ActiveVersion::Audits::HasAudits
+
         has_audits as: PostAudit, class_name: "Post"
       end
 

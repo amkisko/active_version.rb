@@ -25,6 +25,7 @@ RSpec.describe "runtime benchmarks", :benchmark do
   class BenchAvPost < BenchBase
     self.table_name = "bench_av_posts"
     include ActiveVersion::Audits::HasAudits
+
     has_audits as: BenchAvPostAudit, on: [:create, :update]
   end
 
@@ -422,7 +423,7 @@ RSpec.describe "runtime benchmarks", :benchmark do
     fastest = all_results.min_by { |row| row[:per_op_median_ms] }
     slowest = all_results.max_by { |row| row[:per_op_median_ms] }
     puts format("[benchmark] fastest=%s slowest=%s spread=%0.2fx",
-      fastest[:label], slowest[:label], (slowest[:per_op_median_ms] / fastest[:per_op_median_ms]))
+      fastest[:label], slowest[:label], slowest[:per_op_median_ms] / fastest[:per_op_median_ms])
 
     expect(active_version_audit_count).to eq(ITERATIONS * 2)
     expect(trigger_audit_count).to eq(ITERATIONS * 2)

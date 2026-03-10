@@ -59,7 +59,7 @@ module DatabaseHelper
     # examples execute in normal suite runs.
     ActiveRecord::Base.establish_connection(adapter: "postgresql")
     ActiveRecord::Base.connection.execute("SELECT 1")
-  rescue StandardError
+  rescue
     ActiveRecord::Base.establish_connection(
       adapter: "sqlite3",
       database: ":memory:"

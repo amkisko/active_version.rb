@@ -47,7 +47,7 @@ RSpec.describe "Table storage audits without audited_changes column", type: :int
         "ColumnAuditPostAudit"
       end
     end
-    Object.const_set("ColumnAuditPostAudit", column_audit_class)
+    Object.const_set(:ColumnAuditPostAudit, column_audit_class)
 
     column_post_class = Class.new(ApplicationRecord) do
       self.table_name = "column_audit_posts"
@@ -59,7 +59,7 @@ RSpec.describe "Table storage audits without audited_changes column", type: :int
 
       has_audits as: ColumnAuditPostAudit
     end
-    Object.const_set("ColumnAuditPost", column_post_class)
+    Object.const_set(:ColumnAuditPost, column_post_class)
     ColumnAuditPostAudit.setup_associations if ColumnAuditPostAudit.respond_to?(:setup_associations)
 
     post = ColumnAuditPost.create!(
