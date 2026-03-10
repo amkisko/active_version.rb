@@ -120,6 +120,5 @@ module ActiveVersion
         end
       end
     end
-
   end
 end

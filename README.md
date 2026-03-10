@@ -287,10 +287,6 @@ rails g active_version:triggers Post --type=revision
 #
 # ActiveVersion intentionally does not route between connections/topologies.
 # It follows your current ActiveRecord connection and declared model schema.
-#
-# Optional partition safety guard (PostgreSQL only):
-# config.partition_schema_guards_enabled = false # default
-# Enable only when you want partition key/index validation at setup time.
 ```
 
 ### Runtime Adapter (Advanced)
@@ -305,7 +301,6 @@ ActiveVersion.runtime_adapter
 # Optional capability hooks:
 # - supports_transactional_context?(connection)
 # - supports_current_transaction_id?(connection)
-# - supports_partition_catalog_checks?(connection)
 #
 # Example:
 # ActiveVersion.runtime_adapter = MyCustomAdapter.new

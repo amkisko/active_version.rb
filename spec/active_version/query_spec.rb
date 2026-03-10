@@ -267,16 +267,4 @@ RSpec.describe ActiveVersion::Query do
       Object.send(:remove_const, "InlineCompositeRevisionRecord") if Object.const_defined?("InlineCompositeRevisionRecord")
     end
   end
-
-  describe ".current_transaction" do
-    it "queries transaction id on PostgreSQL adapter" do
-      connection = instance_double("Connection", adapter_name: "PostgreSQL")
-      allow(connection).to receive(:execute).with("SELECT pg_current_xact_id()").and_return([["42"]])
-      runtime_adapter = instance_double("RuntimeAdapter", base_connection: connection)
-      allow(runtime_adapter).to receive(:supports_current_transaction_id?).with(connection).and_return(true)
-      allow(ActiveVersion::Runtime).to receive(:adapter).and_return(runtime_adapter)
-
-      expect(described_class.current_transaction).to eq("42")
-    end
-  end
 end

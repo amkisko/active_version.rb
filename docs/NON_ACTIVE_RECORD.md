@@ -15,7 +15,6 @@ Optional capability hooks:
 
 - `supports_transactional_context?(connection)`
 - `supports_current_transaction_id?(connection)`
-- `supports_partition_catalog_checks?(connection)`
 
 If capability hooks are omitted, ActiveVersion falls back to adapter name detection for PostgreSQL-specific behavior.
 

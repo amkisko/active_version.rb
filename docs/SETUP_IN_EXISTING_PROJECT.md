@@ -156,7 +156,7 @@ Edit `config/initializers/active_version.rb` to:
 - Set `config.auditing_enabled = false` in specific environments if needed.
 - Use global audit column/storage settings only as fallback when audit models do not declare `configure_audit`.
 - Keep connection routing/topology in app-level ActiveRecord configuration and connection switching code.
-- Keep `config.partition_schema_guards_enabled = false` unless you explicitly want PostgreSQL partition-key/index validation during setup.
+- Keep partition/key/index validation in your migrations and database checks; ActiveVersion follows your configured schema.
 
 ## Checklist for Existing Projects
 
@@ -186,7 +186,6 @@ Optional capability hooks:
 
 - `supports_transactional_context?(connection)`
 - `supports_current_transaction_id?(connection)`
-- `supports_partition_catalog_checks?(connection)`
 
 ## Adding to a single model (minimal example)
 

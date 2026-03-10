@@ -22,7 +22,7 @@ RSpec.describe "ActiveVersion Migrators::Base Integration", type: :integration d
   end
 
   describe "create_audit_table" do
-    it "creates audit table with all required columns and indexes" do
+    it "creates audit table with required columns and minimal indexes" do
       ActiveVersion::Migrators::Base.create_audit_table(:test_audits)
 
       # Verify table exists
@@ -50,9 +50,9 @@ RSpec.describe "ActiveVersion Migrators::Base Integration", type: :integration d
       # Verify indexes
       indexes = connection.indexes(:test_audits).map(&:name)
       expect(indexes).to include("index_test_audits_on_auditable_and_version")
-      expect(indexes).to include("index_test_audits_on_auditable")
-      expect(indexes).to include("index_test_audits_on_action")
-      expect(indexes).to include("index_test_audits_on_created_at")
+      expect(indexes).not_to include("index_test_audits_on_auditable")
+      expect(indexes).not_to include("index_test_audits_on_action")
+      expect(indexes).not_to include("index_test_audits_on_created_at")
     end
 
     it "creates audit table with custom options" do
@@ -92,10 +92,50 @@ RSpec.describe "ActiveVersion Migrators::Base Integration", type: :integration d
       found = test_class.where(auditable_type: "Post", auditable_id: 1).first
       expect(found).to eq(audit)
     end
+
+    it "supports yaml_column storage payload columns" do
+      ActiveVersion::Migrators::Base.create_audit_table(:test_audits, storage: :yaml_column)
+
+      columns = connection.columns(:test_audits).index_by(&:name)
+      expect(columns.fetch("audited_changes").type).to eq(:text)
+      expect(columns.fetch("audited_context").type).to eq(:text)
+    end
+
+    it "supports mirror_columns storage with explicit mirrored columns" do
+      ActiveVersion::Migrators::Base.create_audit_table(
+        :test_audits,
+        storage: :mirror_columns,
+        mirror_columns: {title: :string, published: :boolean}
+      )
+
+      columns = connection.columns(:test_audits).map(&:name)
+      expect(columns).to include("title", "published")
+      expect(columns).not_to include("audited_changes")
+      expect(columns).not_to include("audited_context")
+    end
+
+    it "supports overriding payload column names" do
+      ActiveVersion::Migrators::Base.create_audit_table(
+        :test_audits,
+        changes_column: :audit_payload,
+        context_column: :audit_meta
+      )
+
+      columns = connection.columns(:test_audits).map(&:name)
+      expect(columns).to include("audit_payload", "audit_meta")
+      expect(columns).not_to include("audited_changes")
+      expect(columns).not_to include("audited_context")
+    end
+
+    it "raises on unknown storage mode" do
+      expect {
+        ActiveVersion::Migrators::Base.create_audit_table(:test_audits, storage: :xml)
+      }.to raise_error(ActiveVersion::ConfigurationError, /Unknown audit storage/)
+    end
   end
 
   describe "create_revision_table" do
-    it "creates revision table with all required columns and indexes" do
+    it "creates revision table with required columns and minimal indexes" do
       ActiveVersion::Migrators::Base.create_revision_table(:test_revisions)
 
       # Verify table exists
@@ -114,7 +154,7 @@ RSpec.describe "ActiveVersion Migrators::Base Integration", type: :integration d
       # Verify indexes
       indexes = connection.indexes(:test_revisions).map(&:name)
       expect(indexes).to include("index_test_revisions_on_source_and_version")
-      expect(indexes).to include("index_test_revisions_on_source")
+      expect(indexes).not_to include("index_test_revisions_on_source")
     end
 
     it "allows inserting and querying revision records" do

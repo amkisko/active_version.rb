@@ -344,8 +344,8 @@ class MigrateFromAuditedToActiveVersion < ActiveRecord::Migration[7.0]
       t.timestamps
     end
 
-    add_index :post_audits, [:post_id, :version]
-    add_index :post_audits, :created_at
+    add_index :post_audits, [:post_id, :version], unique: true
+    # Add extra indexes only for query paths you actually use.
 
     # Step 2: Migrate data (run in console or separate migration)
     # ActiveVersion::Migrators::Audited.migrate(Post)
@@ -630,14 +630,10 @@ Solution: The migrator preserves existing context or uses empty hash.
 Problem: Large audit tables cause slow queries.
 
 Solution: 
-- Use JSONB indexes for context queries
+- Avoid default indexes on large payload columns (`json/jsonb/text`)
+- Add narrow, workload-specific indexes only after profiling query patterns
 - Use app-managed connection topology (separate DB/cluster) when needed
 - Archive old audits
-
-```ruby
-# Add indexes
-add_index :post_audits, "((audited_context->>'user_id'))", name: "index_post_audits_on_user_id"
-```
 
 ## Additional Resources
 

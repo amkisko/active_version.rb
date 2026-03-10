@@ -72,30 +72,6 @@ RSpec.describe "ActiveVersion Error Handling", type: :integration do
       expect(logger).not_to have_received(:warn)
     end
 
-    it "uses legacy behavior when error_behavior is :legacy" do
-      ActiveVersion.config.audit_error_behavior = :legacy
-      allow(PostAudit).to receive(:create!).and_raise(StandardError.new("Database error"))
-      logger = double("logger")
-      allow(logger).to receive(:warn)
-      if defined?(Rails)
-        allow(Rails).to receive(:logger).and_return(logger)
-      else
-        stub_const("Rails", double(logger: logger))
-      end
-
-      # Create should raise
-      expect {
-        Post.create!(title: "Test")
-      }.to raise_error(StandardError)
-
-      # Update should log
-      post = Post.create!(title: "Test")
-      allow(PostAudit).to receive(:create!).and_raise(StandardError.new("Database error"))
-      post.title = "Updated"
-      post.save!
-      expect(logger).to have_received(:warn)
-    end
-
     it "allows per-model error behavior" do
       custom_post_class = Class.new(ApplicationRecord) do
         self.table_name = "posts"

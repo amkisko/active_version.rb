@@ -101,7 +101,7 @@ create_table :post_audits do |t|
   t.timestamps
 end
 
-add_index :post_audits, [:post_id, :version]
+add_index :post_audits, [:post_id, :version], unique: true
 ```
 
 ### 3. Model Declaration
@@ -499,9 +499,10 @@ class MigrateFromPaperTrailToActiveVersion < ActiveRecord::Migration[7.0]
       t.timestamps
     end
 
-    add_index :post_audits, [:post_id, :version]
-    add_index :post_audits, :created_at
-    add_index :post_audits, "((audited_context->>'whodunnit'))", name: "index_post_audits_on_whodunnit"
+    add_index :post_audits, [:post_id, :version], unique: true
+    # Add extra indexes only for query paths you actually use.
+    # Keep payload columns (json/jsonb/text) unindexed by default.
+    # Add narrowly targeted expression indexes only after profiling real workloads.
 
     # Step 2: Migrate data (run custom script)
     # See Data Migration section

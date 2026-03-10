@@ -57,18 +57,12 @@ RSpec.describe "ActiveVersion custom runtime adapter contract" do
     end
   end
 
-  let(:record_class) { class_double("RuntimeContractRecord", table_name: "runtime_contract_records", name: "RuntimeContractRecord") }
-
   before do
     ActiveVersion.clear_context!
     ActiveVersion.reset_runtime_adapter!
-    ActiveVersion.config.partition_schema_guards_enabled = false
-    ActiveVersion::SchemaGuards.clear_cache!
   end
 
   after do
-    ActiveVersion.config.partition_schema_guards_enabled = false
-    ActiveVersion::SchemaGuards.clear_cache!
     ActiveVersion.reset_runtime_adapter!
   end
 
@@ -85,24 +79,12 @@ RSpec.describe "ActiveVersion custom runtime adapter contract" do
     expect(adapter.base_connection_calls).to be >= 1
   end
 
-  it "routes query current_transaction through custom adapter base connection" do
+  it "queries current transaction id through custom adapter base connection" do
     connection = FakeConnection.new(adapter_name: "PostgreSQL")
     adapter = FakeRuntimeAdapter.new(base_connection: connection)
     ActiveVersion.runtime_adapter = adapter
 
-    expect(ActiveVersion::Query.current_transaction).to eq("fake-tx-id")
+    expect(current_transaction_id).to eq("fake-tx-id")
     expect(connection.executed_sql).to include("SELECT pg_current_xact_id()")
-  end
-
-  it "routes schema guards through custom adapter connection_for" do
-    routed_connection = instance_double("RoutedConnection", adapter_name: "PostgreSQL")
-    adapter = FakeRuntimeAdapter.new(base_connection: FakeConnection.new, routed_connection: routed_connection)
-    ActiveVersion.runtime_adapter = adapter
-    ActiveVersion.config.partition_schema_guards_enabled = true
-
-    allow(routed_connection).to receive(:data_source_exists?).with("runtime_contract_records").and_return(false)
-
-    expect(ActiveVersion::SchemaGuards.validate_partitioned_keys!(record_class, :audits)).to be_nil
-    expect(adapter.connection_for_calls).to include([record_class, :audits])
   end
 end

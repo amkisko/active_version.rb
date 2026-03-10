@@ -137,4 +137,33 @@ RSpec.describe "ActiveVersion Revisions Integration", type: :integration do
       expect(revision.title).to eq("v1")
     end
   end
+
+  describe "complex undo/redo lifecycle flow" do
+    it "handles create/update/undo/redo/destroy sequence deterministically" do
+      post = Post.create!(title: "v1")
+      post.update!(title: "v2")
+      post.update!(title: "v3")
+
+      expect(post.undo!).to be true
+      expect(post.title).to eq("v2")
+
+      expect(post.undo!).to be true
+      expect(post.title).to eq("v1")
+
+      post.update!(title: "v4")
+      expect(post.undo!).to be true
+      expect(post.title).to eq("v1")
+
+      expect(post.undo!).to be false
+      expect(post.title).to eq("v1")
+
+      expect(post.redo!).to be true
+      expect(post.title).to eq("v4")
+
+      post.update!(title: "v5")
+      post.destroy!
+
+      expect(post.undo!).to be false
+    end
+  end
 end
