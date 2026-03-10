@@ -19,7 +19,7 @@ module ActiveVersion
 
       module RevisionQueries
         def revision: (?version: Integer?) -> untyped
-        def revision_at: (*untyped args, **untyped kwargs) -> untyped
+        def revision_at: (?time: untyped) -> untyped
         def at: (?time: untyped, ?version: Integer?) -> untyped
         def at!: (?time: untyped, ?version: Integer?) -> untyped
         def at_version!: (Integer version) -> untyped

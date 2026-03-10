@@ -109,7 +109,6 @@ module ActiveVersion
             accepts_nested_attributes_for(:translations,
               reject_if: :all_blank,
               allow_destroy: true)
-
           rescue NameError
             # Translation class not yet defined, will be set up later
           end

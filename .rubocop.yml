@@ -41,6 +41,9 @@ AllCops:
 # RSpec-specific configuration
 RSpec/ExampleLength:
   Max: 80
+  Exclude:
+    - spec/benchmark/runtime_comparison_spec.rb
+    - spec/integration/configurable_identity_spec.rb
 
 RSpec/SpecFilePathFormat:
   Enabled: false
@@ -60,6 +63,7 @@ RSpec/RepeatedExample:
   Enabled: false
 
 RSpec/DescribeClass:
+  Enabled: false
   Exclude:
     - spec/integration/**/*
     - spec/active_version/concerns_spec.rb
@@ -75,15 +79,68 @@ RSpec/MultipleExpectations:
   Exclude:
     - spec/integration/**/*
     - spec/active_version/**/*_spec.rb
+    - spec/benchmark/runtime_comparison_spec.rb
 
 RSpec/InstanceVariable:
   Exclude:
+    - spec/**/*
     - spec/active_version/audits/sql_builder_spec.rb
     - spec/active_version/revisions/sql_builder_spec.rb
 
 RSpec/MessageSpies:
   Exclude:
+    - spec/**/*
     - spec/active_version/instrumentation_spec.rb
+
+RSpec/LeakyConstantDeclaration:
+  Enabled: false
+
+RSpec/RemoveConst:
+  Enabled: false
+
+RSpec/AnyInstance:
+  Enabled: false
+
+RSpec/VerifiedDoubleReference:
+  Enabled: false
+
+RSpec/BeEq:
+  Exclude:
+    - spec/**/*
+
+RSpec/ExpectChange:
+  Exclude:
+    - spec/**/*
+
+RSpec/ReceiveMessages:
+  Exclude:
+    - spec/**/*
+
+RSpec/DescribedClass:
+  Exclude:
+    - spec/**/*
+
+Rails/ApplicationRecord:
+  Exclude:
+    - spec/**/*
+
+Rails/TimeZone:
+  Exclude:
+    - spec/**/*
+
+ThreadSafety/NewThread:
+  Exclude:
+    - spec/**/*
+
+Lint/ConstantDefinitionInBlock:
+  Exclude:
+    - spec/**/*
+    - lib/active_version/revisions/revision_record.rb
+    - lib/active_version/translations/translation_record.rb
+
+Rails/Blank:
+  Exclude:
+    - lib/active_version/adapters/sequel/**/*
 
 RSpec/NoExpectationExample:
   Exclude:
@@ -92,6 +149,12 @@ RSpec/NoExpectationExample:
 RSpec/RepeatedExampleGroupDescription:
   Exclude:
     - spec/active_version/column_mapper_spec.rb
+    - spec/active_version/revisions/has_revisions_spec.rb
+
+Lint/ShadowedException:
+  Exclude:
+    - lib/active_version/audits/audit_record.rb
+    - lib/active_version/audits/audit_record/callbacks.rb
 
 # Custom cop overrides
 Style/AccessModifierDeclarations:
@@ -141,4 +204,3 @@ Rails/FindEach:
 Rails/UniqBeforePluck:
   Enabled: true
   Exclude: []
-

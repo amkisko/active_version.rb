@@ -393,10 +393,17 @@ module ActiveVersion
       end
 
       def create_revision_before_update
-        # Clear version pointer so we're "at" max again after this update
-        remove_instance_variable(:@active_version_pointer) if instance_variable_defined?(:@active_version_pointer)
+        pointer = instance_variable_get(:@active_version_pointer)
+        if pointer
+          version_column = revision_version_column
+          # Classic linear undo/redo behavior: editing after undo drops forward history.
+          revisions_scope.where("#{version_column} > ?", pointer).delete_all
+          revisions.reset
+          remove_instance_variable(:@active_version_pointer)
+        end
         # Check if we should create revision
         return unless should_create_revision?
+        return if latest_revision_matches_current_state?
 
         result = create_snapshot!(use_old_values: true)
 
@@ -416,6 +423,20 @@ module ActiveVersion
 
       def clear_rolled_back_revisions
         revisions.reset
+      end
+
+      def latest_revision_matches_current_state?
+        version_column = revision_version_column
+        latest = revisions_scope.order(version_column => :desc).first
+        return false unless latest
+
+        base_attrs = snapshot_base_attributes(true)
+        revision_payload_columns.all? do |column|
+          next true if deleted_column?(column)
+          next true unless base_attrs.key?(column.to_s)
+
+          latest.read_attribute(column.to_s) == base_attrs[column.to_s]
+        end
       end
     end
   end
