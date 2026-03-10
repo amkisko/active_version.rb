@@ -1,0 +1,8 @@
+
+class <%= revision_class_name %> < ApplicationRecord
+  include ActiveVersion::Revisions::RevisionRecord
+
+  configure_revision(version_column: :<%= version_column %>,
+    foreign_key: :<%= foreign_key %>
+  )
+end

@@ -1,0 +1,19 @@
+class Backfill<%= revision_class_name.pluralize %> < ActiveRecord::Migration<%= migration_version %>
+  def up
+    # Create initial snapshots for existing records
+    # Note: Adjust column list based on your actual source table structure
+    execute <<-SQL
+      INSERT INTO <%= table_name %> (<%= foreign_key %>, <%= version_column %>, title, body, created_at, updated_at)
+      SELECT id, 1, title, body, created_at, updated_at
+      FROM <%= source_table_name %>
+      WHERE id NOT IN (SELECT DISTINCT <%= foreign_key %> FROM <%= table_name %>)
+    SQL
+  end
+
+  def down
+    # Remove initial snapshots
+    execute <<-SQL
+      DELETE FROM <%= table_name %> WHERE <%= version_column %> = 1
+    SQL
+  end
+end
