@@ -1,0 +1,42 @@
+<div class="card">
+  <div class="av-flex av-flex-between" style="margin-bottom: var(--av-space-lg);">
+    <h2 style="margin-bottom: 0; padding-bottom: 0; border-bottom: none;"><%= @pull_request.title %></h2>
+    <div class="av-action-row"><%= link_to "Edit", edit_pull_request_path(@pull_request), class: "btn" %><%= link_to "Back", pull_requests_path, class: "btn btn-secondary" %></div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="showPRTab('content')">Content</button>
+    <button class="tab" onclick="showPRTab('translations')">Translations</button>
+    <button class="tab" onclick="showPRTab('revisions')">Revisions</button>
+    <button class="tab" onclick="showPRTab('audits')">Audits</button>
+  </div>
+
+  <div id="content" class="tab-content active">
+    <p><strong>Status:</strong> <%= @pull_request.status %></p>
+    <p><strong>Branches:</strong> <%= @pull_request.source_branch %> → <%= @pull_request.target_branch %></p>
+    <p><strong>Labels:</strong> <%= @pull_request.labels_csv.presence || "—" %></p>
+    <p><strong>Author:</strong> <%= @pull_request.author&.name || "—" %></p>
+    <p><strong>Assignee:</strong> <%= @pull_request.assignee&.name || "—" %></p>
+    <p><strong>Body:</strong><br><%= simple_format(@pull_request.body) %></p>
+    <p><strong>Attachment:</strong>
+      <% if @pull_request.attachment.present? %>
+        <%= link_to attachment_label(@pull_request), @pull_request.attachment_url, target: "_blank", rel: "noopener" %>
+      <% else %>
+        —
+      <% end %>
+    </p>
+  </div>
+
+  <div id="translations" class="tab-content"><%= link_to "Manage Translations", translations_pull_request_path(@pull_request), class: "btn" %></div>
+  <div id="revisions" class="tab-content"><%= link_to "View Revisions", revisions_pull_request_path(@pull_request), class: "btn" %></div>
+  <div id="audits" class="tab-content"><%= link_to "View Audits", audits_pull_request_path(@pull_request), class: "btn" %></div>
+</div>
+
+<script>
+  function showPRTab(tabName) {
+    document.querySelectorAll('.tab-content').forEach((tab) => tab.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach((tab) => tab.classList.remove('active'));
+    document.getElementById(tabName).classList.add('active');
+    event.target.classList.add('active');
+  }
+</script>

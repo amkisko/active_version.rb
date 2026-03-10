@@ -1,0 +1,36 @@
+<section class="hero">
+  <h2>Social Feed</h2>
+  <p>Clickable Sinatra app showing posts, issues, and pull requests with a clean feed flow.</p>
+</section>
+
+<section class="grid three">
+  <article class="card">
+    <h3>Posts</h3>
+    <a class="button" href="/posts/new">New Post</a>
+    <ul>
+      <% @posts.each do |item| %>
+        <li><a href="/posts/<%= item.id %>"><%= item.title %></a></li>
+      <% end %>
+    </ul>
+  </article>
+
+  <article class="card">
+    <h3>Issues</h3>
+    <a class="button" href="/issues/new">New Issue</a>
+    <ul>
+      <% @issues.each do |item| %>
+        <li><a href="/issues/<%= item.id %>"><%= item.title %></a></li>
+      <% end %>
+    </ul>
+  </article>
+
+  <article class="card">
+    <h3>Pull Requests</h3>
+    <a class="button" href="/pull_requests/new">New Pull Request</a>
+    <ul>
+      <% @pull_requests.each do |item| %>
+        <li><a href="/pull_requests/<%= item.id %>"><%= item.title %></a></li>
+      <% end %>
+    </ul>
+  </article>
+</section>

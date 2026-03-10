@@ -1,0 +1,53 @@
+module ActiveVersion
+  class Error < StandardError
+  end
+
+  class ConfigurationError < Error
+  end
+
+  class VersionNotFoundError < Error
+  end
+
+  class ReadonlyVersionError < Error
+  end
+
+  class FutureTimeError < Error
+  end
+
+  class DeletedColumnError < Error
+  end
+
+  class RequestStore < ActiveSupport::CurrentAttributes
+    attr_accessor version_context: Hash[untyped, untyped]?
+    attr_accessor audited_user: untyped
+    attr_accessor request_uuid: String?
+    attr_accessor remote_address: String?
+  end
+
+  def self.config: () -> Configuration
+  def self.configure: () { (Configuration) -> void } -> Configuration
+  def self.auditing_enabled: () -> bool
+  def self.auditing_enabled=: (bool value) -> bool
+  def self.runtime_adapter: () -> untyped
+  def self.runtime_adapter=: (untyped adapter) -> untyped
+  def self.reset_runtime_adapter!: () -> untyped
+  def self.context: () -> Hash[untyped, untyped]
+  def self.context=: (Hash[untyped, untyped] value) -> Hash[untyped, untyped]
+  def self.with_context: (?Hash[untyped, untyped] context, ?transactional: bool, **untyped kwargs) { () -> untyped } -> untyped
+  def self.with_context!: (Hash[untyped, untyped] context) -> nil
+  def self.clear_context!: () -> nil
+  def self.without_auditing: () { () -> untyped } -> untyped
+  def self.disable_auditing: () -> bool
+  def self.enable_auditing: () -> bool
+  def self.registry: () -> VersionRegistry
+  def self.column_mapper: () -> ColumnMapper
+  def self.parse_time: (Numeric | String | Date | Time | untyped time) -> Time
+  def self.parse_time_to_time: (Numeric | String | Date | Time | untyped time) -> Time
+  def self.connection_for: (Class model_class, Symbol | String version_type) -> untyped
+  def self.adapter_for: (Class model_class, Symbol | String version_type) -> untyped
+  def self.with_connection: (Class model_class, Symbol | String version_type) { (untyped) -> untyped } -> untyped
+  def self.store_get: (Symbol key) -> untyped
+  def self.store_set: (Symbol key, untyped value) -> untyped
+  def self.store_delete: (Symbol key) -> untyped
+  def self.clear_scoped_keys!: (Regexp pattern) -> void
+end

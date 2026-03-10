@@ -1,0 +1,70 @@
+module ActiveVersion
+  module Revisions
+    module HasRevisions
+      module ClassMethods
+        def revision_record?: () -> bool
+        def revision_class: () -> Class
+        def revision_class_name: () -> String
+        def setup_revision_associations: () -> untyped
+        def has_revisions: (?Hash[Symbol, untyped] options) -> Hash[Symbol, untyped]
+        def has_revisions?: () -> bool
+        def normalize_revision_options: (Hash[Symbol, untyped] options) -> Hash[Symbol, untyped]
+        def setup_revision_callbacks: (Hash[Symbol, untyped] options) -> untyped
+        def revision_on_update: () -> untyped
+        def create_snapshots: (?Hash[Symbol, untyped] opts) -> untyped
+        def without_revisions: () { () -> untyped } -> untyped
+        def with_revisions: () { () -> untyped } -> untyped
+        def class_revision_enabled?: () -> bool
+      end
+
+      module RevisionQueries
+        def revision: (?version: Integer?) -> untyped
+        def revision_at: (*untyped args, **untyped kwargs) -> untyped
+        def at: (?time: untyped, ?version: Integer?) -> untyped
+        def at!: (?time: untyped, ?version: Integer?) -> untyped
+        def at_version!: (Integer version) -> untyped
+        def current_version: () -> Integer
+        def at_version: (Integer version) -> untyped
+        def versions: (?reverse: bool, ?include_self: bool) -> Enumerator[untyped]
+      end
+
+      module RevisionManipulation
+        def create_snapshot!: (?Hash[Symbol, untyped] opts) -> untyped
+        def revert_to: (version: Integer) -> bool
+        def undo!: (?append: bool) -> bool
+        def redo!: () -> bool
+        def switch_to!: (Integer version, ?append: bool) -> bool
+        def diff_from: (?time: untyped, ?version: Integer?) -> Hash[String, untyped]
+      end
+    end
+
+    module RevisionRecord
+      module ClassMethods
+        def revision_record?: () -> bool
+        def configure_revision: (
+          ?version_column: Symbol | String?,
+          ?foreign_key: Symbol | String | Array[Symbol | String]?,
+          ?foreign_key_value: Symbol | String | Array[Symbol | String]?
+        ) { () -> untyped } -> Hash[Symbol, untyped]
+        def revision_version_column: (?Symbol | String value) -> Symbol?
+        def revision_foreign_key: (?Symbol | String | Array[Symbol | String] value) -> String | Array[String]?
+        def revision_foreign_key_value: (?Symbol | String | Array[Symbol | String] value) -> String | Array[String]?
+        def revision_column_for: (Symbol concept) -> Symbol?
+        def source_name: () -> Symbol?
+        def source_class: () -> Class
+        def source_foreign_key: () -> String | Array[String]
+        def source_primary_key: () -> String | Array[String]?
+        def setup_associations: () -> untyped
+      end
+
+      attr_accessor _allow_update_for_readonly_check: bool?
+
+      def readonly?: () -> bool
+      def save: (*untyped args, **untyped kwargs) -> bool
+      def save!: (*untyped args, **untyped kwargs) -> bool
+      def destroy: (*untyped args, **untyped kwargs) -> untyped
+      def source: () -> untyped
+      def attributes: () -> Hash[String, untyped]
+    end
+  end
+end

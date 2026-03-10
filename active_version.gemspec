@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 require_relative "lib/active_version/version"
 
 Gem::Specification.new do |spec|
@@ -14,7 +12,7 @@ Gem::Specification.new do |spec|
   spec.license = "MIT"
 
   spec.files = Dir.chdir(File.expand_path(__dir__)) do
-    Dir["lib/**/*", "README.md", "LICENSE*", "CHANGELOG.md", "SECURITY.md"].select { |f| File.file?(f) }
+    Dir["lib/**/*", "sig/**/*", "README.md", "LICENSE.md", "CHANGELOG.md", "SECURITY.md"].select { |f| File.file?(f) }
   end
   spec.files += Dir["lib/tasks/**/*.rake"]
   spec.require_paths = ["lib"]
@@ -28,14 +26,16 @@ Gem::Specification.new do |spec|
     "rubygems_mfa_required" => "true"
   }
 
-  spec.add_dependency "activerecord", ">= 6.0.0"
   spec.add_dependency "activesupport", ">= 6.0.0"
 
   spec.add_development_dependency "rake", "~> 13"
+  spec.add_development_dependency "activerecord", ">= 6.0.0"
   spec.add_development_dependency "rspec", "~> 3"
   spec.add_development_dependency "rspec-rails", "~> 6.0"
   spec.add_development_dependency "sqlite3", ">= 2.1"
   spec.add_development_dependency "pg", "~> 1.5"
+  spec.add_development_dependency "sequel", "~> 5.84"
+  spec.add_development_dependency "benchmark", ">= 0.4"
   spec.add_development_dependency "simplecov", "~> 0.22"
   spec.add_development_dependency "simplecov-console", "~> 0.9"
   spec.add_development_dependency "rspec_junit_formatter", "~> 0.6"

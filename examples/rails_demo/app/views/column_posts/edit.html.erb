@@ -1,0 +1,38 @@
+<div class="card">
+  <h2>Edit ColumnPost</h2>
+  <p class="av-section-subtitle">
+    This model audits only <code>title</code> and <code>published</code>. Updating <code>internal_notes</code> should not create an audit row.
+  </p>
+
+  <%= form_with model: @column_post, local: true do |form| %>
+    <div class="form-group">
+      <%= form.label :title %>
+      <%= form.text_field :title, class: "input-field" %>
+    </div>
+
+    <div class="form-group">
+      <%= form.label :body %>
+      <%= form.text_area :body, rows: 6, class: "input-field" %>
+    </div>
+
+    <div class="form-group">
+      <%= form.label :internal_notes %>
+      <%= form.text_area :internal_notes, rows: 4, class: "input-field" %>
+    </div>
+
+    <div class="form-group">
+      <%= form.label :published %>
+      <%= form.check_box :published %>
+    </div>
+
+    <div class="form-group">
+      <%= form.label :audit_comment, "Audit Comment" %>
+      <%= form.text_field :audit_comment, class: "input-field", placeholder: "Optional comment for this update" %>
+    </div>
+
+    <div class="av-flex" style="gap: var(--av-space-sm);">
+      <%= form.submit "Save", class: "btn" %>
+      <%= link_to "Cancel", column_post_path(@column_post), class: "btn btn-secondary" %>
+    </div>
+  <% end %>
+</div>

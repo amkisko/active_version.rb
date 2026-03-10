@@ -1,0 +1,35 @@
+<div class="card">
+  <div class="av-flex av-flex-between" style="margin-bottom: var(--av-space-md);">
+    <div>
+      <h2 style="margin-bottom: 0; padding-bottom: 0; border-bottom: none;">Composite PK Demo (Audit-like Table)</h2>
+      <p class="av-section-subtitle">Table primary key: <code>(audit_id, partition_key)</code>. Logical uniqueness: <code>(auditable_type, auditable_id, version, partition_key)</code>.</p>
+    </div>
+  </div>
+
+  <div class="av-table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Composite ID</th>
+          <th>Auditable</th>
+          <th>Version</th>
+          <th>Partition Key</th>
+          <th>Comment</th>
+          <th>Updated</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @composite_demo_audits.each do |row| %>
+          <tr>
+            <td><%= link_to row.composite_id, composite_demo_audit_path(row) %></td>
+            <td><%= row.auditable_type %>#<%= row.auditable_id %></td>
+            <td>v<%= row.version %></td>
+            <td><%= row.partition_key %></td>
+            <td><%= row.comment.presence || "—" %></td>
+            <td><%= row.updated_at.strftime("%Y-%m-%d %H:%M") %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>

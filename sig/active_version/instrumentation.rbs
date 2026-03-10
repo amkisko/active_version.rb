@@ -1,0 +1,17 @@
+module ActiveVersion
+  module Instrumentation
+    EVENTS: Hash[Symbol, String]
+
+    def self.instrument_translation_created: (untyped translation, untyped source) -> untyped
+    def self.instrument_translation_updated: (untyped translation, untyped source) -> untyped
+    def self.instrument_translation_destroyed: (untyped translation, untyped source) -> untyped
+    def self.instrument_translation_fallback_used: (untyped source, attr: untyped, requested_locale: untyped, resolved_locale: untyped) -> untyped
+    def self.instrument_revision_created: (untyped revision, untyped source) -> untyped
+    def self.instrument_revision_reverted: (untyped source, from_version: untyped, to_version: untyped, ?strategy: Symbol) -> untyped
+    def self.instrument_revision_switch_applied: (untyped source, from_version: untyped, to_version: untyped, append: bool) -> untyped
+    def self.instrument_revision_write_failed: (untyped source, error: Exception?) -> untyped
+    def self.instrument_audit_created: (untyped audit, untyped auditable) -> untyped
+    def self.instrument_audit_write_failed: (untyped source, error: Exception?, action: untyped) -> untyped
+    def self.instrument_audit_sql_generated: (untyped model, String sql) -> untyped
+  end
+end

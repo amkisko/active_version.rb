@@ -1,0 +1,71 @@
+<div class="card">
+  <h2>New Post</h2>
+  <% token = demo_prefill_token("post") %>
+
+  <%= form_with model: @post, local: true do |f| %>
+    <div class="form-group">
+      <%= f.label :title %>
+      <%= f.text_field :title, required: true, value: (@post.title.presence || "Signal note #{token}") %>
+    </div>
+
+    <div class="form-group">
+      <%= f.label :body %>
+      <%= f.text_area :body, value: (@post.body.presence || "Context for #{token}: drafted quickly to demonstrate revisions and audits.") %>
+    </div>
+
+    <div class="form-group">
+      <%= f.label :status %>
+      <%= f.select :status, options_for_select([["draft", "draft"], ["published", "published"], ["archived", "archived"]], @post.status) %>
+    </div>
+
+    <div class="form-group">
+      <%= f.label :price %>
+      <%= f.number_field :price, step: "0.0001", value: (@post.price || "19.9900") %>
+    </div>
+
+    <div class="form-group">
+      <%= f.label :published_at %>
+      <%= f.datetime_local_field :published_at, value: (@post.published_at&.strftime("%Y-%m-%dT%H:%M") || Time.current.strftime("%Y-%m-%dT%H:%M")) %>
+    </div>
+
+    <div class="form-group">
+      <%= f.label :seo_title, "SEO Title (virtual, stored in JSON)" %>
+      <%= f.text_field :seo_title, value: (@post.seo_title.presence || "Demo SEO #{token}") %>
+    </div>
+
+    <div class="form-group">
+      <%= f.label :keywords_csv, "Keywords CSV (virtual, stored in flex store)" %>
+      <%= f.text_field :keywords_csv, value: (@post.keywords_csv.presence || "activeversion, demo, #{token.parameterize}"), placeholder: "rails, activeversion, audit" %>
+    </div>
+
+    <div class="form-group">
+      <%= f.label :labels_csv, "Labels (comma separated)" %>
+      <%= f.text_field :labels_csv, value: (@post.labels_csv.presence || "demo, seed, #{token.split('-').last}"), placeholder: "announcement, docs, ui" %>
+    </div>
+
+    <div class="form-group">
+      <%= f.label :attachment, "Attachment (optional)" %>
+      <%= f.file_field :attachment %>
+    </div>
+
+    <div class="form-group">
+      <%= f.label :category_id, "Category" %>
+      <%= f.select :category_id, options_from_collection_for_select(@categories, :id, :name, (@post.category_id || @categories.first&.id)), { include_blank: "None" } %>
+    </div>
+
+    <div class="form-group">
+      <%= f.label :assignee_id, "Assignee" %>
+      <%= f.select :assignee_id, options_from_collection_for_select(@users, :id, :name, (@post.assignee_id || @users.first&.id)), { include_blank: "Unassigned" } %>
+    </div>
+
+    <div class="form-group">
+      <%= f.label :audit_comment, "Change Comment (optional)" %>
+      <%= f.text_field :audit_comment, value: (@post.audit_comment.presence || "Initial creation for #{token}"), placeholder: "Describe what you changed and why" %>
+    </div>
+
+    <div class="form-group">
+      <%= f.submit "Create Post", class: "btn btn-success" %>
+      <%= link_to "Cancel", posts_path, class: "btn btn-secondary" %>
+    </div>
+  <% end %>
+</div>

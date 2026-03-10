@@ -1,0 +1,2 @@
+<h2>New <%= @kind.tr("_", " ").split.map(&:capitalize).join(" ") %></h2>
+<%= erb :form, locals: {action: "/#{@resource}", method_override: nil, submit_label: "Create"} %>

@@ -1,0 +1,39 @@
+source "https://rubygems.org"
+
+ruby ">= 3.4.0"
+
+gem "rails", "~> 8"
+gem "sqlite3"
+gem "puma"
+gem "bootsnap", require: false
+gem "importmap-rails"
+gem "propshaft"
+gem "bcrypt"
+gem "phlex"
+gem "style_capsule"
+
+# ActiveVersion (local development)
+if ENV['DOCKER_BUILD']
+  gem "active_version", path: "/active_version"
+else
+  gem "active_version", path: "../.."
+end
+
+gem "activeadmin", "4.0.0.beta19"
+gem "shrine", "~> 3.5"
+
+gem "pry-rails"
+
+group :development do
+  gem "web-console"
+end
+
+group :test do
+  gem "minitest", "~> 5.0"  # Pin to 5.x so Rails test runner discovers tests (Minitest 6 compatibility issue)
+  gem "mocha", require: false  # Stubbing for controller tests (Post.stub etc.)
+  gem "simplecov", require: false
+  gem "test-prof", require: false
+  gem "webmock", require: false
+  gem "capybara", require: false
+  gem "capybara-playwright-driver", require: false
+end

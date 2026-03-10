@@ -1,0 +1,72 @@
+<div class="card">
+  <div class="av-flex av-flex-between" style="margin-bottom: var(--av-space-md);">
+    <div>
+      <h2 style="margin-bottom: 0; border-bottom: none; padding-bottom: 0;">Posts</h2>
+      <p class="av-section-subtitle">Focused post feed with revision/audit links and less visual noise.</p>
+    </div>
+    <%= link_to "New Post", new_post_path, class: "btn btn-success" %>
+  </div>
+
+  <div class="av-context-row" aria-label="Post stats">
+    <div class="av-context-chips">
+      <span class="av-context-chip">Posts <strong><%= @posts.size %></strong></span>
+      <span class="av-context-chip">Translations <strong><%= @total_translations %></strong></span>
+      <span class="av-context-chip">Revisions <strong><%= @total_revisions %></strong></span>
+      <span class="av-context-chip">Audits <strong><%= @total_audits %></strong></span>
+    </div>
+  </div>
+
+  <div class="av-search-form">
+    <%= form_with url: posts_path, method: :get, local: true do |f| %>
+      <%= f.text_field :search, placeholder: "Search by title", value: params[:search], "aria-label": "Search posts by title" %>
+      <%= f.submit "Search", class: "btn" %>
+    <% end %>
+  </div>
+
+  <div class="av-feed" role="feed" aria-busy="false">
+    <% if @posts.empty? %>
+      <article class="av-feed-item" aria-label="No posts">
+        <p>No posts yet.</p>
+      </article>
+    <% end %>
+
+    <% @posts.each do |post| %>
+      <article class="av-feed-item" role="article" aria-label="Post <%= post.title %>">
+        <header class="av-feed-head">
+          <span class="av-type-pill av-type-post">Post</span>
+          <span class="badge badge-update">v<%= @current_versions_by_post_id.fetch(post.id, 0) %></span>
+        </header>
+
+        <h3 class="av-feed-title"><%= link_to post.title, post_path(post) %></h3>
+
+        <p class="av-feed-meta">
+          category <strong><%= post.category&.name || "none" %></strong>
+          · author <strong><%= post.author&.name || "System" %></strong>
+          · assignee <strong><%= post.assignee&.name || "nobody" %></strong>
+          · updated <time datetime="<%= post.updated_at.iso8601 %>"><%= post.updated_at.strftime("%b %d, %Y %H:%M") %></time>
+        </p>
+
+        <% labels = post.labels_csv.to_s.split(",").map(&:strip).reject(&:empty?) %>
+        <% if labels.any? %>
+          <ul class="av-tag-list" aria-label="Labels">
+            <% labels.each do |label| %>
+              <li class="av-tag"><%= label %></li>
+            <% end %>
+          </ul>
+        <% end %>
+
+        <nav class="av-action-row" aria-label="Post coverage links" style="margin-top: var(--av-space-sm);">
+          <%= link_to "#{pluralize(@translation_counts_by_post_id.fetch(post.id, 0), "locale")}", translations_post_path(post), class: "btn btn-secondary btn-sm" %>
+          <%= link_to "#{pluralize(@revision_counts_by_post_id.fetch(post.id, 0), "revision")}", revisions_post_path(post), class: "btn btn-secondary btn-sm" %>
+          <%= link_to "#{pluralize(@audit_counts_by_post_id.fetch(post.id, 0), "audit")}", audits_post_path(post), class: "btn btn-secondary btn-sm" %>
+        </nav>
+
+        <nav class="av-action-row" aria-label="Post actions" style="margin-top: var(--av-space-sm);">
+          <%= link_to "Open", post_path(post), class: "btn btn-secondary btn-sm" %>
+          <%= link_to "Edit", edit_post_path(post), class: "btn btn-sm" %>
+          <%= link_to "Delete", post, method: :delete, data: { confirm: "Delete this post?" }, class: "btn btn-danger btn-sm" %>
+        </nav>
+      </article>
+    <% end %>
+  </div>
+</div>

@@ -1,0 +1,43 @@
+module ActiveVersion
+  module Translations
+    module HasTranslations
+      module ClassMethods
+        def translation_record?: () -> bool
+        def translation_class: () -> Class
+        def translation_class_name: () -> String
+        def setup_translation_associations: () -> untyped
+        def scope_for_translated_attribute: (Symbol | String attribute_name, untyped value, ?locale: Symbol | String) -> untyped
+        def translated_scopes: (*untyped attribute_names) -> untyped
+        def translated_copies: (*untyped attribute_names) -> untyped
+      end
+
+      def translate: (Symbol | String attr_name, ?locale: Symbol | String | nil, ?presence_check: Symbol | String | nil, ?fallback: bool) -> untyped
+      def translation: (?locale: Symbol | String | nil) -> untyped
+      def update_default_translation: () -> untyped
+    end
+
+    module TranslationRecord
+      module ClassMethods
+        def translation_record?: () -> bool
+        def configure_translation: (
+          ?locale_column: Symbol | String?,
+          ?foreign_key: Symbol | String | Array[Symbol | String]?,
+          ?foreign_key_value: Symbol | String | Array[Symbol | String]?
+        ) { () -> untyped } -> Hash[Symbol, untyped]
+        def translation_locale_column: (?Symbol | String value) -> Symbol?
+        def translation_foreign_key: (?Symbol | String | Array[Symbol | String] value) -> String | Array[String]?
+        def translation_foreign_key_value: (?Symbol | String | Array[Symbol | String] value) -> String | Array[String]?
+        def source_name: () -> Symbol?
+        def source_class: () -> Class
+        def source_foreign_key: () -> String | Array[String]
+        def source_primary_key: () -> String | Array[String]?
+        def locale_column_name: () -> Symbol | String
+        def setup_associations: () -> untyped
+        def setup_locale_enum: () -> untyped
+      end
+
+      def attr_present_for_locale?: (Symbol | String locale, Symbol | String attr_name, ?untyped presence_check) -> bool
+      def source_version: () -> untyped
+    end
+  end
+end
