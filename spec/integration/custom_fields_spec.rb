@@ -130,7 +130,7 @@ RSpec.describe "ActiveVersion Custom Fields Integration", type: :integration do
           "CustomPostRevision"
         end
       end
-      Object.const_set("CustomPostRevision", custom_revision_class)
+      Object.const_set(:CustomPostRevision, custom_revision_class)
 
       custom_post_class = Class.new(ApplicationRecord) do
         self.table_name = "custom_posts"
@@ -142,7 +142,7 @@ RSpec.describe "ActiveVersion Custom Fields Integration", type: :integration do
 
         has_revisions as: CustomPostRevision
       end
-      Object.const_set("CustomPost", custom_post_class)
+      Object.const_set(:CustomPost, custom_post_class)
       CustomPostRevision.setup_associations if CustomPostRevision.respond_to?(:setup_associations)
 
       ActiveVersion.column_mapper.register(CustomPost, :revisions, :version, :custom_version)

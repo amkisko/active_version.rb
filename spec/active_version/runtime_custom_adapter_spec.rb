@@ -10,13 +10,9 @@ RSpec.describe "ActiveVersion custom runtime adapter contract" do
       @executed_sql = []
     end
 
-    def adapter_name
-      @adapter_name
-    end
+    attr_reader :adapter_name
 
-    def open_transactions
-      @open_transactions
-    end
+    attr_reader :open_transactions
 
     def quote(value)
       "'#{value}'"

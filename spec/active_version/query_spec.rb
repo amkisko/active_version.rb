@@ -63,14 +63,17 @@ RSpec.describe ActiveVersion::Query do
       record_class.define_singleton_method(:name) { "InlineAuditRecord" }
       record_class.define_singleton_method(:audit_class) { audit_class }
       record_class.define_singleton_method(:primary_key) { "id" }
-      Object.const_set("InlineAuditRecord", record_class)
+      Object.const_set(:InlineAuditRecord, record_class)
 
       record = record_class.allocate
       record.define_singleton_method(:active_version_audit_identity_map) { {"auditable_id" => "ext-audit-1"} }
 
       allow(ActiveVersion.column_mapper).to receive(:column_for).with(record_class, :audits, :auditable).and_return(:auditable)
       captured_where = nil
-      allow(audit_class).to receive(:where) { |where_args| captured_where = where_args; relation }
+      allow(audit_class).to receive(:where) { |where_args|
+        captured_where = where_args
+        relation
+      }
 
       expect(described_class.audits(record)).to eq(relation)
       expect(captured_where).to eq("auditable_type" => "InlineAuditRecord", "auditable_id" => "ext-audit-1")
@@ -85,7 +88,7 @@ RSpec.describe ActiveVersion::Query do
       record_class.define_singleton_method(:name) { "InlineCompositeAuditRecord" }
       record_class.define_singleton_method(:audit_class) { audit_class }
       record_class.define_singleton_method(:primary_key) { [:tenant_id, :external_id] }
-      Object.const_set("InlineCompositeAuditRecord", record_class)
+      Object.const_set(:InlineCompositeAuditRecord, record_class)
 
       record = record_class.allocate
       values = {"tenant_id" => 11, "external_id" => "post-11"}
@@ -94,7 +97,10 @@ RSpec.describe ActiveVersion::Query do
 
       allow(ActiveVersion.column_mapper).to receive(:column_for).with(record_class, :audits, :auditable).and_return(:auditable)
       captured_where = nil
-      allow(audit_class).to receive(:where) { |where_args| captured_where = where_args; relation }
+      allow(audit_class).to receive(:where) { |where_args|
+        captured_where = where_args
+        relation
+      }
 
       expect(described_class.audits(record)).to eq(relation)
       expect(captured_where).to eq("auditable_type" => "InlineCompositeAuditRecord", "tenant_id" => 11, "external_id" => "post-11")
@@ -136,14 +142,17 @@ RSpec.describe ActiveVersion::Query do
       record_class.define_singleton_method(:name) { "InlineTranslationRecord" }
       record_class.define_singleton_method(:translation_class) { translation_class }
       record_class.define_singleton_method(:primary_key) { "id" }
-      Object.const_set("InlineTranslationRecord", record_class)
+      Object.const_set(:InlineTranslationRecord, record_class)
 
       record = record_class.allocate
       record.define_singleton_method(:active_version_translation_identity_map) { {"record_uuid" => "ext-tr-1"} }
 
       allow(translation_class).to receive(:source_foreign_key).and_return("record_uuid")
       captured_where = nil
-      allow(translation_class).to receive(:where) { |where_args| captured_where = where_args; relation }
+      allow(translation_class).to receive(:where) { |where_args|
+        captured_where = where_args
+        relation
+      }
       expect(described_class.translations(record)).to eq(relation)
       expect(captured_where).to eq("record_uuid" => "ext-tr-1")
     ensure
@@ -157,7 +166,7 @@ RSpec.describe ActiveVersion::Query do
       record_class.define_singleton_method(:name) { "InlineCompositeTranslationRecord" }
       record_class.define_singleton_method(:translation_class) { translation_class }
       record_class.define_singleton_method(:primary_key) { [:tenant_id, :external_id] }
-      Object.const_set("InlineCompositeTranslationRecord", record_class)
+      Object.const_set(:InlineCompositeTranslationRecord, record_class)
 
       record = record_class.allocate
       values = {"tenant_id" => 9, "external_id" => "tr-9"}
@@ -166,7 +175,10 @@ RSpec.describe ActiveVersion::Query do
 
       allow(translation_class).to receive(:source_foreign_key).and_return([:tenant_id, :external_id])
       captured_where = nil
-      allow(translation_class).to receive(:where) { |where_args| captured_where = where_args; relation }
+      allow(translation_class).to receive(:where) { |where_args|
+        captured_where = where_args
+        relation
+      }
       expect(described_class.translations(record)).to eq(relation)
       expect(captured_where).to eq("tenant_id" => 9, "external_id" => "tr-9")
     ensure
@@ -207,14 +219,17 @@ RSpec.describe ActiveVersion::Query do
       record_class.define_singleton_method(:name) { "InlineRevisionRecord" }
       record_class.define_singleton_method(:revision_class) { revision_class }
       record_class.define_singleton_method(:primary_key) { "id" }
-      Object.const_set("InlineRevisionRecord", record_class)
+      Object.const_set(:InlineRevisionRecord, record_class)
 
       record = record_class.allocate
       record.define_singleton_method(:active_version_revision_identity_map) { {"record_uuid" => "ext-rv-1"} }
 
       allow(revision_class).to receive(:source_foreign_key).and_return("record_uuid")
       captured_where = nil
-      allow(revision_class).to receive(:where) { |where_args| captured_where = where_args; relation }
+      allow(revision_class).to receive(:where) { |where_args|
+        captured_where = where_args
+        relation
+      }
       allow(relation).to receive(:order).with(version: :asc).and_return(ordered_relation)
       allow(ActiveVersion.column_mapper).to receive(:column_for).with(record_class, :revisions, :version).and_return(:version)
       expect(described_class.revisions(record)).to eq(ordered_relation)
@@ -231,7 +246,7 @@ RSpec.describe ActiveVersion::Query do
       record_class.define_singleton_method(:name) { "InlineCompositeRevisionRecord" }
       record_class.define_singleton_method(:revision_class) { revision_class }
       record_class.define_singleton_method(:primary_key) { [:tenant_id, :external_id] }
-      Object.const_set("InlineCompositeRevisionRecord", record_class)
+      Object.const_set(:InlineCompositeRevisionRecord, record_class)
 
       record = record_class.allocate
       values = {"tenant_id" => 15, "external_id" => "rv-15"}
@@ -240,7 +255,10 @@ RSpec.describe ActiveVersion::Query do
 
       allow(revision_class).to receive(:source_foreign_key).and_return([:tenant_id, :external_id])
       captured_where = nil
-      allow(revision_class).to receive(:where) { |where_args| captured_where = where_args; relation }
+      allow(revision_class).to receive(:where) { |where_args|
+        captured_where = where_args
+        relation
+      }
       allow(relation).to receive(:order).with(version: :asc).and_return(ordered_relation)
       allow(ActiveVersion.column_mapper).to receive(:column_for).with(record_class, :revisions, :version).and_return(:version)
       expect(described_class.revisions(record)).to eq(ordered_relation)

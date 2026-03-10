@@ -165,6 +165,7 @@ RSpec.describe "ActiveVersion Callback Control", type: :integration do
         end
 
         include ActiveVersion::Revisions::HasRevisions
+
         has_revisions as: PostRevision, auto: false
         has_many :revisions, class_name: "PostRevision", foreign_key: "post_id", dependent: :delete_all
         revision_on_update

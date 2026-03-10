@@ -242,24 +242,24 @@ RSpec.describe "ActiveVersion on partitioned tables (PostgreSQL)", type: :integr
   def define_partitioned_models!
     remove_partitioned_models!
 
-    Object.const_set("PartitionedPostTranslation", Class.new(ApplicationRecord) do
+    Object.const_set(:PartitionedPostTranslation, Class.new(ApplicationRecord) do
       self.table_name = TRANSLATIONS_PARENT
       self.primary_key = [:locale, :partitioned_post_id]
       include ActiveVersion::Translations::TranslationRecord
     end)
 
-    Object.const_set("PartitionedPostRevision", Class.new(ApplicationRecord) do
+    Object.const_set(:PartitionedPostRevision, Class.new(ApplicationRecord) do
       self.table_name = REVISIONS_PARENT
       self.primary_key = [:partitioned_post_id, :version]
       include ActiveVersion::Revisions::RevisionRecord
     end)
 
-    Object.const_set("PartitionedPostAudit", Class.new(ApplicationRecord) do
+    Object.const_set(:PartitionedPostAudit, Class.new(ApplicationRecord) do
       self.table_name = AUDITS_PARENT
       include ActiveVersion::Audits::AuditRecord
     end)
 
-    Object.const_set("PartitionedPost", Class.new(ApplicationRecord) do
+    Object.const_set(:PartitionedPost, Class.new(ApplicationRecord) do
       self.table_name = "posts"
 
       include ActiveVersion::Translations::HasTranslations
@@ -267,7 +267,7 @@ RSpec.describe "ActiveVersion on partitioned tables (PostgreSQL)", type: :integr
       include ActiveVersion::Audits::HasAudits
     end)
 
-    Object.const_set("PartitionedPostAlt", Class.new(ApplicationRecord) do
+    Object.const_set(:PartitionedPostAlt, Class.new(ApplicationRecord) do
       self.table_name = "posts"
 
       include ActiveVersion::Audits::HasAudits
