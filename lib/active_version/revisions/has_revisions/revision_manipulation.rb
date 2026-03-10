@@ -177,10 +177,12 @@ module ActiveVersion
 
         # Restore record to the previous version (second-to-last revision, or latest if only one)
         def undo!(append: false)
+          return false unless revisions_scope.exists?
+
           version_column = revision_version_column
-          previous = revisions_scope.order(version_column => :desc).offset(1).first ||
-            revisions_scope.order(version_column => :desc).first
-          return false if previous.nil?
+          ensure_undo_redo_head_snapshot!(version_column)
+          previous = revisions_scope.where("#{version_column} < ?", current_version).order(version_column => :desc).first
+          return false unless previous
 
           prev_version = previous.respond_to?(version_column) ? previous.public_send(version_column) : previous[version_column]
           switch_to!(prev_version, append: append)
@@ -188,9 +190,11 @@ module ActiveVersion
 
         # Restore record to the future version (if undo was applied)
         def redo!
+          return false unless instance_variable_defined?(:@active_version_pointer)
+
           version_column = revision_version_column
           next_rev = revisions_scope.where("#{version_column} > ?", current_version).order(version_column => :asc).first
-          return false if next_rev.nil?
+          return false unless next_rev
 
           next_version = next_rev.respond_to?(version_column) ? next_rev.public_send(version_column) : next_rev[version_column]
           switch_to!(next_version)
@@ -418,6 +422,15 @@ module ActiveVersion
               .select(&:default_function)
               .reject { |column| source_primary_key_columns.include?(column.name) }
               .map(&:name)
+        end
+
+        def ensure_undo_redo_head_snapshot!(version_column)
+          return if instance_variable_defined?(:@active_version_pointer)
+
+          # Capture current state as a concrete head revision so redo can move forward.
+          head = create_snapshot!(use_old_values: false, debounce_time: -1)
+          head_version = head.respond_to?(version_column) ? head.public_send(version_column) : head[version_column]
+          instance_variable_set(:@active_version_pointer, head_version)
         end
 
         def snapshot_base_attributes(use_old_values)

@@ -30,7 +30,7 @@ In ActiveVersion, support is currently split by scenario:
 
 | Scenario | Status | Details |
 |----------|--------|---------|
-| Partitioned version tables (`*_audits`, `*_revisions`, `*_translations`) using composite PK that includes partition key | Supported | ActiveVersion can validate this on PostgreSQL setup when `config.partition_schema_guards_enabled = true`. |
+| Partitioned version tables (`*_audits`, `*_revisions`, `*_translations`) using composite PK that includes partition key | Supported | Define schema explicitly in your migrations; ActiveVersion follows your model/table configuration. |
 | Source model with Rails composite PK (`self.primary_key = [...]`) | Supported with explicit identity mapping | Configure destination models and source associations with explicit identity columns/resolvers so revisions/translations/audits use full identity maps without splitting/encoding IDs. |
 | Source table has multi-column business identity (without making it ActiveRecord PK) | Supported pattern | Keep source `id` as PK, store identity columns (`tenant_id`, `partition_key`, etc.) on source and version tables for direct SQL joins. |
 
@@ -201,22 +201,16 @@ In practice, prefer deterministic SQL joins over encoded IDs in application stri
 
 ### Important caveat for `self.primary_key = [...]` on source models
 
-If you define a composite source PK at the ActiveRecord level, current ActiveVersion internals will still assume single-column source references in several places. That means composite source PK wiring is not fully automatic today for audits/revisions/translations.
-
-For production usage right now, prefer:
-
-1. single-column source PK (`id`) for ActiveVersion linkage,
-2. explicit identity columns (`tenant_id`, `source_key`, `partition_key`, etc.) copied into version tables,
-3. composite PK + partition key enforcement on partitioned version tables.
+If you define a composite source PK at the ActiveRecord level, configure identity columns/resolvers explicitly on source and destination models so auditing/revision/translation lookups use full identity.
 
 ---
 
 ## Partitioning: must-haves before production
 
 - Composite primary key including the partition key (e.g. `(id, partition_key)`) on partitioned audit, revision, and translation tables.
-- ActiveVersion guard (optional): On PostgreSQL, when `config.partition_schema_guards_enabled = true`, ActiveVersion validates partitioned audit/revision/translation tables at setup time and raises if:
-  - the primary key is not composite or does not include the partition key columns, or
-  - the required unique index does not include both logical key columns and partition key columns.
+- ActiveVersion follows your schema as provisioned; ensure partitioned audit/revision/translation tables have:
+  - composite primary keys including partition key columns where required by PostgreSQL, and
+  - unique indexes that include logical key columns plus partition key columns.
 - Full data migration before cutover. Backfill the partitioned table (e.g. by month, with batching and `updated_at` guards). Do not rely only on a small delta sync.
 - Delta sync and count verification before rename. During cutover, sync the tail of the data, compare row counts between old and new tables, and abort if they differ.
 - Write-block mechanism and transaction drain. During the final switch: block new writes (e.g. trigger), wait for in-flight transactions to finish, then run delta sync, verify counts, and perform the atomic rename(s).

@@ -40,10 +40,6 @@ RSpec.describe ActiveVersion::Configuration do
       expect(config.audit_version_column).to eq(:version)
     end
 
-    it "has partition schema guards disabled by default" do
-      expect(config.partition_schema_guards_enabled).to eq(false)
-    end
-
     it "fails fast on audit and revision write errors by default" do
       expect(config.audit_error_behavior).to eq(:exception)
       expect(config.revision_error_behavior).to eq(:exception)
@@ -74,13 +70,6 @@ RSpec.describe ActiveVersion::Configuration do
     context "with invalid execution scope" do
       it "raises ConfigurationError" do
         config.execution_scope = :invalid
-        expect { config.validate! }.to raise_error(ActiveVersion::ConfigurationError)
-      end
-    end
-
-    context "with invalid partition schema guards setting" do
-      it "raises ConfigurationError" do
-        config.partition_schema_guards_enabled = :sometimes
         expect { config.validate! }.to raise_error(ActiveVersion::ConfigurationError)
       end
     end

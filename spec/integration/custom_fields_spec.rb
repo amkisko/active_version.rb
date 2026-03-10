@@ -152,10 +152,10 @@ RSpec.describe "ActiveVersion Custom Fields Integration", type: :integration do
       post.update!(title: "v3")
 
       post.undo!
-      expect(post.title).to eq("v1")
+      expect(post.title).to eq("v2")
 
       post.redo!
-      expect(post.title).to eq("v2")
+      expect(post.title).to eq("v3")
     ensure
       ActiveVersion.column_mapper.instance_variable_set(:@mappings, {})
       Object.send(:remove_const, "CustomPost") if Object.const_defined?("CustomPost")

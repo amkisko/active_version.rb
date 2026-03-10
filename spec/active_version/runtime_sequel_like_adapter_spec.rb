@@ -85,7 +85,7 @@ RSpec.describe "ActiveVersion Sequel-like runtime adapter prototype" do
     expect(ActiveVersion::Runtime.valid_adapter?(adapter)).to eq(true)
   end
 
-  it "supports context and transaction querying through Sequel-like wrappers" do
+  it "supports context and test transaction querying through Sequel-like wrappers" do
     base_db = SequelLikeDatabase.new(adapter_name: "PostgreSQL")
     adapter = SequelLikeRuntimeAdapter.new(base_db: base_db)
     ActiveVersion.runtime_adapter = adapter
@@ -94,7 +94,7 @@ RSpec.describe "ActiveVersion Sequel-like runtime adapter prototype" do
       expect(ActiveVersion.context[:user_agent]).to eq("sequel-like")
     end
 
-    expect(ActiveVersion::Query.current_transaction).to eq("sequel-like-tx-id")
+    expect(current_transaction_id).to eq("sequel-like-tx-id")
     expect(base_db.sql_log.any? { |sql| sql.include?("SET LOCAL active_version.context") }).to eq(true)
     expect(base_db.sql_log).to include("SELECT pg_current_xact_id()")
   end
