@@ -6,21 +6,24 @@ RSpec.describe "ActiveVersion::Audits::HasAudits coverage" do
   before(:all) do
     DatabaseHelper.setup
 
-    Object.const_set("CommentedPost", Class.new(ApplicationRecord) do
+    Object.const_set(:CommentedPost, Class.new(ApplicationRecord) do
       self.table_name = "posts"
       include ActiveVersion::Audits::HasAudits
+
       has_audits as: PostAudit, class_name: "CommentedPost", comment_required: true
     end)
 
-    Object.const_set("AliasAuditedPost", Class.new(ApplicationRecord) do
+    Object.const_set(:AliasAuditedPost, Class.new(ApplicationRecord) do
       self.table_name = "posts"
       include ActiveVersion::Audits::HasAudits
+
       has_audits as: PostAudit, class_name: "Post"
     end)
 
-    Object.const_set("UpdatableAuditPost", Class.new(ApplicationRecord) do
+    Object.const_set(:UpdatableAuditPost, Class.new(ApplicationRecord) do
       self.table_name = "posts"
       include ActiveVersion::Audits::HasAudits
+
       has_audits as: PostAudit, class_name: "UpdatableAuditPost"
     end)
   end
@@ -150,13 +153,14 @@ RSpec.describe "ActiveVersion::Audits::HasAudits coverage" do
   end
 
   it "resolves audit_class from :as string and via superclass" do
-    Object.const_set("BaseAuditedPost", Class.new(ApplicationRecord) do
+    Object.const_set(:BaseAuditedPost, Class.new(ApplicationRecord) do
       self.table_name = "posts"
       include ActiveVersion::Audits::HasAudits
+
       has_audits as: "PostAudit", class_name: "BaseAuditedPost"
     end)
 
-    Object.const_set("ChildAuditedPost", Class.new(BaseAuditedPost))
+    Object.const_set(:ChildAuditedPost, Class.new(BaseAuditedPost))
     expect(BaseAuditedPost.audit_class).to eq(PostAudit)
     expect(ChildAuditedPost.audit_class).to eq(PostAudit)
   ensure
@@ -169,6 +173,7 @@ RSpec.describe "ActiveVersion::Audits::HasAudits coverage" do
       Class.new(ApplicationRecord) do
         self.table_name = "posts"
         include ActiveVersion::Audits::HasAudits
+
         has_audits as: PostAudit
       end
     end.to raise_error(ActiveVersion::ConfigurationError, /must specify class_name option/)
@@ -178,6 +183,7 @@ RSpec.describe "ActiveVersion::Audits::HasAudits coverage" do
     klass = Class.new(ApplicationRecord) do
       self.table_name = "posts"
       include ActiveVersion::Audits::HasAudits
+
       has_audits class_name: "GhostPost"
     end
 

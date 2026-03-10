@@ -29,9 +29,7 @@ RSpec.describe "ActiveVersion Sequel-like runtime adapter prototype" do
       @db.database_type.to_s.capitalize
     end
 
-    def open_transactions
-      @open_transactions
-    end
+    attr_reader :open_transactions
 
     def quote(value)
       "'#{value}'"

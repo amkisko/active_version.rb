@@ -40,7 +40,7 @@ RSpec.describe "ActiveVersion configurable identity strategy", type: :integratio
 
       def self.name = "CustomSourcePostRevision"
     end
-    Object.const_set("CustomSourcePostRevision", revision_class)
+    Object.const_set(:CustomSourcePostRevision, revision_class)
 
     post_class = Class.new(ApplicationRecord) do
       self.table_name = "custom_source_posts"
@@ -50,7 +50,7 @@ RSpec.describe "ActiveVersion configurable identity strategy", type: :integratio
 
       has_revisions as: CustomSourcePostRevision, foreign_key: :record_uuid, identity_resolver: :external_id
     end
-    Object.const_set("CustomSourcePost", post_class)
+    Object.const_set(:CustomSourcePost, post_class)
     CustomSourcePostRevision.setup_associations if CustomSourcePostRevision.respond_to?(:setup_associations)
 
     post = CustomSourcePost.create!(external_id: "ext-post-1", title: "v1")
@@ -88,7 +88,7 @@ RSpec.describe "ActiveVersion configurable identity strategy", type: :integratio
 
       def self.name = "CustomLocalePostTranslation"
     end
-    Object.const_set("CustomLocalePostTranslation", translation_class)
+    Object.const_set(:CustomLocalePostTranslation, translation_class)
 
     post_class = Class.new(ApplicationRecord) do
       self.table_name = "custom_locale_posts"
@@ -98,7 +98,7 @@ RSpec.describe "ActiveVersion configurable identity strategy", type: :integratio
 
       has_translations foreign_key: :record_uuid
     end
-    Object.const_set("CustomLocalePost", post_class)
+    Object.const_set(:CustomLocalePost, post_class)
     CustomLocalePostTranslation.setup_associations if CustomLocalePostTranslation.respond_to?(:setup_associations)
 
     post = CustomLocalePost.create!(title: "hello")
@@ -138,7 +138,7 @@ RSpec.describe "ActiveVersion configurable identity strategy", type: :integratio
 
       def self.name = "CustomTracePostAudit"
     end
-    Object.const_set("CustomTracePostAudit", audit_class)
+    Object.const_set(:CustomTracePostAudit, audit_class)
 
     post_class = Class.new(ApplicationRecord) do
       self.table_name = "custom_trace_posts"
@@ -148,7 +148,7 @@ RSpec.describe "ActiveVersion configurable identity strategy", type: :integratio
 
       has_audits as: CustomTracePostAudit, identity_resolver: :external_id
     end
-    Object.const_set("CustomTracePost", post_class)
+    Object.const_set(:CustomTracePost, post_class)
     CustomTracePostAudit.setup_associations if CustomTracePostAudit.respond_to?(:setup_associations)
 
     post = CustomTracePost.create!(external_id: "audit-ext-1", title: "v1")
@@ -186,7 +186,7 @@ RSpec.describe "ActiveVersion configurable identity strategy", type: :integratio
 
       def self.name = "StringKeyPostRevision"
     end
-    Object.const_set("StringKeyPostRevision", revision_class)
+    Object.const_set(:StringKeyPostRevision, revision_class)
 
     post_class = Class.new(ApplicationRecord) do
       self.table_name = "string_key_posts"
@@ -196,7 +196,7 @@ RSpec.describe "ActiveVersion configurable identity strategy", type: :integratio
 
       has_revisions as: StringKeyPostRevision, foreign_key: :record_uuid, identity_resolver: "external_id"
     end
-    Object.const_set("StringKeyPost", post_class)
+    Object.const_set(:StringKeyPost, post_class)
     StringKeyPostRevision.setup_associations(force: true) if StringKeyPostRevision.respond_to?(:setup_associations)
 
     expect(StringKeyPost.reflect_on_association(:revisions).options[:primary_key]).to eq("external_id")
@@ -231,7 +231,7 @@ RSpec.describe "ActiveVersion configurable identity strategy", type: :integratio
 
       def self.name = "StringLocalePostTranslation"
     end
-    Object.const_set("StringLocalePostTranslation", translation_class)
+    Object.const_set(:StringLocalePostTranslation, translation_class)
 
     post_class = Class.new(ApplicationRecord) do
       self.table_name = "string_locale_posts"
@@ -241,7 +241,7 @@ RSpec.describe "ActiveVersion configurable identity strategy", type: :integratio
 
       has_translations foreign_key: :record_uuid, identity_resolver: "external_id"
     end
-    Object.const_set("StringLocalePost", post_class)
+    Object.const_set(:StringLocalePost, post_class)
     StringLocalePostTranslation.setup_associations(force: true) if StringLocalePostTranslation.respond_to?(:setup_associations)
 
     expect(StringLocalePost.reflect_on_association(:translations).options[:primary_key]).to eq("external_id")
@@ -299,7 +299,7 @@ RSpec.describe "ActiveVersion configurable identity strategy", type: :integratio
 
       def self.name = "CompositeIdentityPostRevision"
     end
-    Object.const_set("CompositeIdentityPostRevision", revision_class)
+    Object.const_set(:CompositeIdentityPostRevision, revision_class)
 
     translation_class = Class.new(ApplicationRecord) do
       self.table_name = "composite_identity_post_translations"
@@ -307,7 +307,7 @@ RSpec.describe "ActiveVersion configurable identity strategy", type: :integratio
 
       def self.name = "CompositeIdentityPostTranslation"
     end
-    Object.const_set("CompositeIdentityPostTranslation", translation_class)
+    Object.const_set(:CompositeIdentityPostTranslation, translation_class)
 
     audit_class = Class.new(ApplicationRecord) do
       self.table_name = "composite_identity_post_audits"
@@ -315,7 +315,7 @@ RSpec.describe "ActiveVersion configurable identity strategy", type: :integratio
 
       def self.name = "CompositeIdentityPostAudit"
     end
-    Object.const_set("CompositeIdentityPostAudit", audit_class)
+    Object.const_set(:CompositeIdentityPostAudit, audit_class)
 
     post_class = Class.new(ApplicationRecord) do
       self.table_name = "composite_identity_posts"
@@ -330,7 +330,7 @@ RSpec.describe "ActiveVersion configurable identity strategy", type: :integratio
       has_revisions as: CompositeIdentityPostRevision, foreign_key: [:tenant_id, :external_id], identity_resolver: [:tenant_id, :external_id]
       has_audits as: CompositeIdentityPostAudit, identity_columns: [:auditable_tenant_id, :auditable_external_id], identity_resolver: [:tenant_id, :external_id], class_name: "CompositeIdentityPost"
     end
-    Object.const_set("CompositeIdentityPost", post_class)
+    Object.const_set(:CompositeIdentityPost, post_class)
 
     CompositeIdentityPostRevision.setup_associations(force: true) if CompositeIdentityPostRevision.respond_to?(:setup_associations)
     CompositeIdentityPostTranslation.setup_associations(force: true) if CompositeIdentityPostTranslation.respond_to?(:setup_associations)

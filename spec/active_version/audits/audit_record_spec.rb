@@ -190,6 +190,7 @@ RSpec.describe ActiveVersion::Audits::AuditRecord do
     it "uses JSON serializer for json_column storage" do
       klass = Class.new(ApplicationRecord) do
         include ActiveVersion::Audits::AuditRecord
+
         self.table_name = "post_audits"
         def self.name = "ConfiguredAudit"
 
@@ -210,6 +211,7 @@ RSpec.describe ActiveVersion::Audits::AuditRecord do
 
       klass = Class.new(ApplicationRecord) do
         include ActiveVersion::Audits::AuditRecord
+
         self.table_name = "post_audits"
         def self.name = "CustomStorageAudit"
 
@@ -226,6 +228,7 @@ RSpec.describe ActiveVersion::Audits::AuditRecord do
     it "supports custom storage provider factory blocks" do
       klass = Class.new(ApplicationRecord) do
         include ActiveVersion::Audits::AuditRecord
+
         self.table_name = "post_audits"
         def self.name = "CustomStorageFactoryAudit"
 
