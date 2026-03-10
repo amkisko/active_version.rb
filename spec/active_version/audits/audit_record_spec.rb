@@ -248,5 +248,13 @@ RSpec.describe ActiveVersion::Audits::AuditRecord do
       expect(klass.serialize_audit_payload("abc", column_name: :audited_context)).to eq("audited_context:abc")
       expect(klass.deserialize_audit_payload("abc", column_name: :audited_context)).to eq("audited_context:abc")
     end
+
+    it "uses YAML serializer with aliases disabled" do
+      yaml = ActiveVersion::Audits::AuditRecord::Serializers::Yaml.new
+      payload = "---\na: &anchor\n  x: 1\nb:\n  <<: *anchor\n"
+
+      loaded = yaml.load(payload)
+      expect(loaded).to eq(payload)
+    end
   end
 end
