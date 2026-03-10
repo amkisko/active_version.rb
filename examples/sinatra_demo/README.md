@@ -6,7 +6,7 @@ This folder contains a fully working Sinatra app with a social-style UI:
 - Issues
 - Pull Requests
 - Profile timeline
-- Per-item **Translations**, **Revisions**, and **Audits** sections on the show page
+- Per-item Translations, Revisions, and Audits sections on the show page
 
 It also demonstrates ActiveVersion runtime-adapter wiring for non-Rails environments and includes an E2E test suite.
 The `WorkItem` model uses `plugin ActiveVersion::Adapters::Sequel::Versioning` and `active_version(...)` DSL for audits/revisions/translations.
@@ -17,7 +17,7 @@ The `WorkItem` model uses `plugin ActiveVersion::Adapters::Sequel::Versioning` a
 - Tests: RSpec + Capybara
 - Browser E2E: Capybara Playwright driver
 
-Main test framework is **RSpec** (chosen for consistency with this repository).
+Main test framework is RSpec (chosen for consistency with this repository).
 
 ## Quick start
 
@@ -74,4 +74,4 @@ These scripts show:
 - assigning `ActiveVersion.runtime_adapter`
 - using `ActiveVersion.with_context`
 - resolving connections through `ActiveVersion.with_connection`
-- creating and reading **translations**, **revisions**, and **audits** with Sequel plugin APIs
+- creating and reading translations, revisions, and audits with Sequel plugin APIs

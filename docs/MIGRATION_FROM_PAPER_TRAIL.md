@@ -20,8 +20,8 @@ This guide provides step-by-step instructions for migrating from the `paper_trai
 
 The `paper_trail` gem and `active_version.rb` both provide versioning functionality, but with different philosophies:
 
-- **PaperTrail**: Stores **before** state (pre-change snapshot)
-- **ActiveVersion**: Stores **after** state (post-change audit) in audits
+- PaperTrail: Stores before state (pre-change snapshot)
+- ActiveVersion: Stores after state (post-change audit) in audits
 
 ### When to Migrate
 
@@ -37,17 +37,17 @@ Consider migrating if you need:
 
 | Feature | PaperTrail | ActiveVersion | Notes |
 |---------|------------|--------------|-------|
-| **Table Structure** | Single `versions` table | Per-model tables or JSONB | ActiveVersion offers more flexibility |
-| **Association Name** | `versions` | `audits` | Different name |
-| **Version Numbering** | Sequential per model | Sequential per model | Compatible |
-| **Data Storage** | `object` (full object state) | `audited_changes` (changes only) | Different approach |
-| **Changes Storage** | `object_changes` (optional) | `audited_changes` (required) | ActiveVersion focuses on changes |
-| **Context Storage** | `meta` (YAML/JSON) | `audited_context` (JSONB/JSON) | Similar concept |
-| **Event Type** | `event` (`create`, `update`, `destroy`) | `action` (`create`, `update`, `destroy`) | Same values |
-| **Whodunnit** | `whodunnit` (string) | Via context | ActiveVersion uses context |
-| **Item Association** | `item_id`, `item_type` | Model-specific foreign key | ActiveVersion uses direct FK |
-| **Options** | `ignore`, `skip`, `only`, `if`, `unless` | `except`, `only`, `if`, `unless` | Similar |
-| **Callbacks** | `after_version` | `after_audit`, `around_audit` | Similar |
+| Table Structure | Single `versions` table | Per-model tables or JSONB | ActiveVersion offers more flexibility |
+| Association Name | `versions` | `audits` | Different name |
+| Version Numbering | Sequential per model | Sequential per model | Compatible |
+| Data Storage | `object` (full object state) | `audited_changes` (changes only) | Different approach |
+| Changes Storage | `object_changes` (optional) | `audited_changes` (required) | ActiveVersion focuses on changes |
+| Context Storage | `meta` (YAML/JSON) | `audited_context` (JSONB/JSON) | Similar concept |
+| Event Type | `event` (`create`, `update`, `destroy`) | `action` (`create`, `update`, `destroy`) | Same values |
+| Whodunnit | `whodunnit` (string) | Via context | ActiveVersion uses context |
+| Item Association | `item_id`, `item_type` | Model-specific foreign key | ActiveVersion uses direct FK |
+| Options | `ignore`, `skip`, `only`, `if`, `unless` | `except`, `only`, `if`, `unless` | Similar |
+| Callbacks | `after_version` | `after_audit`, `around_audit` | Similar |
 
 ## Key Differences
 
@@ -59,19 +59,19 @@ Consider migrating if you need:
 
 ### 1. Data Storage Philosophy
 
-**PaperTrail:**
-- Stores the **before** state (pre-change snapshot)
-- `version.reify` returns object as it was **before** the change
+PaperTrail:
+- Stores the before state (pre-change snapshot)
+- `version.reify` returns object as it was before the change
 - Full object state stored in `object` column
 
-**ActiveVersion:**
-- Stores the **after** state (post-change audit)
-- `audit.audited_changes` contains the changes that were **made**
+ActiveVersion:
+- Stores the after state (post-change audit)
+- `audit.audited_changes` contains the changes that were made
 - Only changes stored, not full object state
 
 ### 2. Table Structure
 
-**PaperTrail:**
+PaperTrail:
 ```ruby
 # Single versions table for all models
 create_table :versions do |t|
@@ -88,7 +88,7 @@ end
 add_index :versions, [:item_type, :item_id]
 ```
 
-**ActiveVersion:**
+ActiveVersion:
 ```ruby
 # Per-model audit table
 create_table :post_audits do |t|
@@ -106,14 +106,14 @@ add_index :post_audits, [:post_id, :version]
 
 ### 3. Model Declaration
 
-**PaperTrail:**
+PaperTrail:
 ```ruby
 class Post < ApplicationRecord
   has_paper_trail
 end
 ```
 
-**ActiveVersion:**
+ActiveVersion:
 ```ruby
 class Post < ApplicationRecord
   has_audits
@@ -122,14 +122,14 @@ end
 
 ### 4. Querying Versions/Audits
 
-**PaperTrail:**
+PaperTrail:
 ```ruby
 post.versions
 post.versions.where(event: 'create')
 post.versions.reorder(created_at: :desc)
 ```
 
-**ActiveVersion:**
+ActiveVersion:
 ```ruby
 post.audits
 post.audits.creates
@@ -138,13 +138,13 @@ post.audits.descending
 
 ### 5. Reifying Objects
 
-**PaperTrail:**
+PaperTrail:
 ```ruby
 # Get object as it was before this version
 version.reify  # Returns Post instance as it was before this change
 ```
 
-**ActiveVersion:**
+ActiveVersion:
 ```ruby
 # Get object at a specific version (reconstructed from audits)
 post.audit_revision(version: 2)  # Returns Post instance at version 2
@@ -161,7 +161,7 @@ post.audit_revision_at(time)      # Returns Post instance at time
 - [ ] Test migration in staging environment
 - [ ] Review version data volume (for performance planning)
 - [ ] Identify any code using `version.whodunnit` directly
-- [ ] Document any custom serializers or formats
+- [ ] Document selected audit storage mode (`:json_column`, `:yaml_column`, or `:mirror_columns`)
 - [ ] Understand the before/after state difference
 
 ## Migration Steps
@@ -200,20 +200,20 @@ This creates:
 rails db:migrate
 ```
 
-**Important**: Don't drop the old `versions` table yet - you'll need it for data migration.
+Important: Don't drop the old `versions` table yet - you'll need it for data migration.
 
 ### Step 4: Update Models
 
 Replace `has_paper_trail` with `has_audits`:
 
-**Before:**
+Before:
 ```ruby
 class Post < ApplicationRecord
   has_paper_trail only: [:title, :body], ignore: [:updated_at]
 end
 ```
 
-**After:**
+After:
 ```ruby
 class Post < ApplicationRecord
   has_audits only: [:title, :body], except: [:updated_at]
@@ -222,7 +222,7 @@ end
 
 ### Step 5: Migrate Data
 
-**Note**: PaperTrail stores "before" state while ActiveVersion stores "after" state. You'll need to convert the data appropriately.
+Note: PaperTrail stores "before" state while ActiveVersion stores "after" state. You'll need to convert the data appropriately.
 
 Create a custom migration script:
 
@@ -307,13 +307,13 @@ MigratePaperTrailToActiveVersion.migrate(Post)
 
 #### Association Name Change
 
-**Before (PaperTrail):**
+Before (PaperTrail):
 ```ruby
 post.versions
 post.versions.last
 ```
 
-**After (ActiveVersion):**
+After (ActiveVersion):
 ```ruby
 post.audits
 post.audits.last
@@ -321,7 +321,7 @@ post.audits.last
 
 #### Reifying Objects
 
-**Before (PaperTrail):**
+Before (PaperTrail):
 ```ruby
 # Get object as it was before this version
 version.reify
@@ -329,7 +329,7 @@ post.paper_trail.version_at(time)
 post.paper_trail.previous_version
 ```
 
-**After (ActiveVersion):**
+After (ActiveVersion):
 ```ruby
 # Get object at a specific version
 post.audit_revision(version: 2)
@@ -339,13 +339,13 @@ post.audit_revision_at(time)
 
 #### Whodunnit
 
-**Before (PaperTrail):**
+Before (PaperTrail):
 ```ruby
 version.whodunnit
 PaperTrail.request.whodunnit = current_user
 ```
 
-**After (ActiveVersion):**
+After (ActiveVersion):
 ```ruby
 # Access from context
 audit.audited_context['whodunnit']
@@ -358,19 +358,19 @@ end
 
 #### Event/Action
 
-**Before (PaperTrail):**
+Before (PaperTrail):
 ```ruby
 version.event  # 'create', 'update', 'destroy'
 ```
 
-**After (ActiveVersion):**
+After (ActiveVersion):
 ```ruby
 audit.action  # 'create', 'update', 'destroy'
 ```
 
 ### Step 7: Update Queries
 
-**Polymorphic Queries:**
+Polymorphic Queries:
 ```ruby
 # PaperTrail - single table
 PaperTrail::Version.where(item_type: 'Post')
@@ -379,7 +379,7 @@ PaperTrail::Version.where(item_type: 'Post')
 PostAudit.all
 ```
 
-**Event Queries:**
+Event Queries:
 ```ruby
 # PaperTrail
 PaperTrail::Version.where(event: 'create')
@@ -390,7 +390,7 @@ PostAudit.creates
 PostAudit.where(action: 'create')
 ```
 
-**Whodunnit Queries:**
+Whodunnit Queries:
 ```ruby
 # PaperTrail
 PaperTrail::Version.where(whodunnit: current_user.id.to_s)
@@ -401,7 +401,7 @@ PostAudit.where("audited_context->>'whodunnit' = ?", current_user.id.to_s)
 
 ### Step 8: Update Controllers
 
-**Before (PaperTrail):**
+Before (PaperTrail):
 ```ruby
 class ApplicationController < ActionController::Base
   before_action :set_paper_trail_whodunnit
@@ -414,7 +414,7 @@ class ApplicationController < ActionController::Base
 end
 ```
 
-**After (ActiveVersion):**
+After (ActiveVersion):
 ```ruby
 class ApplicationController < ActionController::Base
   before_action :set_active_version_context
@@ -517,7 +517,7 @@ end
 
 ### Model Changes
 
-**Simple Case:**
+Simple Case:
 ```ruby
 # Before
 class Post < ApplicationRecord
@@ -530,7 +530,7 @@ class Post < ApplicationRecord
 end
 ```
 
-**With Options:**
+With Options:
 ```ruby
 # Before
 class Post < ApplicationRecord
@@ -556,7 +556,7 @@ end
 
 ### Custom Version Classes
 
-**Before:**
+Before:
 ```ruby
 class Post < ApplicationRecord
   has_paper_trail versions: { class_name: "PostVersion" }
@@ -567,7 +567,7 @@ class PostVersion < PaperTrail::Version
 end
 ```
 
-**After:**
+After:
 ```ruby
 class Post < ApplicationRecord
   has_audits as: PostAudit
@@ -589,11 +589,11 @@ end
 
 ### Important Considerations
 
-1. **Before vs After State**: PaperTrail stores "before" state, ActiveVersion stores "after" state. You may lose the ability to see exact "before" states, but you gain change tracking.
+1. Before vs After State: PaperTrail stores "before" state, ActiveVersion stores "after" state. You may lose the ability to see exact "before" states, but you gain change tracking.
 
-2. **Object vs Changes**: PaperTrail stores full object state in `object` column. ActiveVersion stores only changes in `audited_changes`. You'll need to reconstruct full state from changes if needed.
+2. Object vs Changes: PaperTrail stores full object state in `object` column. ActiveVersion stores only changes in `audited_changes`. You'll need to reconstruct full state from changes if needed.
 
-3. **Version Numbers**: PaperTrail doesn't have explicit version numbers. You'll need to calculate them based on creation order.
+3. Version Numbers: PaperTrail doesn't have explicit version numbers. You'll need to calculate them based on creation order.
 
 ### Migration Script
 
@@ -657,7 +657,7 @@ rails active_version:migrate_from_paper_trail
 
 ### Validation Checklist
 
-1. **Count Verification:**
+1. Count Verification:
 ```ruby
 old_count = PaperTrail::Version.where(item_type: 'Post').count
 new_count = PostAudit.count
@@ -665,7 +665,7 @@ new_count = PostAudit.count
 puts "Old: #{old_count}, New: #{new_count}"
 ```
 
-2. **Data Integrity:**
+2. Data Integrity:
 ```ruby
 # Compare sample records
 old_version = PaperTrail::Version.where(item_type: 'Post').first
@@ -675,7 +675,7 @@ raise "Event mismatch!" unless old_version.event == new_audit.action
 raise "Whodunnit mismatch!" unless old_version.whodunnit == new_audit.audited_context['whodunnit']
 ```
 
-3. **Association Verification:**
+3. Association Verification:
 ```ruby
 post = Post.first
 old_versions_count = post.versions.count  # PaperTrail
@@ -684,7 +684,7 @@ new_audits_count = post.audits.count      # ActiveVersion
 puts "Old: #{old_versions_count}, New: #{new_audits_count}"
 ```
 
-4. **New Audits:**
+4. New Audits:
 ```ruby
 # Test that new audits are created correctly
 post = Post.create!(title: "Test")
@@ -699,11 +699,11 @@ raise "Wrong action!" unless audit.action == "update"
 
 ### If Migration Fails
 
-1. **Keep Old Tables:**
+1. Keep Old Tables:
    - Don't drop `versions` table immediately
    - Keep both systems running temporarily
 
-2. **Revert Code:**
+2. Revert Code:
 ```ruby
 # Revert models
 class Post < ApplicationRecord
@@ -712,7 +712,7 @@ class Post < ApplicationRecord
 end
 ```
 
-3. **Restore from Backup:**
+3. Restore from Backup:
    - If data was corrupted, restore from backup
    - Re-run migration after fixing issues
 
@@ -735,45 +735,45 @@ end
 
 ### Issue 1: Missing Object Changes
 
-**Problem:** Some PaperTrail versions might not have `object_changes` if `track_associations` wasn't enabled.
+Problem: Some PaperTrail versions might not have `object_changes` if `track_associations` wasn't enabled.
 
-**Solution:** 
+Solution: 
 - Reconstruct changes from `object` column if possible
 - Or mark these as "legacy" and let ActiveVersion track new changes going forward
 
 ### Issue 2: Before State Not Available
 
-**Problem:** Code expects `version.reify` to return "before" state, but ActiveVersion stores "after" state.
+Problem: Code expects `version.reify` to return "before" state, but ActiveVersion stores "after" state.
 
-**Solution:** 
+Solution: 
 - Update code to use `audit_revision` which reconstructs from changes
 - Or maintain PaperTrail for read-only access to old data
 
 ### Issue 3: Version Number Calculation
 
-**Problem:** PaperTrail doesn't store explicit version numbers.
+Problem: PaperTrail doesn't store explicit version numbers.
 
-**Solution:** Calculate based on creation order (see migration script).
+Solution: Calculate based on creation order (see migration script).
 
 ### Issue 4: Association Name Change
 
-**Problem:** Code uses `post.versions` but ActiveVersion uses `post.audits`.
+Problem: Code uses `post.versions` but ActiveVersion uses `post.audits`.
 
-**Solution:** 
+Solution: 
 - Global find/replace: `versions` → `audits`
 - Or create alias: `alias_method :versions, :audits`
 
 ### Issue 5: Meta vs Context
 
-**Problem:** PaperTrail uses `meta`, ActiveVersion uses `audited_context`.
+Problem: PaperTrail uses `meta`, ActiveVersion uses `audited_context`.
 
-**Solution:** Migrate `meta` to `audited_context` during data migration.
+Solution: Migrate `meta` to `audited_context` during data migration.
 
 ### Issue 6: Whodunnit Format
 
-**Problem:** PaperTrail stores `whodunnit` as string, ActiveVersion stores in context.
+Problem: PaperTrail stores `whodunnit` as string, ActiveVersion stores in context.
 
-**Solution:** Extract and store in context during migration (see migration script).
+Solution: Extract and store in context during migration (see migration script).
 
 ## Additional Resources
 

@@ -20,8 +20,8 @@ This guide provides step-by-step instructions for migrating from the `audited` g
 
 The `audited` gem and `active_version.rb` both provide audit trail functionality, but with different approaches:
 
-- **Audited**: Uses a single `audits` table with polymorphic associations
-- **ActiveVersion**: Uses per-model audit tables (e.g., `post_audits`) or JSONB storage
+- Audited: Uses a single `audits` table with polymorphic associations
+- ActiveVersion: Uses per-model audit tables (e.g., `post_audits`) or JSONB storage
 
 ### When to Migrate
 
@@ -36,16 +36,16 @@ Consider migrating if you need:
 
 | Feature | Audited | ActiveVersion | Notes |
 |---------|---------|---------------|-------|
-| **Table Structure** | Single `audits` table | Per-model tables or JSONB | ActiveVersion offers more flexibility |
-| **Association Name** | `audits` | `audits` | Same |
-| **Version Numbering** | Sequential per model | Sequential per model | Compatible |
-| **Changes Storage** | `audited_changes` (YAML/JSON) | `audited_changes` (JSONB/JSON) | Format compatible |
-| **Context Storage** | `audited_context` (YAML/JSON) | `audited_context` (JSONB/JSON) | Format compatible |
-| **Comments** | `comment` | `comment` | Same |
-| **User Tracking** | `user_id`, `user_type` | Via context | ActiveVersion uses context |
-| **Actions** | `create`, `update`, `destroy` | `create`, `update`, `destroy` | Same |
-| **Options** | `only`, `except`, `if`, `unless`, `max_audits`, `redacted` | `only`, `except`, `if`, `unless`, `max_audits`, `redacted` | Compatible |
-| **Callbacks** | `after_audit`, `around_audit` | `after_audit`, `around_audit` | Same |
+| Table Structure | Single `audits` table | Per-model tables or JSONB | ActiveVersion offers more flexibility |
+| Association Name | `audits` | `audits` | Same |
+| Version Numbering | Sequential per model | Sequential per model | Compatible |
+| Changes Storage | `audited_changes` (YAML/JSON) | `audited_changes` (JSONB/JSON) | Format compatible |
+| Context Storage | `audited_context` (YAML/JSON) | `audited_context` (JSONB/JSON) | Format compatible |
+| Comments | `comment` | `comment` | Same |
+| User Tracking | `user_id`, `user_type` | Via context | ActiveVersion uses context |
+| Actions | `create`, `update`, `destroy` | `create`, `update`, `destroy` | Same |
+| Options | `only`, `except`, `if`, `unless`, `max_audits`, `redacted` | `only`, `except`, `if`, `unless`, `max_audits`, `redacted` | Compatible |
+| Callbacks | `after_audit`, `around_audit` | `after_audit`, `around_audit` | Same |
 
 ## Key Differences
 
@@ -57,7 +57,7 @@ Consider migrating if you need:
 
 ### 1. Table Structure
 
-**Audited:**
+Audited:
 ```ruby
 # Single audits table for all models
 create_table :audits do |t|
@@ -72,7 +72,7 @@ create_table :audits do |t|
 end
 ```
 
-**ActiveVersion:**
+ActiveVersion:
 ```ruby
 # Per-model audit table
 create_table :post_audits do |t|
@@ -88,7 +88,7 @@ end
 
 ### 2. User Tracking
 
-**Audited:**
+Audited:
 ```ruby
 # Direct user association
 audit.user  # Returns user object
@@ -96,7 +96,7 @@ audit.user_id
 audit.user_type
 ```
 
-**ActiveVersion:**
+ActiveVersion:
 ```ruby
 # User stored in context
 audit.audited_context['user_id']
@@ -106,14 +106,14 @@ audit.audited_context['user_type']
 
 ### 3. Model Declaration
 
-**Audited:**
+Audited:
 ```ruby
 class Post < ApplicationRecord
   audited
 end
 ```
 
-**ActiveVersion:**
+ActiveVersion:
 ```ruby
 class Post < ApplicationRecord
   has_audits
@@ -122,7 +122,7 @@ end
 
 ### 4. Querying Audits
 
-**Audited:**
+Audited:
 ```ruby
 post.audits
 post.audits.creates
@@ -130,7 +130,7 @@ post.audits.updates
 post.audits.descending
 ```
 
-**ActiveVersion:**
+ActiveVersion:
 ```ruby
 post.audits
 post.audits.creates
@@ -148,7 +148,7 @@ post.audits.descending
 - [ ] Test migration in staging environment
 - [ ] Review audit data volume (for performance planning)
 - [ ] Identify any code using `audit.user` directly
-- [ ] Document any custom serializers or formats
+- [ ] Document selected audit storage mode (`:json_column`, `:yaml_column`, or `:mirror_columns`)
 
 ## Migration Steps
 
@@ -186,20 +186,20 @@ This creates:
 rails db:migrate
 ```
 
-**Important**: Don't drop the old `audits` table yet - you'll need it for data migration.
+Important: Don't drop the old `audits` table yet - you'll need it for data migration.
 
 ### Step 4: Update Models
 
 Replace `audited` with `has_audits`:
 
-**Before:**
+Before:
 ```ruby
 class Post < ApplicationRecord
   audited only: [:title, :body], max_audits: 100
 end
 ```
 
-**After:**
+After:
 ```ruby
 class Post < ApplicationRecord
   has_audits only: [:title, :body], max_audits: 100
@@ -218,7 +218,7 @@ ActiveVersion::Migrators::Audited.migrate(Post)
 ActiveVersion::Migrators::Audited.migrate(Post, dry_run: false)
 ```
 
-**Dry Run First:**
+Dry Run First:
 ```ruby
 # Test migration without actually migrating
 count = ActiveVersion::Migrators::Audited.migrate(Post, dry_run: true)
@@ -229,14 +229,14 @@ puts "Would migrate #{count} records"
 
 #### User Tracking
 
-**Before (Audited):**
+Before (Audited):
 ```ruby
 audit.user
 audit.user_id
 audit.user_type
 ```
 
-**After (ActiveVersion):**
+After (ActiveVersion):
 ```ruby
 # Option 1: Access from context
 user_id = audit.audited_context['user_id']
@@ -253,14 +253,14 @@ end
 
 If you were using custom audit classes:
 
-**Before:**
+Before:
 ```ruby
 class Post < ApplicationRecord
   audited as: CustomPostAudit
 end
 ```
 
-**After:**
+After:
 ```ruby
 class Post < ApplicationRecord
   has_audits as: CustomPostAudit
@@ -278,7 +278,7 @@ end
 
 Most queries remain the same, but check for:
 
-**Polymorphic Queries:**
+Polymorphic Queries:
 ```ruby
 # Audited - single table
 Audited::Audit.where(auditable_type: 'Post')
@@ -287,7 +287,7 @@ Audited::Audit.where(auditable_type: 'Post')
 PostAudit.all
 ```
 
-**User Queries:**
+User Queries:
 ```ruby
 # Audited
 Audited::Audit.where(user: current_user)
@@ -361,7 +361,7 @@ end
 
 ### Model Changes
 
-**Simple Case:**
+Simple Case:
 ```ruby
 # Before
 class Post < ApplicationRecord
@@ -374,7 +374,7 @@ class Post < ApplicationRecord
 end
 ```
 
-**With Options:**
+With Options:
 ```ruby
 # Before
 class Post < ApplicationRecord
@@ -403,7 +403,7 @@ end
 
 ### Controller Changes
 
-**Before (Audited):**
+Before (Audited):
 ```ruby
 class ApplicationController < ActionController::Base
   before_action :set_audited_user
@@ -416,7 +416,7 @@ class ApplicationController < ActionController::Base
 end
 ```
 
-**After (ActiveVersion):**
+After (ActiveVersion):
 ```ruby
 class ApplicationController < ActionController::Base
   before_action :set_active_version_context
@@ -507,14 +507,14 @@ end
 
 ### Validation Checklist
 
-1. **Count Verification:**
+1. Count Verification:
 ```ruby
 old_count = Audited::Audit.where(auditable_type: 'Post').count
 new_count = PostAudit.count
 raise "Count mismatch!" unless old_count == new_count
 ```
 
-2. **Data Integrity:**
+2. Data Integrity:
 ```ruby
 # Compare sample records
 old_audit = Audited::Audit.where(auditable_type: 'Post').first
@@ -525,7 +525,7 @@ raise "Action mismatch!" unless old_audit.action == new_audit.action
 raise "Changes mismatch!" unless old_audit.audited_changes == new_audit.audited_changes
 ```
 
-3. **Association Verification:**
+3. Association Verification:
 ```ruby
 post = Post.first
 old_audits_count = post.audits.count  # Should still work during transition
@@ -534,7 +534,7 @@ new_audits_count = post.audits.count  # After migration
 raise "Association broken!" unless old_audits_count == new_audits_count
 ```
 
-4. **New Audits:**
+4. New Audits:
 ```ruby
 # Test that new audits are created correctly
 post = Post.create!(title: "Test")
@@ -549,11 +549,11 @@ raise "Wrong action!" unless audit.action == "update"
 
 ### If Migration Fails
 
-1. **Keep Old Tables:**
+1. Keep Old Tables:
    - Don't drop `audits` table immediately
    - Keep both systems running temporarily
 
-2. **Revert Code:**
+2. Revert Code:
 ```ruby
 # Revert models
 class Post < ApplicationRecord
@@ -562,7 +562,7 @@ class Post < ApplicationRecord
 end
 ```
 
-3. **Restore from Backup:**
+3. Restore from Backup:
    - If data was corrupted, restore from backup
    - Re-run migration after fixing issues
 
@@ -585,15 +585,15 @@ end
 
 ### Issue 1: Version Number Conflicts
 
-**Problem:** Version numbers might conflict if both systems run simultaneously.
+Problem: Version numbers might conflict if both systems run simultaneously.
 
-**Solution:** Migrate during maintenance window or ensure only one system is active.
+Solution: Migrate during maintenance window or ensure only one system is active.
 
 ### Issue 2: User Association Missing
 
-**Problem:** Code expects `audit.user` but ActiveVersion uses context.
+Problem: Code expects `audit.user` but ActiveVersion uses context.
 
-**Solution:** Create a helper method:
+Solution: Create a helper method:
 
 ```ruby
 class PostAudit < ApplicationRecord
@@ -610,9 +610,9 @@ end
 
 ### Issue 3: Serialization Format Differences
 
-**Problem:** YAML vs JSON format differences.
+Problem: YAML vs JSON format differences.
 
-**Solution:** The migrator handles this automatically, but verify:
+Solution: The migrator handles this automatically, but verify:
 
 ```ruby
 # Check format
@@ -621,15 +621,15 @@ audit.audited_changes.class  # Should be Hash
 
 ### Issue 4: Missing Context Data
 
-**Problem:** Old audits might not have context data.
+Problem: Old audits might not have context data.
 
-**Solution:** The migrator preserves existing context or uses empty hash.
+Solution: The migrator preserves existing context or uses empty hash.
 
 ### Issue 5: Performance Issues
 
-**Problem:** Large audit tables cause slow queries.
+Problem: Large audit tables cause slow queries.
 
-**Solution:** 
+Solution: 
 - Use JSONB indexes for context queries
 - Use app-managed connection topology (separate DB/cluster) when needed
 - Archive old audits

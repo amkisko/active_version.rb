@@ -4,9 +4,9 @@ This guide walks through adding the ActiveVersion gem to an existing Rails appli
 
 ## Prerequisites
 
-- **Ruby** >= 3.0
-- **Rails** >= 6.0 (with ActiveRecord)
-- **Database**: PostgreSQL recommended for JSONB and optional triggers; SQLite is also supported (uses `json` columns, and `storage: :mirror_columns` works without JSON payload columns)
+- Ruby >= 3.0
+- Rails >= 6.0 (with ActiveRecord)
+- Database: PostgreSQL recommended for JSONB and optional triggers; SQLite is also supported (uses `json` columns, and `storage: :mirror_columns` works without JSON payload columns)
 
 ## Step-by-Step Setup
 
@@ -40,9 +40,9 @@ ActiveVersion has three independent features. Add only what you need.
 
 | Feature      | Use case                         | Generator |
 |-------------|-----------------------------------|-----------|
-| **Translations** | Locale-based content (i18n)       | `rails g active_version:translations ModelName` |
-| **Revisions**    | Version history, undo/redo       | `rails g active_version:revisions ModelName`    |
-| **Audits**       | Change tracking, compliance      | `rails g active_version:audits ModelName`       |
+| Translations | Locale-based content (i18n)       | `rails g active_version:translations ModelName` |
+| Revisions    | Version history, undo/redo       | `rails g active_version:revisions ModelName`    |
+| Audits       | Change tracking, compliance      | `rails g active_version:audits ModelName`       |
 
 You can add one, two, or all three to the same model.
 
@@ -50,19 +50,19 @@ You can add one, two, or all three to the same model.
 
 For each model you want to version, run the relevant generators. They create migrations and (for revisions/audits) version model classes.
 
-**Translations (e.g. `Post`):**
+Translations (e.g. `Post`):
 
 ```bash
 rails g active_version:translations Post
 ```
 
-**Revisions (e.g. `Post`):**
+Revisions (e.g. `Post`):
 
 ```bash
 rails g active_version:revisions Post
 ```
 
-**Audits (e.g. `Post`):**
+Audits (e.g. `Post`):
 
 ```bash
 # JSONB storage (PostgreSQL; use for JSON columns)
@@ -154,7 +154,7 @@ Edit `config/initializers/active_version.rb` to:
 
 - Set `config.current_user_method` if you use a different method for the current user in audits.
 - Set `config.auditing_enabled = false` in specific environments if needed.
-- Use global audit column/storage settings only as fallback when audit models do not declare `configure_audit` (or `active_version_audit`).
+- Use global audit column/storage settings only as fallback when audit models do not declare `configure_audit`.
 - Keep connection routing/topology in app-level ActiveRecord configuration and connection switching code.
 - Keep `config.partition_schema_guards_enabled = false` unless you explicitly want PostgreSQL partition-key/index validation during setup.
 
@@ -221,22 +221,22 @@ Then run the generated migration. This is optional and mainly for performance or
 
 ## Migrating from another gem
 
-- **From audited**: See [MIGRATION_FROM_AUDITED.md](../MIGRATION_FROM_AUDITED.md) for schema mapping, code changes, and data migration (e.g. `ActiveVersion::Migrators::Audited.migrate(Post)`).
-- **From paper_trail**: See [MIGRATION_FROM_PAPER_TRAIL.md](../MIGRATION_FROM_PAPER_TRAIL.md) for concepts and steps.
+- From audited: See [MIGRATION_FROM_AUDITED.md](../MIGRATION_FROM_AUDITED.md) for schema mapping, code changes, and data migration (e.g. `ActiveVersion::Migrators::Audited.migrate(Post)`).
+- From paper_trail: See [MIGRATION_FROM_PAPER_TRAIL.md](../MIGRATION_FROM_PAPER_TRAIL.md) for concepts and steps.
 
 After migration, use the same setup steps above (generators, migrations, model includes) for the new tables and concerns.
 
 ## Reference app and more docs
 
-- **Demo app**: `examples/rails_demo/` includes a full Rails app with translations, revisions, and audits. See `examples/rails_demo/README.md` and `examples/rails_demo/SETUP.md`.
-- **Partitioning and topology**: [PARTITIONING_AND_SHARDING.md](PARTITIONING_AND_SHARDING.md) — partitioning, connection-topology notes, retention, and best practices.
-- **Non-AR runtime integrations**: [NON_ACTIVE_RECORD.md](NON_ACTIVE_RECORD.md) — runtime adapter contract, capability hooks, and ownership boundaries.
-- **Configuration**: [README – Configuration](../README.md#configuration) and the initializer template in `lib/generators/active_version/install/templates/initializer.rb.erb`.
-- **API overview**: [README – API Reference](../README.md#api-reference).
+- Demo app: `examples/rails_demo/` includes a full Rails app with translations, revisions, and audits. See `examples/rails_demo/README.md` and `examples/rails_demo/SETUP.md`.
+- Partitioning and topology: [PARTITIONING_AND_SHARDING.md](PARTITIONING_AND_SHARDING.md) — partitioning, connection-topology notes, retention, and best practices.
+- Non-AR runtime integrations: [NON_ACTIVE_RECORD.md](NON_ACTIVE_RECORD.md) — runtime adapter contract, capability hooks, and ownership boundaries.
+- Configuration: [README – Configuration](../README.md#configuration) and the initializer template in `lib/generators/active_version/install/templates/initializer.rb.erb`.
+- API overview: [README – API Reference](../README.md#api-reference).
 
 ## Troubleshooting
 
-- **Missing version model**: If you see a “constant not found” for `PostRevision` or `PostAudit`, ensure the generator was run for that model and the generated model file exists and is loaded (e.g. under `app/models/`).
-- **SQLite and JSONB**: SQLite does not have PostgreSQL `jsonb`; use `json` columns (default migration fallback) or `--storage=mirror_columns` when you want a non-JSON audit shape. API usage stays the same.
-- **Callbacks not firing**: Ensure the model includes the concern and calls `has_revisions` / `has_audits` (and that `ActiveVersion.config.auditing_enabled` is `true` if you use the global switch).
-- **Composite source primary key (`self.primary_key = [:a, :b]`)**: Rails supports this and ActiveVersion supports it when destination schemas explicitly carry the full identity and your model configuration (`foreign_key`, `foreign_key_value`, `query_constraints`) matches that identity strategy. See [PARTITIONING_AND_SHARDING.md](PARTITIONING_AND_SHARDING.md).
+- Missing version model: If you see a “constant not found” for `PostRevision` or `PostAudit`, ensure the generator was run for that model and the generated model file exists and is loaded (e.g. under `app/models/`).
+- SQLite and JSONB: SQLite does not have PostgreSQL `jsonb`; use `json` columns (default migration fallback) or `--storage=mirror_columns` when you want a non-JSON audit shape. API usage stays the same.
+- Callbacks not firing: Ensure the model includes the concern and calls `has_revisions` / `has_audits` (and that `ActiveVersion.config.auditing_enabled` is `true` if you use the global switch).
+- Composite source primary key (`self.primary_key = [:a, :b]`): Rails supports this and ActiveVersion supports it when destination schemas explicitly carry the full identity and your model configuration (`foreign_key`, `identity_resolver`, `query_constraints`) matches that identity strategy. See [PARTITIONING_AND_SHARDING.md](PARTITIONING_AND_SHARDING.md).
