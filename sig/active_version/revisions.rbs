@@ -44,11 +44,11 @@ module ActiveVersion
         def configure_revision: (
           ?version_column: Symbol | String?,
           ?foreign_key: Symbol | String | Array[Symbol | String]?,
-          ?foreign_key_value: Symbol | String | Array[Symbol | String]?
+          ?identity_resolver: Symbol | String | Array[Symbol | String]?
         ) { () -> untyped } -> Hash[Symbol, untyped]
         def revision_version_column: (?Symbol | String value) -> Symbol?
         def revision_foreign_key: (?Symbol | String | Array[Symbol | String] value) -> String | Array[String]?
-        def revision_foreign_key_value: (?Symbol | String | Array[Symbol | String] value) -> String | Array[String]?
+        def revision_identity_resolver: (?Symbol | String | Array[Symbol | String] value) -> String | Array[String]?
         def revision_column_for: (Symbol concept) -> Symbol?
         def source_name: () -> Symbol?
         def source_class: () -> Class

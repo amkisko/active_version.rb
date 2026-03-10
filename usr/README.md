@@ -4,9 +4,9 @@ Use it for isolated, script-driven, or bot-driven development (e.g. CI-like runs
 
 ## Purpose
 
-- **Scripts and tooling** that maintainers and automation run from the repo (e.g. release, analyze, sample test runner).
-- **Optional local dev stack** under `usr/etc/local/` to run tests and commands in a container with a fixed Ruby/DB stack.
-- **Clarity** that nothing under `usr/` is part of the gem; the gemspec explicitly excludes it.
+- Scripts and tooling that maintainers and automation run from the repo (e.g. release, analyze, sample test runner).
+- Optional local dev stack under `usr/etc/local/` to run tests and commands in a container with a fixed Ruby/DB stack.
+- Clarity that nothing under `usr/` is part of the gem; the gemspec explicitly excludes it.
 
 ## Layout
 
@@ -23,7 +23,7 @@ usr/
 
 ## Running scripts
 
-From the **repository root** (recommended):
+From the repository root (recommended):
 
 ```bash
 bundle exec ruby usr/bin/release.rb
@@ -42,10 +42,10 @@ ruby usr/bin/rspec_sample.rb
 
 For a reproducible, isolated environment (e.g. agentic or bot-driven runs), use the minimal Docker setup under `usr/etc/local/`:
 
-- **Dockerfile**: Ruby + Bundler; no app code in the image.
-- **docker-compose.yml**: Mounts the repo and runs commands there (e.g. `bundle install`, `bundle exec rspec`).
+- Dockerfile: Ruby + Bundler; no app code in the image.
+- docker-compose.yml: Mounts the repo and runs commands there (e.g. `bundle install`, `bundle exec rspec`).
 
-From the **repository root**:
+From the repository root:
 
 ```bash
 cd usr/etc/local
