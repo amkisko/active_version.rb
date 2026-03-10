@@ -22,11 +22,11 @@ module ActiveVersion
         def configure_translation: (
           ?locale_column: Symbol | String?,
           ?foreign_key: Symbol | String | Array[Symbol | String]?,
-          ?foreign_key_value: Symbol | String | Array[Symbol | String]?
+          ?identity_resolver: Symbol | String | Array[Symbol | String]?
         ) { () -> untyped } -> Hash[Symbol, untyped]
         def translation_locale_column: (?Symbol | String value) -> Symbol?
         def translation_foreign_key: (?Symbol | String | Array[Symbol | String] value) -> String | Array[String]?
-        def translation_foreign_key_value: (?Symbol | String | Array[Symbol | String] value) -> String | Array[String]?
+        def translation_identity_resolver: (?Symbol | String | Array[Symbol | String] value) -> String | Array[String]?
         def source_name: () -> Symbol?
         def source_class: () -> Class
         def source_foreign_key: () -> String | Array[String]

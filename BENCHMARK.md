@@ -1,8 +1,11 @@
 # Benchmark Report
 
-This document records ActiveVersion benchmark output and optimization guidance.
+This report uses grouped comparisons so baselines are comparable:
 
-`usr/bin/benchmark.rb` runs both databases by default and writes logs to:
+- ActiveRecord group: `activerecord_baseline`, `active_version_audit`, `db_trigger_audit`
+- Sequel group: `sequel_baseline`, `sequel_active_version`
+
+`usr/bin/benchmark.rb` runs both SQLite and PostgreSQL by default and writes:
 
 - `tmp/benchmark_sqlite.log`
 - `tmp/benchmark_postgresql.log`
@@ -16,66 +19,75 @@ This document records ActiveVersion benchmark output and optimization guidance.
 
 ## Latest Full Run
 
-- Date: 2026-03-09
+- Date: 2026-03-10
 - Command: `BENCHMARK=1 usr/bin/benchmark.rb`
-- Sections executed: SQLite + PostgreSQL
+- Sections: SQLite + PostgreSQL
 
-## SQLite Results
+## SQLite
 
-| Scenario | Median Total | Avg Total | P95 Total | Per record p5 / mean / p95 | Ops/s | vs AR Baseline |
-|---|---:|---:|---:|---:|---:|---:|
-| `activerecord_baseline` | 1425.27 ms | 1446.45 ms | 1510.52 ms | 0.2823 / 0.2893 / 0.3021 ms | 3508.1 | 1.00x |
-| `active_version_audit` | 6231.71 ms | 6231.80 ms | 6327.16 ms | 1.2307 / 1.2464 / 1.2654 ms | 802.3 | 4.37x |
-| `db_trigger_audit` | 2067.96 ms | 2069.68 ms | 2121.53 ms | 0.4073 / 0.4139 / 0.4243 ms | 2417.8 | 1.45x |
-| `sequel_baseline` | 725.05 ms | 726.07 ms | 737.62 ms | 0.1432 / 0.1452 / 0.1475 ms | 6896.1 | 0.51x |
-
-### SQLite Overhead vs ActiveRecord (Per Record)
-
-| Scenario | Overhead p5 | Overhead mean | Overhead p95 |
-|---|---:|---:|---:|
-| `active_version_audit` | +0.9485 ms | +0.9571 ms | +0.9633 ms |
-| `db_trigger_audit` | +0.1250 ms | +0.1246 ms | +0.1222 ms |
-| `sequel_baseline` | -0.1391 ms | -0.1441 ms | -0.1546 ms |
-
-## PostgreSQL Results
+### ActiveRecord Group
 
 | Scenario | Median Total | Avg Total | P95 Total | Per record p5 / mean / p95 | Ops/s | vs AR Baseline |
 |---|---:|---:|---:|---:|---:|---:|
-| `activerecord_baseline` | 2265.86 ms | 2276.51 ms | 2380.94 ms | 0.4422 / 0.4553 / 0.4762 ms | 2206.7 | 1.00x |
-| `active_version_audit` | 10090.63 ms | 10029.96 ms | 10138.90 ms | 1.9796 / 2.0060 / 2.0278 ms | 495.5 | 4.45x |
-| `db_trigger_audit` | 3734.83 ms | 3826.15 ms | 4265.80 ms | 0.6879 / 0.7652 / 0.8532 ms | 1338.7 | 1.65x |
-| `sequel_baseline` | 1691.37 ms | 1727.90 ms | 1831.85 ms | 0.3246 / 0.3456 / 0.3664 ms | 2956.2 | 0.75x |
+| `activerecord_baseline` | 1384.63 ms | 1392.38 ms | 1419.87 ms | 0.2745 / 0.2785 / 0.2840 ms | 3611.1 | 1.00x |
+| `active_version_audit` | 6320.51 ms | 6331.78 ms | 6377.41 ms | 1.2570 / 1.2664 / 1.2755 ms | 791.1 | 4.56x |
+| `db_trigger_audit` | 2029.77 ms | 2030.93 ms | 2041.42 ms | 0.4046 / 0.4062 / 0.4083 ms | 2463.3 | 1.47x |
 
-### PostgreSQL Overhead vs ActiveRecord (Per Record)
+Overhead vs AR baseline (per record):
 
 | Scenario | Overhead p5 | Overhead mean | Overhead p95 |
 |---|---:|---:|---:|
-| `active_version_audit` | +1.5374 ms | +1.5507 ms | +1.5516 ms |
-| `db_trigger_audit` | +0.2457 ms | +0.3099 ms | +0.3770 ms |
-| `sequel_baseline` | -0.1176 ms | -0.1097 ms | -0.1098 ms |
+| `active_version_audit` | +0.9825 ms | +0.9879 ms | +0.9915 ms |
+| `db_trigger_audit` | +0.1301 ms | +0.1277 ms | +0.1243 ms |
 
-## Interpretation Checklist
+### Sequel Group
 
-1. Compare `active_version_audit` vs `activerecord_baseline` for app-level overhead.
-2. Compare `db_trigger_audit` vs baseline for DB-level audit overhead.
-3. Compare SQLite vs PostgreSQL deltas for your production-like expectation.
-4. Prefer median and p95 over a single run total.
+| Scenario | Median Total | Avg Total | P95 Total | Per record p5 / mean / p95 | Ops/s | vs Sequel Baseline |
+|---|---:|---:|---:|---:|---:|---:|
+| `sequel_baseline` | 710.43 ms | 710.37 ms | 753.11 ms | 0.1370 / 0.1421 / 0.1506 ms | 7038.0 | 1.00x |
+| `sequel_active_version` | 3154.62 ms | 3179.11 ms | 3345.04 ms | 0.6220 / 0.6358 / 0.6690 ms | 1585.0 | 4.44x |
 
-## Optimization Options
+Overhead vs Sequel baseline (per record):
 
-You are not at the absolute lowest possible level yet. Main levers:
+| Scenario | Overhead p5 | Overhead mean | Overhead p95 |
+|---|---:|---:|---:|
+| `sequel_active_version` | +0.4850 ms | +0.4937 ms | +0.5184 ms |
 
-1. Use database triggers for the hottest write paths.
-2. Track fewer fields (`only:` / `except:`).
-3. Keep audit schema minimal and index only proven query patterns.
-4. Keep active audit tables small (retention and archival).
-5. On PostgreSQL, use targeted `jsonb` indexes and partition large audit tables.
+## PostgreSQL
+
+### ActiveRecord Group
+
+| Scenario | Median Total | Avg Total | P95 Total | Per record p5 / mean / p95 | Ops/s | vs AR Baseline |
+|---|---:|---:|---:|---:|---:|---:|
+| `activerecord_baseline` | 2297.50 ms | 2409.31 ms | 2630.15 ms | 0.4474 / 0.4819 / 0.5260 ms | 2176.3 | 1.00x |
+| `active_version_audit` | 10706.59 ms | 10612.63 ms | 12213.85 ms | 1.8824 / 2.1225 / 2.4428 ms | 467.0 | 4.66x |
+| `db_trigger_audit` | 3649.57 ms | 3737.28 ms | 4246.19 ms | 0.6972 / 0.7475 / 0.8492 ms | 1370.0 | 1.59x |
+
+Overhead vs AR baseline (per record):
+
+| Scenario | Overhead p5 | Overhead mean | Overhead p95 |
+|---|---:|---:|---:|
+| `active_version_audit` | +1.4350 ms | +1.6407 ms | +1.9167 ms |
+| `db_trigger_audit` | +0.2498 ms | +0.2656 ms | +0.3232 ms |
+
+### Sequel Group
+
+| Scenario | Median Total | Avg Total | P95 Total | Per record p5 / mean / p95 | Ops/s | vs Sequel Baseline |
+|---|---:|---:|---:|---:|---:|---:|
+| `sequel_baseline` | 1378.18 ms | 1448.60 ms | 1614.69 ms | 0.2701 / 0.2897 / 0.3229 ms | 3628.0 | 1.00x |
+| `sequel_active_version` | 5636.54 ms | 5667.94 ms | 5903.73 ms | 1.0926 / 1.1336 / 1.1807 ms | 887.1 | 4.09x |
+
+Overhead vs Sequel baseline (per record):
+
+| Scenario | Overhead p5 | Overhead mean | Overhead p95 |
+|---|---:|---:|---:|
+| `sequel_active_version` | +0.8225 ms | +0.8439 ms | +0.8578 ms |
 
 ## Repro
 
 ```bash
 cd /Users/amkisko/workflow/github/amkisko/active_version.rb
-usr/bin/benchmark.rb
+BENCHMARK=1 usr/bin/benchmark.rb
 ```
 
 Optional overrides:

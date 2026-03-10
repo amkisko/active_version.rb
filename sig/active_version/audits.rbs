@@ -55,20 +55,11 @@ module ActiveVersion
           ?remote_address_column: Symbol | String?,
           ?request_uuid_column: Symbol | String?
         ) -> Hash[Symbol, untyped]
-        def active_version_audit: (
-          ?storage: Symbol | String?,
-          ?action_column: Symbol | String?,
-          ?changes_column: Symbol | String?,
-          ?context_column: Symbol | String?,
-          ?comment_column: Symbol | String?,
-          ?version_column: Symbol | String?,
-          ?user_column: Symbol | String?,
-          ?auditable_column: Symbol | String?,
-          ?associated_column: Symbol | String?,
-          ?remote_address_column: Symbol | String?,
-          ?request_uuid_column: Symbol | String?
-        ) -> Hash[Symbol, untyped]
         def audit_storage: (?Symbol | String value) -> Symbol?
+        def register_storage_provider: (Symbol | String name, ?untyped provider) { (Class audit_class, String column_name) -> untyped } -> untyped
+        def register_audit_storage_provider: (Symbol | String name, ?untyped provider) { (Class audit_class, String column_name) -> untyped } -> untyped
+        def storage_provider_registry: () -> Hash[Symbol, untyped]
+        def storage_provider_for_column: (Symbol | String column_name) -> untyped
         def audit_action_column: (?Symbol | String value) -> Symbol?
         def audit_changes_column: (?Symbol | String value) -> Symbol?
         def audit_context_column: (?Symbol | String value) -> Symbol?
@@ -79,24 +70,11 @@ module ActiveVersion
         def audit_associated_column: (?Symbol | String value) -> Symbol?
         def audit_remote_address_column: (?Symbol | String value) -> Symbol?
         def audit_request_uuid_column: (?Symbol | String value) -> Symbol?
-        def configure_active_version_audit: (
-          ?storage: Symbol | String?,
-          ?action_column: Symbol | String?,
-          ?changes_column: Symbol | String?,
-          ?context_column: Symbol | String?,
-          ?comment_column: Symbol | String?,
-          ?version_column: Symbol | String?,
-          ?user_column: Symbol | String?,
-          ?auditable_column: Symbol | String?,
-          ?associated_column: Symbol | String?,
-          ?remote_address_column: Symbol | String?,
-          ?request_uuid_column: Symbol | String?
-        ) -> Hash[Symbol, untyped]
         def audit_storage_mode: () -> Symbol?
         def audit_column_for: (Symbol concept) -> Symbol?
         def source_name: () -> Symbol?
         def source_class: () -> Class
-        def source_foreign_key: () -> Symbol | String
+        def source_identity_columns: () -> Array[String]
         def setup_associations: () -> untyped
         def setup_serializers: () -> untyped
         def add_audited_class: (Class audited_class) -> Set[Class]
