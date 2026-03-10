@@ -1,0 +1,33 @@
+class Create<%= audit_class_name.pluralize %> < ActiveRecord::Migration<%= migration_version %>
+  def change
+    create_table :<%= table_name %> do |t|
+      t.references :auditable, polymorphic: true, null: false, index: false
+      t.string :action, null: false
+      t.public_send(payload_column_type, :audited_changes, null: false)
+      t.integer :version, null: false
+      t.references :user, polymorphic: true
+      t.references :associated, polymorphic: true
+      t.text :comment
+      t.public_send(payload_column_type, :audited_context)
+      t.string :remote_address
+      t.string :request_uuid
+
+      t.timestamps
+    end
+
+    add_index :<%= table_name %>, [:auditable_type, :auditable_id, :version], unique: true, name: "index_<%= table_name %>_on_auditable_and_version"
+  end
+
+  private
+
+  def postgresql?
+    connection.adapter_name.to_s.casecmp("postgresql").zero?
+  end
+
+  def payload_column_type
+    return :jsonb if postgresql?
+    return :json if connection.native_database_types.is_a?(Hash) && connection.native_database_types.key?(:json)
+
+    :text
+  end
+end

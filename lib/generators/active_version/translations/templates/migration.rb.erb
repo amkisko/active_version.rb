@@ -1,0 +1,16 @@
+class Create<%= translation_class_name.pluralize %> < ActiveRecord::Migration<%= migration_version %>
+  def change
+    create_table :<%= table_name %> do |t|
+      t.references :<%= file_name %>, null: false, foreign_key: true, index: false
+      t.string :<%= locale_column %>, null: false
+
+<% migration_attributes.each do |attr| -%>
+      <%= attr %>
+<% end -%>
+
+      t.timestamps
+    end
+
+    add_index :<%= table_name %>, [:<%= foreign_key %>, :<%= locale_column %>], unique: true, name: "index_<%= table_name %>_on_<%= foreign_key %>_and_<%= locale_column %>"
+  end
+end
