@@ -1,0 +1,84 @@
+<div class="card">
+  <div class="av-flex av-flex-between">
+    <div>
+      <h2 style="margin-bottom: 0; border-bottom: none; padding-bottom: 0;"><%= @user.name %> Profile</h2>
+      <p class="av-section-subtitle"><%= @user.email %></p>
+    </div>
+    <div class="av-action-row">
+      <%= link_to "Edit Profile", edit_user_path(@user), class: "btn" %>
+      <%= link_to "Back Home", root_path, class: "btn btn-secondary" %>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <h2>Authored Content</h2>
+  <div class="av-table-wrap">
+    <table>
+      <thead><tr><th>Type</th><th>Title</th><th>Translations</th><th>Revisions</th><th>Audits</th><th>Open</th></tr></thead>
+      <tbody>
+        <% @authored_posts.each do |item| %>
+          <tr>
+            <td>Post</td><td><%= item.title %></td>
+            <td><%= link_to "Translations", translations_post_path(item), class: "btn btn-secondary btn-sm" %></td>
+            <td><%= link_to "Revisions", revisions_post_path(item), class: "btn btn-secondary btn-sm" %></td>
+            <td><%= link_to "Audits", audits_post_path(item), class: "btn btn-secondary btn-sm" %></td>
+            <td><%= link_to "View", post_path(item), class: "btn btn-sm" %></td>
+          </tr>
+        <% end %>
+        <% @authored_issues.each do |item| %>
+          <tr>
+            <td>Issue</td><td><%= item.title %></td>
+            <td><%= link_to "Translations", translations_issue_path(item), class: "btn btn-secondary btn-sm" %></td>
+            <td><%= link_to "Revisions", revisions_issue_path(item), class: "btn btn-secondary btn-sm" %></td>
+            <td><%= link_to "Audits", audits_issue_path(item), class: "btn btn-secondary btn-sm" %></td>
+            <td><%= link_to "View", issue_path(item), class: "btn btn-sm" %></td>
+          </tr>
+        <% end %>
+        <% @authored_pull_requests.each do |item| %>
+          <tr>
+            <td>Pull Request</td><td><%= item.title %></td>
+            <td><%= link_to "Translations", translations_pull_request_path(item), class: "btn btn-secondary btn-sm" %></td>
+            <td><%= link_to "Revisions", revisions_pull_request_path(item), class: "btn btn-secondary btn-sm" %></td>
+            <td><%= link_to "Audits", audits_pull_request_path(item), class: "btn btn-secondary btn-sm" %></td>
+            <td><%= link_to "View", pull_request_path(item), class: "btn btn-sm" %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="card">
+  <h2>Assigned Content</h2>
+  <div class="av-table-wrap">
+    <table>
+      <thead><tr><th>Type</th><th>Title</th><th>Status</th><th>Open</th></tr></thead>
+      <tbody>
+        <% @assigned_posts.each do |item| %><tr><td>Post</td><td><%= item.title %></td><td><%= item.status %></td><td><%= link_to "View", post_path(item), class: "btn btn-sm" %></td></tr><% end %>
+        <% @assigned_issues.each do |item| %><tr><td>Issue</td><td><%= item.title %></td><td><%= item.status %></td><td><%= link_to "View", issue_path(item), class: "btn btn-sm" %></td></tr><% end %>
+        <% @assigned_pull_requests.each do |item| %><tr><td>Pull Request</td><td><%= item.title %></td><td><%= item.status %></td><td><%= link_to "View", pull_request_path(item), class: "btn btn-sm" %></td></tr><% end %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="card">
+  <h2>User Audit Activity</h2>
+  <div class="av-table-wrap">
+    <table>
+      <thead><tr><th>ID</th><th>Action</th><th>Auditable</th><th>Fields</th><th>At</th></tr></thead>
+      <tbody>
+        <% @user_audits.each do |audit| %>
+          <tr>
+            <td><%= audit.id %></td>
+            <td><%= audit.action %></td>
+            <td><%= [audit.auditable_type, audit.auditable_id].join("#") %></td>
+            <td><%= audit.audited_changes.is_a?(Hash) ? audit.audited_changes.keys.join(", ") : "—" %></td>
+            <td><%= audit.created_at.strftime("%Y-%m-%d %H:%M") %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>

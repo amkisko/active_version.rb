@@ -1,0 +1,5 @@
+<div class="card">
+  <h2>Edit Issue</h2>
+  <%= render "form", issue: @issue %>
+  <div style="margin-top: var(--av-space-lg);"><%= link_to "Back", issue_path(@issue), class: "btn btn-secondary" %></div>
+</div>

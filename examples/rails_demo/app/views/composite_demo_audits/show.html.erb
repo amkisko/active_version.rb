@@ -1,0 +1,23 @@
+<div class="card">
+  <div class="av-flex av-flex-between" style="margin-bottom: var(--av-space-md);">
+    <div>
+      <h2 style="margin-bottom: 0; padding-bottom: 0; border-bottom: none;">Composite Audit <%= @composite_demo_audit.composite_id %></h2>
+      <p class="av-section-subtitle">Loaded via <code>Model.find(Model.param_to_id(params[:id]))</code> where <code>params[:id]</code> is encoded as <code>audit_id:partition_key</code>.</p>
+    </div>
+    <%= link_to "Back", composite_demo_audits_path, class: "btn btn-secondary" %>
+  </div>
+
+  <div class="av-table-wrap">
+    <table>
+      <tbody>
+        <tr><th>audit_id</th><td><%= @composite_demo_audit.audit_id %></td></tr>
+        <tr><th>partition_key</th><td><%= @composite_demo_audit.partition_key %></td></tr>
+        <tr><th>auditable_type</th><td><%= @composite_demo_audit.auditable_type %></td></tr>
+        <tr><th>auditable_id</th><td><%= @composite_demo_audit.auditable_id %></td></tr>
+        <tr><th>version</th><td><%= @composite_demo_audit.version %></td></tr>
+        <tr><th>audited_changes</th><td><code><%= @composite_demo_audit.audited_changes.to_json %></code></td></tr>
+        <tr><th>comment</th><td><%= @composite_demo_audit.comment.presence || "—" %></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>

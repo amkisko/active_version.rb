@@ -1,0 +1,21 @@
+<div class="card">
+  <h2>Issue Audits: <%= @issue.title %></h2>
+  <%= link_to "Back", issue_path(@issue), class: "btn btn-secondary" %>
+  <div class="av-table-wrap" style="margin-top: 20px;">
+    <table>
+      <thead><tr><th>Version</th><th>Action</th><th>User</th><th>Fields</th><th>Comment</th><th>Created</th></tr></thead>
+      <tbody>
+        <% @audits.each do |audit| %>
+          <tr>
+            <td>v<%= audit.version %></td>
+            <td><%= audit.action %></td>
+            <td><%= audit.user&.name || "System" %></td>
+            <td><%= audit.audited_changes.is_a?(Hash) ? audit.audited_changes.keys.join(", ") : "—" %></td>
+            <td><%= audit.comment.presence || "—" %></td>
+            <td><%= audit.created_at.strftime("%Y-%m-%d %H:%M") %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>

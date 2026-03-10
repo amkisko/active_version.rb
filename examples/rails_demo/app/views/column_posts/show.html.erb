@@ -1,0 +1,55 @@
+<div class="card">
+  <h2>ColumnPost: <%= @column_post.title %></h2>
+
+  <p><strong>Published:</strong> <%= @column_post.published ? "Yes" : "No" %></p>
+  <p><strong>Body:</strong> <%= @column_post.body.presence || "—" %></p>
+  <p><strong>Internal Notes (not audited):</strong> <%= @column_post.internal_notes.presence || "—" %></p>
+
+  <div class="av-flex" style="margin-top: var(--av-space-md); gap: var(--av-space-sm);">
+    <%= link_to "Back", column_posts_path, class: "btn btn-secondary" %>
+    <%= link_to "Edit", edit_column_post_path(@column_post), class: "btn" %>
+  </div>
+</div>
+
+<div class="card">
+  <h2>Audit Rows (Column-Level Storage)</h2>
+  <p class="av-section-subtitle">
+    Filter directly by audit table columns. This demo audits only <code>title</code> and <code>published</code>.
+  </p>
+
+  <%= form_with url: column_post_path(@column_post), method: :get, local: true, class: "av-flex", style: "flex-wrap: wrap; gap: var(--av-space-sm); margin-bottom: var(--av-space-lg);" do %>
+    <input type="text" name="title_filter" value="<%= params[:title_filter] %>" placeholder="Filter audit title" class="input-field" style="max-width: 240px;">
+    <select name="published_filter" class="input-field" style="max-width: 200px;">
+      <option value="">Any published value</option>
+      <option value="true" <%= "selected" if params[:published_filter] == "true" %>>Published = true</option>
+      <option value="false" <%= "selected" if params[:published_filter] == "false" %>>Published = false</option>
+    </select>
+    <button type="submit" class="btn">Apply</button>
+    <%= link_to "Reset", column_post_path(@column_post), class: "btn btn-secondary" %>
+  <% end %>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Version</th>
+        <th>Action</th>
+        <th>Title (audited column)</th>
+        <th>Published (audited column)</th>
+        <th>Comment</th>
+        <th>Created At</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @audits.each do |audit| %>
+        <tr>
+          <td><span class="badge">v<%= audit.version %></span></td>
+          <td><span class="badge badge-<%= audit.action %>"><%= audit.action %></span></td>
+          <td><%= audit.title.presence || "—" %></td>
+          <td><%= audit.published.nil? ? "—" : (audit.published ? "true" : "false") %></td>
+          <td><%= audit.comment.presence || "—" %></td>
+          <td><%= audit.created_at.strftime("%Y-%m-%d %H:%M:%S") %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

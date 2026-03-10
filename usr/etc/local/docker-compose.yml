@@ -1,0 +1,14 @@
+# Isolated dev/test environment. Run from repo root:
+#   docker compose -f usr/etc/local/docker-compose.yml run --rm app bundle exec rspec
+# Or from this directory:
+#   docker compose run --rm app bundle exec rspec
+services:
+  app:
+    build: .
+    working_dir: /app
+    volumes:
+      - ../..:/app
+    stdin_open: true
+    tty: true
+    # Default: shell. Override to run tests: docker compose run --rm app bundle exec rspec
+    command: ["/bin/sh"]

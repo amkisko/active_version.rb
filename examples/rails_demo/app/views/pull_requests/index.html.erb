@@ -1,0 +1,40 @@
+<div class="card">
+  <div class="av-flex av-flex-between" style="margin-bottom: var(--av-space-md);">
+    <div>
+      <h2 style="margin-bottom: 0; border-bottom: none; padding-bottom: 0;">Pull Requests</h2>
+      <p class="av-section-subtitle">Collaborative change proposals with labels, assignments, revisions and audits.</p>
+    </div>
+    <%= link_to "New Pull Request", new_pull_request_path, class: "btn btn-success" %>
+  </div>
+
+  <div class="av-search-form">
+    <%= form_with url: pull_requests_path, method: :get, local: true do |f| %>
+      <%= f.text_field :search, placeholder: "Search pull requests", value: params[:search] %>
+      <%= f.submit "Search", class: "btn" %>
+    <% end %>
+  </div>
+
+  <div class="av-table-wrap">
+    <table>
+      <thead><tr><th>Title</th><th>Status</th><th>Branches</th><th>Labels</th><th>Assignee</th><th>Actions</th></tr></thead>
+      <tbody>
+        <% @pull_requests.each do |pr| %>
+          <tr>
+            <td><%= link_to pr.title, pull_request_path(pr) %></td>
+            <td><span class="badge badge-update"><%= pr.status %></span></td>
+            <td><%= pr.source_branch %> → <%= pr.target_branch %></td>
+            <td><%= pr.labels_csv.presence || "—" %></td>
+            <td><%= pr.assignee&.name || "—" %></td>
+            <td>
+              <div class="av-action-row">
+                <%= link_to "View", pull_request_path(pr), class: "btn btn-secondary btn-sm" %>
+                <%= link_to "Edit", edit_pull_request_path(pr), class: "btn btn-sm" %>
+                <%= link_to "Delete", pull_request_path(pr), method: :delete, data: { confirm: "Delete pull request?" }, class: "btn btn-danger btn-sm" %>
+              </div>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>

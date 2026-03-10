@@ -1,0 +1,152 @@
+<%= stylesheet_link_tag "active_admin", "data-turbo-track": "reload" %>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<%= csrf_meta_tags %>
+<%= csp_meta_tag %>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  document.documentElement.classList.remove("dark");
+</script>
+
+<style>
+  /* Deterministic light theme fallback for ActiveAdmin demo app. */
+  html, body {
+    background: #f5f6f8 !important;
+    color: #111827 !important;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+  }
+
+  body * {
+    color-scheme: light !important;
+  }
+
+  a {
+    color: #0a58ca !important;
+    text-decoration: none;
+  }
+
+  a:hover {
+    text-decoration: underline;
+  }
+
+  .xl\:ms-60,
+  .xl\\:ms-60 {
+    margin-left: 260px !important;
+  }
+
+  #main-menu {
+    width: 260px !important;
+    background: #ffffff !important;
+    border-right: 1px solid #e5e7eb !important;
+    transform: translateX(0) !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+
+  #main-menu ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  #main-menu li > a,
+  #main-menu button[data-menu-button] {
+    display: block;
+    width: 100%;
+    padding: 10px 12px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent !important;
+    color: #374151 !important;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  #main-menu li > a:hover,
+  #main-menu button[data-menu-button]:hover {
+    background: #f3f4f6 !important;
+    color: #111827 !important;
+    text-decoration: none;
+  }
+
+  #main-menu li[data-open] > ul {
+    display: block;
+  }
+
+  #main-menu li > ul {
+    display: none;
+    padding-left: 12px;
+    margin-top: 4px;
+  }
+
+  [data-test-page-header],
+  [data-test-page-content] > *,
+  .bg-white {
+    background: #ffffff !important;
+    color: #111827 !important;
+    border-color: #e5e7eb !important;
+  }
+
+  .text-white,
+  .dark\:text-white {
+    color: #111827 !important;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #ffffff !important;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  th,
+  td {
+    border-bottom: 1px solid #e5e7eb;
+    padding: 10px 12px;
+    text-align: left;
+    vertical-align: top;
+    color: #111827 !important;
+  }
+
+  th {
+    background: #f9fafb !important;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: #6b7280 !important;
+  }
+
+  input,
+  select,
+  textarea {
+    border: 1px solid #d1d5db !important;
+    border-radius: 8px;
+    padding: 8px 10px;
+    min-height: 38px;
+    background: #ffffff !important;
+    color: #111827 !important;
+  }
+
+  input:focus,
+  select:focus,
+  textarea:focus {
+    outline: 2px solid #93c5fd;
+    border-color: #60a5fa !important;
+  }
+
+  @media (max-width: 1279px) {
+    .xl\:ms-60,
+    .xl\\:ms-60 {
+      margin-left: 0 !important;
+    }
+    #main-menu {
+      position: static !important;
+      width: 100% !important;
+      border-right: 0 !important;
+      border-bottom: 1px solid #e5e7eb !important;
+      transform: translateX(0) !important;
+    }
+  }
+</style>
+
+<%= javascript_importmap_tags "active_admin" %>

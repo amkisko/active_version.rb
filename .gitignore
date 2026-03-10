@@ -20,7 +20,7 @@
 
 # Testing
 /coverage/
-/.rspec
+/.rspec_status
 /spec/examples.txt
 
 # IDE
@@ -43,3 +43,4 @@ Thumbs.db
 *.gem
 /pkg/
 
+docs/THIRD_PARTY_LICENSE_MANIFEST.tsv

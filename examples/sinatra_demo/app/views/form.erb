@@ -1,0 +1,22 @@
+<form class="card form" method="post" action="<%= action %>">
+  <% if method_override %>
+    <input type="hidden" name="_method" value="<%= method_override %>">
+  <% end %>
+
+  <label for="title">Title</label>
+  <input id="title" name="title" value="<%= @item.title %>" required>
+
+  <label for="body">Body</label>
+  <textarea id="body" name="body" rows="5"><%= @item.body %></textarea>
+
+  <label for="labels">Labels (comma-separated)</label>
+  <input id="labels" name="labels" value="<%= @item.labels %>">
+
+  <label for="assignee">Assignee</label>
+  <input id="assignee" name="assignee" value="<%= @item.assignee %>">
+
+  <div class="actions">
+    <button class="button" type="submit"><%= submit_label %></button>
+    <a class="button secondary" href="/<%= @resource %>">Cancel</a>
+  </div>
+</form>

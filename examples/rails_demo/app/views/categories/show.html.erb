@@ -1,0 +1,31 @@
+<div class="card">
+  <h2><%= @category.name %></h2>
+
+  <div style="margin: 20px 0;">
+    <%= link_to "Edit", edit_category_path(@category), class: "btn" %>
+    <%= link_to "Back", categories_path, class: "btn btn-secondary" %>
+  </div>
+
+  <h3>Posts in this category</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Title</th>
+        <th>Author</th>
+        <th>Created</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @posts.each do |post| %>
+        <tr>
+          <td><%= link_to post.title, post %></td>
+          <td><%= post.author&.name || "—" %></td>
+          <td><%= post.created_at.strftime("%Y-%m-%d") %></td>
+          <td><%= link_to "View", post, class: "btn btn-secondary", style: "padding: 5px 10px; font-size: 12px;" %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+
