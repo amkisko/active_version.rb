@@ -158,6 +158,24 @@ RSpec.describe ActiveVersion::Revisions::HasRevisions do
       expect { post.create_snapshot! }.to raise_error(/Failed to create revision/)
     end
 
+    it "redacts revision values from error message" do
+      post.title = "top-secret-title"
+      post.body = "token-abc-123"
+      allow(post.revisions).to receive(:create!).and_raise(StandardError.new("Database error"))
+
+      expect {
+        post.create_snapshot!
+      }.to raise_error do |error|
+        message = error.message
+        expect(message).to include("Failed to create revision: StandardError")
+        expect(message).to include("Revision attribute keys:")
+        expect(message).to include("Identity keys:")
+        expect(message).to include("Version column:")
+        expect(message).not_to include("token-abc-123")
+        expect(message).not_to include("top-secret-title")
+      end
+    end
+
     it "creates snapshot with only option" do
       snapshot = post.create_snapshot!(only: [:title])
       expect(snapshot).to be_present
