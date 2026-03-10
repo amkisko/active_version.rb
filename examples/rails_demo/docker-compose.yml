@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:14
+    environment:
+      POSTGRES_DB: active_version_demo
+      POSTGRES_USER: postgres
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  rails:
+    build:
+      context: ../..
+      dockerfile: examples/rails_demo/Dockerfile
+    command: bundle exec rails server -b 0.0.0.0
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgresql://postgres@postgres:5432/active_version_demo
+      RAILS_ENV: development
+      DOCKER_BUILD: "true"
+    volumes:
+      - ../..:/active_version
+      - .:/app
+      - rails_bundle:/usr/local/bundle
+    depends_on:
+      postgres:
+        condition: service_healthy
+    stdin_open: true
+    tty: true
+
+volumes:
+  postgres_data:
+  rails_bundle:

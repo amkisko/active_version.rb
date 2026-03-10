@@ -1,0 +1,46 @@
+<%= form_with model: issue, local: true do |f| %>
+  <% token = demo_prefill_token("issue") if issue.new_record? %>
+  <div class="form-group">
+    <%= f.label :title %>
+    <%= f.text_field :title, required: true, value: (issue.new_record? ? issue.title.presence || "Issue #{token}" : issue.title) %>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :body %>
+    <%= f.text_area :body, value: (issue.new_record? ? issue.body.presence || "Reproduction steps for #{token}: describe expected vs actual behavior." : issue.body) %>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :status %>
+    <%= f.select :status, options_for_select([["open", "open"], ["closed", "closed"]], issue.status) %>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :labels_csv, "Labels (comma separated)" %>
+    <%= f.text_field :labels_csv, value: (issue.new_record? ? issue.labels_csv.presence || "bug, triage, #{token.split('-').last}" : issue.labels_csv), placeholder: "bug, ui, performance" %>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :assignee_id, "Assignee" %>
+    <%= f.select :assignee_id, options_from_collection_for_select(@users, :id, :name, (issue.assignee_id || (issue.new_record? ? @users.first&.id : nil))), { include_blank: "Unassigned" } %>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :attachment, "Attachment" %>
+    <%= f.file_field :attachment %>
+    <% if issue.attachment.present? %>
+      <p style="margin-top: var(--av-space-xs);">
+        Current: <%= link_to attachment_label(issue), issue.attachment_url, target: "_blank", rel: "noopener" %>
+      </p>
+    <% end %>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :audit_comment, "Change Comment (optional)" %>
+    <%= f.text_field :audit_comment, value: (issue.new_record? ? issue.audit_comment.presence || "Initial issue intake for #{token}" : issue.audit_comment), placeholder: "Why was this changed?" %>
+  </div>
+
+  <div class="form-group">
+    <%= f.submit class: "btn btn-success" %>
+  </div>
+<% end %>

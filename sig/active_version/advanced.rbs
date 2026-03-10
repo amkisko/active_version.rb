@@ -1,0 +1,51 @@
+module ActiveVersion
+  module SchemaGuards
+    def self.validate_partitioned_keys!: (Class record_class, Symbol version_type) -> nil
+    def self.expected_unique_columns: (Class record_class, Symbol version_type) -> Array[String]
+    def self.postgres?: (untyped connection) -> bool
+    def self.partitioned_table?: (untyped connection, String table_name) -> bool
+    def self.partition_key_columns: (untyped connection, String table_name) -> Array[String]
+    def self.partition_primary_key_columns: (untyped connection, String table_name) -> Array[String]
+  end
+
+  module Query
+    def self.audits: (untyped record, ?Hash[Symbol, untyped] opts) -> untyped
+    def self.translations: (untyped record, ?Hash[Symbol, untyped] opts) -> untyped
+    def self.revisions: (untyped record, ?Hash[Symbol, untyped] opts) -> untyped
+    def self.current_transaction: (?Hash[Symbol, untyped] opts) -> untyped
+  end
+
+  module Sharding
+    class ConnectionRouter
+      def self.connection_for: (Class model_class, Symbol version_type) -> Symbol | String | untyped
+      def self.adapter_for: (Class model_class, Symbol version_type) -> untyped
+      def self.with_connection: (Class model_class, Symbol version_type) { (untyped) -> untyped } -> untyped
+    end
+  end
+
+  module Database
+    module Triggers
+      module PostgreSQL
+        def self.generate_audit_trigger_function: (String table_name, String audit_table_name, ?Hash[Symbol, untyped] options) -> String
+        def self.generate_audit_trigger: (String table_name, ?Hash[Symbol, untyped] options) -> String
+        def self.generate_revision_trigger_function: (String table_name, String revision_table_name, ?Hash[Symbol, untyped] options) -> String
+        def self.generate_revision_trigger: (String table_name, ?Hash[Symbol, untyped] options) -> String
+        def self.drop_trigger_function: (String function_name) -> String
+        def self.drop_trigger: (String trigger_name, String table_name) -> String
+      end
+    end
+  end
+
+  module Migrators
+    class Base
+      def self.migrate: (Class model_class, ?Hash[Symbol, untyped] options) -> Integer
+      def self.create_audit_table: (String table_name, ?Hash[Symbol, untyped] options) -> untyped
+      def self.create_revision_table: (String table_name, ?Hash[Symbol, untyped] options) -> untyped
+      def self.create_translation_table: (String table_name, ?Hash[Symbol, untyped] options) -> untyped
+    end
+
+    class Audited < Base
+      def self.migrate: (Class model_class, ?Hash[Symbol, untyped] options) -> Integer
+    end
+  end
+end

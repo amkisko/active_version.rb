@@ -1,0 +1,22 @@
+<div class="card">
+  <h2>Pull Request Revisions: <%= @pull_request.title %></h2>
+  <%= link_to "Back", pull_request_path(@pull_request), class: "btn btn-secondary" %>
+  <div class="av-table-wrap" style="margin-top: 20px;">
+    <table>
+      <thead><tr><th>Version</th><th>Title</th><th>Status</th><th>Branches</th><th>Labels</th><th>Created</th><th>Actions</th></tr></thead>
+      <tbody>
+        <% @revisions.each do |revision| %>
+          <tr>
+            <td>v<%= revision.version %></td>
+            <td><%= revision.title %></td>
+            <td><%= revision.status %></td>
+            <td><%= revision.source_branch %> → <%= revision.target_branch %></td>
+            <td><%= revision.labels_csv.presence || "—" %></td>
+            <td><%= revision.created_at.strftime("%Y-%m-%d %H:%M") %></td>
+            <td><%= link_to "Revert", revert_to_version_pull_request_path(@pull_request, version: revision.version), method: :post, class: "btn btn-sm" %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>

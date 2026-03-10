@@ -1,0 +1,213 @@
+<div class="card">
+  <div class="av-flex av-flex-between" style="margin-bottom: var(--av-space-md);">
+    <h2 style="margin-bottom: 0; padding-bottom: 0; border-bottom: none;"><%= @post.title %></h2>
+    <div class="av-action-row">
+      <%= link_to "Edit", edit_post_path(@post), class: "btn" %>
+      <%= link_to "Back", posts_path, class: "btn btn-secondary" %>
+    </div>
+  </div>
+
+  <nav class="tabs" aria-label="Post sections">
+    <button type="button" class="tab active" data-tab="content">Content</button>
+    <button type="button" class="tab" data-tab="translations">Translations</button>
+    <button type="button" class="tab" data-tab="revisions">Revisions</button>
+    <button type="button" class="tab" data-tab="audits">Audits</button>
+  </nav>
+
+  <section id="content" class="tab-content active" aria-label="Post content">
+    <div class="av-table-wrap">
+      <table>
+        <tbody>
+          <tr><th>Category</th><td><%= @post.category&.name || "—" %></td></tr>
+          <tr><th>Author</th><td><%= @post.author&.name || "—" %></td></tr>
+          <tr><th>Assignee</th><td><%= @post.assignee&.name || "—" %></td></tr>
+          <tr><th>Status</th><td><%= @post.status %></td></tr>
+          <tr><th>Price</th><td><%= @post.price.presence || "—" %></td></tr>
+          <tr><th>Published</th><td><%= @post.published_at&.strftime("%Y-%m-%d %H:%M") || "—" %></td></tr>
+          <tr><th>SEO title</th><td><%= @post.seo_title.presence || "—" %></td></tr>
+          <tr><th>Keywords</th><td><%= @post.keywords_csv.presence || "—" %></td></tr>
+          <tr><th>Calculated score</th><td><%= @post.calculated_score %></td></tr>
+          <tr>
+            <th>Attachment</th>
+            <td>
+              <% if @post.attachment.present? %>
+                <%= link_to attachment_label(@post), @post.attachment_url, target: "_blank", rel: "noopener" %>
+              <% else %>
+                —
+              <% end %>
+            </td>
+          </tr>
+          <tr><th>Version</th><td><span class="badge">v<%= @post.current_version %></span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <% labels = @post.labels_csv.to_s.split(",").map(&:strip).reject(&:empty?) %>
+    <% if labels.any? %>
+      <ul class="av-tag-list" aria-label="Post labels" style="margin-top: var(--av-space-sm);">
+        <% labels.each do |label| %>
+          <li class="av-tag"><%= label %></li>
+        <% end %>
+      </ul>
+    <% end %>
+
+    <div style="margin-top: var(--av-space-md);">
+      <h3 style="margin: 0 0 var(--av-space-xs) 0;">Body</h3>
+      <div class="av-muted" style="font-size: var(--av-text-body); color: var(--av-color-label);">
+        <%= simple_format(@post.body.presence || "—") %>
+      </div>
+    </div>
+  </section>
+
+  <section id="translations" class="tab-content" aria-label="Translations">
+    <div class="av-flex av-flex-between" style="margin-bottom: var(--av-space-sm);">
+      <h3 style="margin: 0;">Translations</h3>
+      <%= link_to "Manage Translations", translations_post_path(@post), class: "btn btn-secondary btn-sm" %>
+    </div>
+
+    <div class="av-table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Locale</th>
+            <th>Title</th>
+            <th>Body</th>
+            <th>Labels</th>
+            <th>SEO Title</th>
+            <th>Keywords</th>
+            <th>Attachment</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @post.translations.each do |translation| %>
+            <tr>
+              <td><strong><%= translation.locale %></strong></td>
+              <td><%= translation.title %></td>
+              <td><%= truncate(translation.body, length: 80) %></td>
+              <td><%= translation.labels_csv.presence || "—" %></td>
+              <td><%= translation.seo_title.presence || "—" %></td>
+              <td><%= translation.keywords_csv.presence || "—" %></td>
+              <td>
+                <% if translation.attachment.present? %>
+                  <%= link_to attachment_label(translation), translation.attachment_url, target: "_blank", rel: "noopener" %>
+                <% else %>
+                  —
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="revisions" class="tab-content" aria-label="Revisions">
+    <div class="av-flex av-flex-between" style="margin-bottom: var(--av-space-sm);">
+      <h3 style="margin: 0;">Revisions</h3>
+      <%= link_to "View All Revisions", revisions_post_path(@post), class: "btn btn-secondary btn-sm" %>
+    </div>
+
+    <div class="av-table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Version</th>
+            <th>Title</th>
+            <th>Status</th>
+            <th>Price</th>
+            <th>Labels</th>
+            <th>SEO Title</th>
+            <th>Created At</th>
+            <th>Attachment</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @post.revisions.order(version: :desc).limit(5).each do |revision| %>
+            <tr>
+              <td><span class="badge">v<%= revision.version %></span></td>
+              <td><%= revision.title %></td>
+              <td><%= revision.status %></td>
+              <td><%= revision.price.presence || "—" %></td>
+              <td><%= revision.labels_csv.presence || "—" %></td>
+              <td><%= revision.seo_title.presence || "—" %></td>
+              <td><%= revision.created_at.strftime("%Y-%m-%d %H:%M") %></td>
+              <td>
+                <% if revision.attachment.present? %>
+                  <%= link_to attachment_label(revision), revision.attachment_url, target: "_blank", rel: "noopener" %>
+                <% else %>
+                  —
+                <% end %>
+              </td>
+              <td>
+                <div class="av-action-row">
+                  <%= link_to "View", post_path(@post, version: revision.version), class: "btn btn-secondary btn-sm" %>
+                  <%= link_to "Revert", revert_to_version_post_path(@post, version: revision.version), method: :post, class: "btn btn-sm" %>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="audits" class="tab-content" aria-label="Audits">
+    <div class="av-flex av-flex-between" style="margin-bottom: var(--av-space-sm);">
+      <h3 style="margin: 0;">Audits</h3>
+      <%= link_to "View All Audits", audits_post_path(@post), class: "btn btn-secondary btn-sm" %>
+    </div>
+
+    <div class="av-table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Version</th>
+            <th>Action</th>
+            <th>User</th>
+            <th>Changes</th>
+            <th>Comment</th>
+            <th>Created At</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @post.audits.order(version: :desc).limit(5).each do |audit| %>
+            <tr>
+              <td><span class="badge">v<%= audit.version %></span></td>
+              <td><span class="badge badge-<%= audit.action %>"><%= audit.action %></span></td>
+              <td><%= audit.user&.name || "System" %></td>
+              <td>
+                <% if audit.audited_changes.is_a?(Hash) %>
+                  <%= audit.audited_changes.keys.join(", ") %>
+                <% else %>
+                  Changes recorded
+                <% end %>
+              </td>
+              <td><%= audit.comment.presence || "—" %></td>
+              <td><%= audit.created_at.strftime("%Y-%m-%d %H:%M") %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+
+<script>
+  (() => {
+    const root = document.currentScript?.previousElementSibling;
+    if (!root) return;
+
+    const tabs = root.querySelectorAll(".tab");
+    const panes = root.querySelectorAll(".tab-content");
+
+    const activate = (name) => {
+      panes.forEach((pane) => pane.classList.toggle("active", pane.id === name));
+      tabs.forEach((tab) => tab.classList.toggle("active", tab.dataset.tab === name));
+    };
+
+    tabs.forEach((tab) => {
+      tab.addEventListener("click", () => activate(tab.dataset.tab));
+    });
+  })();
+</script>

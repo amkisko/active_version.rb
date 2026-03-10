@@ -1,6 +1,4 @@
 #!/usr/bin/env ruby
-# frozen_string_literal: true
-
 require "fileutils"
 
 # Analyzes library structure and lints for code quality issues.

@@ -1,0 +1,64 @@
+<div class="card">
+  <h2>Audit Trail: <%= @post.title %></h2>
+
+  <%= link_to "Back to Post", @post, class: "btn btn-secondary" %>
+
+  <div class="av-flex" style="flex-wrap: wrap; gap: var(--av-space-sm); margin-bottom: var(--av-space-lg); align-items: center;">
+    <strong style="margin-right: var(--av-space-sm);">Filter by action:</strong>
+    <%= link_to "All", audits_post_path(@post), class: "btn btn-secondary" %>
+    <%= link_to "Create", audits_post_path(@post, action_filter: "create"), class: "btn btn-secondary" %>
+    <%= link_to "Update", audits_post_path(@post, action_filter: "update"), class: "btn btn-secondary" %>
+    <%= link_to "Destroy", audits_post_path(@post, action_filter: "destroy"), class: "btn btn-secondary" %>
+  </div>
+
+  <div class="av-table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>Version</th>
+        <th>Action</th>
+        <th>User</th>
+        <th>Changes</th>
+        <th>Comment</th>
+        <th>Request UUID</th>
+        <th>Created At</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @audits.each do |audit| %>
+        <tr>
+          <td><span class="badge">v<%= audit.version %></span></td>
+          <td><span class="badge badge-<%= audit.action %>"><%= audit.action %></span></td>
+          <td><%= audit.user&.name || "System" %></td>
+          <td>
+            <% if audit.audited_changes.is_a?(Hash) %>
+              <details>
+                <summary><%= audit.audited_changes.keys.count %> fields changed</summary>
+                <ul style="margin-top: 10px; padding-left: 20px;">
+                  <% audit.audited_changes.each do |field, change| %>
+                    <li>
+                      <strong><%= field %>:</strong>
+                      <% if change.is_a?(Array) %>
+                        <span class="diff-removed"><%= change[0] %></span> →
+                        <span class="diff-added"><%= change[1] %></span>
+                      <% else %>
+                        <%= change %>
+                      <% end %>
+                    </li>
+                  <% end %>
+                </ul>
+              </details>
+            <% else %>
+              Changes recorded
+            <% end %>
+          </td>
+          <td><%= audit.comment || "—" %></td>
+          <td><small><%= audit.request_uuid %></small></td>
+          <td><%= audit.created_at.strftime("%Y-%m-%d %H:%M:%S") %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+  </div>
+</div>
+

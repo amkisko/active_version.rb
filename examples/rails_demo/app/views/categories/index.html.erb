@@ -1,0 +1,40 @@
+<div class="card">
+  <div class="av-flex av-flex-between" style="margin-bottom: var(--av-space-md);">
+    <div>
+      <h2 style="margin-bottom: 0; border-bottom: none; padding-bottom: 0;">Categories</h2>
+      <p class="av-section-subtitle">Quick visibility into content volume and audit activity by category.</p>
+    </div>
+    <%= link_to "New Category", new_category_path, class: "btn btn-success" %>
+  </div>
+
+  <div class="av-table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Posts</th>
+          <th>Audits</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @categories.each do |category| %>
+          <tr>
+            <td>
+              <div><%= link_to category.name, category %></div>
+            </td>
+            <td><span class="badge badge-update"><%= @posts_count_by_category_id.fetch(category.id, 0) %></span></td>
+            <td><span class="badge"><%= pluralize(@audits_count_by_category_id.fetch(category.id, 0), "audit") %></span></td>
+            <td>
+              <div class="av-action-row">
+                <%= link_to "View", category_path(category), class: "btn btn-secondary btn-sm" %>
+                <%= link_to "Edit", edit_category_path(category), class: "btn btn-sm" %>
+                <%= link_to "Delete", category, method: :delete, data: { confirm: "Delete this category?" }, class: "btn btn-danger btn-sm" %>
+              </div>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>

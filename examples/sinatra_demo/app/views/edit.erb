@@ -1,0 +1,2 @@
+<h2>Edit <%= @kind.tr("_", " ").split.map(&:capitalize).join(" ") %></h2>
+<%= erb :form, locals: {action: "/#{@resource}/#{@item.id}", method_override: "put", submit_label: "Save"} %>

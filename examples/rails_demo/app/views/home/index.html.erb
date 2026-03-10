@@ -1,0 +1,118 @@
+<% feed_items = (
+  @posts.map { |record| [:post, record] } +
+  @issues.map { |record| [:issue, record] } +
+  @pull_requests.map { |record| [:pull_request, record] }
+).sort_by { |(_kind, record)| record.updated_at || record.created_at }.reverse %>
+
+<section class="card av-hero-card" aria-labelledby="community-feed-title">
+  <header>
+    <h2 id="community-feed-title" class="av-hero-title">Shared reality is built one change at a time.</h2>
+    <p class="av-hero-subtitle">Posts, issues, and pull requests in one continuous stream. Audits, revisions, and translations remain attached to every decision.</p>
+  </header>
+
+  <nav class="av-composer" aria-label="Create content">
+    <%= link_to new_post_path, class: "btn btn-success", "aria-label": "Create a new post" do %>
+      <span aria-hidden="true">✦</span> Post
+    <% end %>
+
+    <%= link_to new_issue_path, class: "btn", "aria-label": "Create a new issue" do %>
+      <span aria-hidden="true">⚑</span> Issue
+    <% end %>
+
+    <%= link_to new_pull_request_path, class: "btn btn-secondary", "aria-label": "Create a new pull request" do %>
+      <span aria-hidden="true">⇄</span> Pull Request
+    <% end %>
+
+    <%= link_to user_path(current_user), class: "btn btn-secondary", "aria-label": "Edit your profile" do %>
+      <span aria-hidden="true">◉</span> Profile
+    <% end %>
+  </nav>
+</section>
+
+<section class="card" aria-labelledby="live-feed-title">
+  <header class="av-flex av-flex-between" style="margin-bottom: var(--av-space-md);">
+    <div>
+      <h2 id="live-feed-title" style="margin-bottom: 0; padding-bottom: 0; border-bottom: 0;">Field Notes</h2>
+      <p class="av-section-subtitle">A single narrative stream across posts, issues, and pull requests.</p>
+    </div>
+    <span class="av-feed-meta" aria-live="polite"><%= pluralize(feed_items.size, "item") %></span>
+  </header>
+
+  <div class="av-context-row" aria-label="Profile context">
+    <span class="av-context-label"><strong><%= current_user&.name %></strong> · <%= current_user&.email %></span>
+    <div class="av-context-chips">
+      <span class="av-context-chip">Posts <strong><%= @posts.size %></strong></span>
+      <span class="av-context-chip">Issues <strong><%= @issues.size %></strong></span>
+      <span class="av-context-chip">PRs <strong><%= @pull_requests.size %></strong></span>
+      <%= link_to "Open Profile", user_path(current_user), class: "av-context-chip av-context-link" %>
+    </div>
+  </div>
+
+  <div class="av-feed" role="feed" aria-busy="false">
+    <% if feed_items.empty? %>
+      <article class="av-feed-item" aria-label="No feed items yet">
+        <p>No content yet. Create your first post, issue, or pull request.</p>
+      </article>
+    <% end %>
+
+    <% feed_items.first(24).each do |kind, item| %>
+      <% show_path = case kind
+        when :post then post_path(item)
+        when :issue then issue_path(item)
+        when :pull_request then pull_request_path(item)
+        end %>
+      <% edit_path = case kind
+        when :post then edit_post_path(item)
+        when :issue then edit_issue_path(item)
+        when :pull_request then edit_pull_request_path(item)
+        end %>
+      <% revisions_path = case kind
+        when :post then revisions_post_path(item)
+        when :issue then revisions_issue_path(item)
+        when :pull_request then revisions_pull_request_path(item)
+        end %>
+      <% audits_path = case kind
+        when :post then audits_post_path(item)
+        when :issue then audits_issue_path(item)
+        when :pull_request then audits_pull_request_path(item)
+        end %>
+      <% type_class = { post: "av-type-post", issue: "av-type-issue", pull_request: "av-type-pr" }.fetch(kind) %>
+      <% type_label = { post: "Post", issue: "Issue", pull_request: "Pull Request" }.fetch(kind) %>
+
+      <article class="av-feed-item" role="article" aria-label="<%= type_label %>: <%= item.title %>">
+        <header class="av-feed-head">
+          <span class="av-type-pill <%= type_class %>"><%= type_label %></span>
+          <span class="badge badge-update"><%= item.status %></span>
+        </header>
+
+        <h3 class="av-feed-title"><%= link_to item.title, show_path %></h3>
+
+        <p class="av-feed-meta">
+          author <strong><%= item.author&.name || "Unknown" %></strong>
+          · assignee <strong><%= item.assignee&.name || "nobody" %></strong>
+          · updated <time datetime="<%= item.updated_at.iso8601 %>"><%= item.updated_at.strftime("%b %d, %Y %H:%M") %></time>
+        </p>
+
+        <% if kind == :pull_request %>
+          <p class="av-feed-meta" style="margin-top: var(--av-space-xs);">branch <code><%= item.source_branch %></code> → <code><%= item.target_branch %></code></p>
+        <% end %>
+
+        <% labels = item.respond_to?(:labels) ? item.labels : [] %>
+        <% if labels.present? %>
+          <ul class="av-tag-list" aria-label="Labels">
+            <% labels.each do |label| %>
+              <li class="av-tag"><%= label %></li>
+            <% end %>
+          </ul>
+        <% end %>
+
+        <nav class="av-action-row" aria-label="<%= type_label %> actions" style="margin-top: var(--av-space-md);">
+          <%= link_to "Open", show_path, class: "btn btn-secondary btn-sm" %>
+          <%= link_to "Edit", edit_path, class: "btn btn-sm" %>
+          <%= link_to "Revisions", revisions_path, class: "btn btn-secondary btn-sm" %>
+          <%= link_to "Audits", audits_path, class: "btn btn-secondary btn-sm" %>
+        </nav>
+      </article>
+    <% end %>
+  </div>
+</section>

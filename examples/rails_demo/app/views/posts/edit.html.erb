@@ -1,0 +1,80 @@
+<div class="card">
+  <h2>Edit Post</h2>
+
+  <%= form_with model: @post, local: true do |f| %>
+    <div class="form-group">
+      <%= f.label :title %>
+      <%= f.text_field :title, required: true %>
+    </div>
+
+    <div class="form-group">
+      <%= f.label :body %>
+      <%= f.text_area :body %>
+    </div>
+
+    <div class="form-group">
+      <%= f.label :status %>
+      <%= f.select :status, options_for_select([["draft", "draft"], ["published", "published"], ["archived", "archived"]], @post.status) %>
+    </div>
+
+    <div class="form-group">
+      <%= f.label :price %>
+      <%= f.number_field :price, step: "0.0001" %>
+    </div>
+
+    <div class="form-group">
+      <%= f.label :published_at %>
+      <%= f.datetime_local_field :published_at %>
+    </div>
+
+    <div class="form-group">
+      <%= f.label :seo_title, "SEO Title (virtual, stored in JSON)" %>
+      <%= f.text_field :seo_title, value: @post.seo_title %>
+    </div>
+
+    <div class="form-group">
+      <%= f.label :keywords_csv, "Keywords CSV (virtual, stored in flex store)" %>
+      <%= f.text_field :keywords_csv, value: @post.keywords_csv, placeholder: "rails, activeversion, audit" %>
+    </div>
+
+    <div class="form-group">
+      <%= f.label :labels_csv, "Labels (comma separated)" %>
+      <%= f.text_field :labels_csv, value: @post.labels_csv, placeholder: "announcement, docs, ui" %>
+    </div>
+
+    <div class="form-group">
+      <%= f.label :attachment, "Attachment (optional)" %>
+      <%= f.file_field :attachment %>
+      <% if @post.attachment.present? %>
+        <p style="margin-top: var(--av-space-xs);">
+          Current: <%= link_to attachment_label(@post), @post.attachment_url, target: "_blank", rel: "noopener" %>
+        </p>
+      <% end %>
+    </div>
+
+    <div class="form-group">
+      <%= f.label :category_id, "Category" %>
+      <%= f.select :category_id, options_from_collection_for_select(@categories, :id, :name, @post.category_id), { include_blank: "None" } %>
+    </div>
+
+    <div class="form-group">
+      <%= f.label :assignee_id, "Assignee" %>
+      <%= f.select :assignee_id, options_from_collection_for_select(@users, :id, :name, @post.assignee_id), { include_blank: "Unassigned" } %>
+    </div>
+
+    <div class="form-group">
+      <%= f.label :audit_comment, "Change Comment (optional)" %>
+      <%= f.text_field :audit_comment, placeholder: "Describe what you changed and why" %>
+    </div>
+
+    <div class="form-group">
+      <%= f.submit "Update Post", class: "btn btn-success" %>
+      <%= link_to "Cancel", @post, class: "btn btn-secondary" %>
+    </div>
+  <% end %>
+
+  <div style="margin-top: var(--av-space-xl); padding-top: var(--av-space-lg); border-top: 1px solid var(--av-color-separator);">
+    <h3>Current Version: v<%= @post.current_version %></h3>
+    <p><%= link_to "View Revision History", revisions_post_path(@post), class: "btn" %></p>
+  </div>
+</div>

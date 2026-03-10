@@ -1,0 +1,18 @@
+module ActiveVersion
+  class ColumnMapper
+    def register: (Class model_class, Symbol version_type, Symbol concept, Symbol | String column_name) -> Symbol
+    def column_for: (Class model_class, Symbol version_type, Symbol concept) -> Symbol | String
+    def mappings_for: (Class model_class, Symbol version_type) -> Hash[Symbol, Symbol]
+  end
+
+  class VersionRegistry
+    def register: (Class model_class, Symbol version_type, ?Hash[Symbol, untyped] options) -> Hash[Symbol, untyped]
+    def version_class_for: (Class model_class, Symbol version_type) -> Class?
+    def register_version_class: (Class model_class, Symbol version_type, Class version_class) -> Class
+    def registered?: (Class model_class, Symbol version_type) -> bool
+    def models_for_version_type: (Symbol version_type) -> Array[Class]
+    def config_for: (Class model_class, Symbol version_type) -> Hash[Symbol, untyped]?
+    def config_for_model_name: (String model_name, Symbol version_type) -> Hash[Symbol, untyped]?
+    def clear!: () -> void
+  end
+end

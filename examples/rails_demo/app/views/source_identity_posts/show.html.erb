@@ -1,0 +1,75 @@
+<div class="card">
+  <div class="av-flex av-flex-between" style="margin-bottom: var(--av-space-md);">
+    <div>
+      <h2 style="margin-bottom: 0; padding-bottom: 0; border-bottom: none;"><%= @source_identity_post.title %></h2>
+      <p class="av-section-subtitle">Business key is explicit and preserved across destination tables for direct SQL joins.</p>
+    </div>
+    <%= link_to "Back", source_identity_posts_path, class: "btn btn-secondary" %>
+  </div>
+
+  <div class="av-table-wrap">
+    <table>
+      <tbody>
+        <tr><th>tenant_id</th><td><%= @source_identity_post.tenant_id %></td></tr>
+        <tr><th>source_key</th><td><%= @source_identity_post.source_key %></td></tr>
+        <tr><th>partition_key</th><td><%= @source_identity_post.partition_key %></td></tr>
+        <tr><th>status</th><td><%= @source_identity_post.status %></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Translations (identity columns present)</h3>
+  <div class="av-table-wrap">
+    <table>
+      <thead><tr><th>Locale</th><th>tenant_id</th><th>source_key</th><th>partition_key</th><th>Title</th></tr></thead>
+      <tbody>
+        <% @translations.each do |row| %>
+          <tr>
+            <td><%= row.locale %></td>
+            <td><%= row.tenant_id %></td>
+            <td><%= row.source_key %></td>
+            <td><%= row.partition_key %></td>
+            <td><%= row.title %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Revisions (identity + version + partition key)</h3>
+  <div class="av-table-wrap">
+    <table>
+      <thead><tr><th>Version</th><th>tenant_id</th><th>source_key</th><th>partition_key</th><th>Status</th></tr></thead>
+      <tbody>
+        <% @revisions.each do |row| %>
+          <tr>
+            <td>v<%= row.version %></td>
+            <td><%= row.tenant_id %></td>
+            <td><%= row.source_key %></td>
+            <td><%= row.partition_key %></td>
+            <td><%= row.status %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Audits (identity + version + partition key)</h3>
+  <div class="av-table-wrap">
+    <table>
+      <thead><tr><th>Version</th><th>Action</th><th>tenant_id</th><th>source_key</th><th>partition_key</th><th>Comment</th></tr></thead>
+      <tbody>
+        <% @audits.each do |row| %>
+          <tr>
+            <td>v<%= row.version %></td>
+            <td><%= row.action %></td>
+            <td><%= row.tenant_id %></td>
+            <td><%= row.source_key %></td>
+            <td><%= row.partition_key %></td>
+            <td><%= row.comment.presence || "—" %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>

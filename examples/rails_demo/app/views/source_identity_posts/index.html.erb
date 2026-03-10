@@ -1,0 +1,31 @@
+<div class="card">
+  <h2 style="margin-bottom: 0; padding-bottom: 0; border-bottom: none;">Mixed Partitioning Demo</h2>
+  <p class="av-section-subtitle">Case A: source identity columns are fully propagated into translations/revisions/audits. Case B: version-table uniqueness includes partition key.</p>
+
+  <div class="av-table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Record</th>
+          <th>Business Key</th>
+          <th>Status</th>
+          <th>Version Rows</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @source_identity_posts.each do |post| %>
+          <tr>
+            <td><%= link_to post.title, source_identity_post_path(post) %></td>
+            <td><code><%= post.tenant_id %> / <%= post.source_key %> / <%= post.partition_key %></code></td>
+            <td><%= post.status %></td>
+            <td>
+              T:<%= post.translations.count %>
+              R:<%= post.revisions.count %>
+              A:<%= post.audits.count %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>

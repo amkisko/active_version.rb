@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ActiveVersion Sinatra Demo</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <header class="topbar">
+      <h1><a href="/">ActiveVersion Sinatra Demo</a></h1>
+      <nav>
+        <% nav_items.each do |label, path| %>
+          <a class="nav-link <%= @active_path.start_with?(path) && path != "/" ? "active" : "" %>" href="<%= path %>"><%= label %></a>
+        <% end %>
+      </nav>
+    </header>
+    <main class="container">
+      <%= yield %>
+    </main>
+  </body>
+</html>

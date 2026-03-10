@@ -1,0 +1,30 @@
+<section class="list-header">
+  <h2>Profile Timeline</h2>
+</section>
+
+<section class="card">
+  <% if @all_items.empty? %>
+    <p>No activity yet.</p>
+  <% else %>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Title</th>
+          <th>Assignee</th>
+          <th>Updated</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @all_items.each do |item| %>
+          <tr>
+            <td><%= item.kind_label %></td>
+            <td><a href="/<%= resource_from_kind(item.kind) %>/<%= item.id %>"><%= item.title %></a></td>
+            <td><%= item.assignee %></td>
+            <td><%= item.updated_at&.strftime("%Y-%m-%d %H:%M") %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% end %>
+</section>

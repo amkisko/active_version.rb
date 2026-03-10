@@ -1,0 +1,38 @@
+module ActiveVersion
+  class Configuration
+    attr_accessor auditing_enabled: bool
+    attr_accessor current_user_method: Symbol | String
+    attr_accessor ignored_attributes: Array[String]
+    attr_accessor ignored_default_callbacks: Array[Symbol | String]
+    attr_accessor store_synthesized_enums: bool
+    attr_accessor execution_scope: :fiber | :thread
+
+    attr_accessor translation_locale_column: Symbol | String
+    attr_accessor translation_default_locale: Symbol | String
+
+    attr_accessor revision_version_column: Symbol | String
+    attr_accessor revision_foreign_key_suffix: String
+
+    attr_accessor audit_storage: :json_column | :yaml_column | :mirror_columns
+    attr_accessor audit_action_column: Symbol | String
+    attr_accessor audit_changes_column: Symbol | String
+    attr_accessor audit_context_column: Symbol | String
+    attr_accessor audit_comment_column: Symbol | String
+    attr_accessor audit_version_column: Symbol | String
+    attr_accessor audit_user_column: Symbol | String
+    attr_accessor audit_auditable_column: Symbol | String
+    attr_accessor audit_associated_column: Symbol | String
+    attr_accessor audit_remote_address_column: Symbol | String
+    attr_accessor audit_request_uuid_column: Symbol | String
+    attr_accessor max_audits: Integer?
+    attr_accessor max_revisions: Integer?
+    attr_accessor return_self_if_no_revisions: bool
+    attr_accessor return_self_if_no_audits: bool
+    attr_accessor audit_error_behavior: Symbol
+    attr_accessor revision_error_behavior: Symbol
+    attr_accessor debounce_time: Numeric?
+    attr_accessor partition_schema_guards_enabled: bool
+
+    def validate!: () -> void
+  end
+end

@@ -1,0 +1,56 @@
+<div class="card">
+  <h2>Revision History: <%= @post.title %></h2>
+
+  <%= link_to "Back to Post", @post, class: "btn btn-secondary" %>
+  <%= link_to "Compare Versions", diff_post_path(@post), class: "btn" %>
+
+  <table style="margin-top: 20px;">
+    <thead>
+      <tr>
+        <th>Version</th>
+        <th>Title</th>
+        <th>Body</th>
+        <th>Status</th>
+        <th>Price</th>
+        <th>Labels</th>
+        <th>SEO Title</th>
+        <th>Attachment</th>
+        <th>Created At</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @revisions.each do |revision| %>
+        <tr>
+          <td>
+            <span class="badge <%= 'badge-update' if revision.version == @post.current_version %>">
+              v<%= revision.version %>
+              <%= "(current)" if revision.version == @post.current_version %>
+            </span>
+          </td>
+          <td><%= revision.title %></td>
+          <td><%= truncate(revision.body, length: 100) %></td>
+          <td><%= revision.status %></td>
+          <td><%= revision.price.presence || "—" %></td>
+          <td><%= revision.labels_csv.presence || "—" %></td>
+          <td><%= revision.seo_title.presence || "—" %></td>
+          <td>
+            <% if revision.attachment.present? %>
+              <%= link_to attachment_label(revision), revision.attachment_url, target: "_blank", rel: "noopener" %>
+            <% else %>
+              —
+            <% end %>
+          </td>
+          <td><%= revision.created_at.strftime("%Y-%m-%d %H:%M:%S") %></td>
+          <td>
+            <%= link_to "View", post_path(@post, version: revision.version), class: "btn btn-secondary", style: "padding: 5px 10px; font-size: 12px;" %>
+            <% unless revision.version == @post.current_version %>
+              <%= link_to "Revert", revert_to_version_post_path(@post, version: revision.version), method: :post, class: "btn", style: "padding: 5px 10px; font-size: 12px;", data: { confirm: "Are you sure you want to revert to version #{revision.version}?" } %>
+              <%= link_to "Switch", switch_to_version_post_path(@post, version: revision.version), method: :post, class: "btn btn-success", style: "padding: 5px 10px; font-size: 12px;" %>
+            <% end %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

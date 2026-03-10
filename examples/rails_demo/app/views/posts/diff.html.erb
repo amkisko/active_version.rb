@@ -1,0 +1,54 @@
+<div class="card">
+  <h2>Compare Versions: <%= @post.title %></h2>
+
+  <%= link_to "Back to Post", @post, class: "btn btn-secondary" %>
+
+  <%= form_with url: diff_post_path(@post), method: :get, local: true do |f| %>
+    <div style="display: flex; gap: 20px; margin: 20px 0;">
+      <div class="form-group" style="flex: 1;">
+        <%= f.label :from_version, "From Version" %>
+        <%= f.number_field :from_version, value: @from_version, min: 1, max: @post.current_version %>
+      </div>
+      <div class="form-group" style="flex: 1;">
+        <%= f.label :to_version, "To Version" %>
+        <%= f.number_field :to_version, value: @to_version, min: 1, max: @post.current_version %>
+      </div>
+      <div style="display: flex; align-items: flex-end;">
+        <%= f.submit "Compare", class: "btn" %>
+      </div>
+    </div>
+  <% end %>
+
+  <% if @diff.present? && @diff["changes"].present? %>
+    <% if @diff["changes"].is_a?(Hash) %>
+      <h3>Changes</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Field</th>
+            <th>Old Value</th>
+            <th>New Value</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @diff["changes"].each do |field, change| %>
+            <tr>
+              <td><strong><%= field %></strong></td>
+              <td>
+                <span class="diff-removed"><%= change.is_a?(Hash) ? (change["old"] || "—") : "—" %></span>
+              </td>
+              <td>
+                <span class="diff-added"><%= change.is_a?(Hash) ? (change["new"] || "—") : "—" %></span>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    <% else %>
+      <p>Diff data (raw): <%= @diff["changes"].inspect %></p>
+    <% end %>
+  <% else %>
+    <p>No differences found between versions <%= @from_version %> and <%= @to_version %>.</p>
+  <% end %>
+</div>
+

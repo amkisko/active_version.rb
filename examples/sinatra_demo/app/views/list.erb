@@ -1,0 +1,31 @@
+<section class="list-header">
+  <h2><%= @kind.tr("_", " ").split.map(&:capitalize).join(" ") %></h2>
+  <a class="button" href="/<%= @resource %>/new">New <%= @kind.tr("_", " ").split.map(&:capitalize).join(" ") %></a>
+</section>
+
+<section class="card">
+  <% if @items.empty? %>
+    <p>No records yet.</p>
+  <% else %>
+    <table>
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Labels</th>
+          <th>Assignee</th>
+          <th>Updated</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @items.each do |item| %>
+          <tr>
+            <td><a href="/<%= @resource %>/<%= item.id %>"><%= item.title %></a></td>
+            <td><%= item.labels %></td>
+            <td><%= item.assignee %></td>
+            <td><%= item.updated_at&.strftime("%Y-%m-%d %H:%M") %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% end %>
+</section>

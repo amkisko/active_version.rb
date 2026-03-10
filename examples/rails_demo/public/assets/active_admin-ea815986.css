@@ -1,0 +1,174 @@
+/* Local ActiveAdmin fallback stylesheet for demo app.
+   Designed to keep admin usable without Tailwind build tooling. */
+
+:root {
+  --aa-bg: #f4f6f8;
+  --aa-surface: #ffffff;
+  --aa-border: #e5e7eb;
+  --aa-text: #111827;
+  --aa-muted: #6b7280;
+  --aa-primary: #0a58ca;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--aa-bg);
+  color: var(--aa-text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+a {
+  color: var(--aa-primary);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+.xl\:ms-60,
+.xl\\:ms-60 {
+  margin-left: 260px;
+}
+
+#main-menu {
+  width: 260px;
+  background: var(--aa-surface);
+  border-right: 1px solid var(--aa-border);
+}
+
+#main-menu ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+#main-menu a,
+#main-menu button[data-menu-button] {
+  display: block;
+  width: 100%;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #374151;
+  text-align: left;
+  cursor: pointer;
+}
+
+#main-menu a:hover,
+#main-menu button[data-menu-button]:hover {
+  background: #f3f4f6;
+  color: var(--aa-text);
+  text-decoration: none;
+}
+
+#main-menu li[data-open] > ul {
+  display: block;
+}
+
+#main-menu li > ul {
+  display: none;
+  margin-top: 4px;
+  padding-left: 12px;
+}
+
+#main-menu .selected {
+  background: #e8f0fe;
+  color: #0b3b8d;
+}
+
+[data-test-page-header] {
+  background: var(--aa-surface);
+  border-bottom: 1px solid var(--aa-border);
+}
+
+[data-test-page-content] > * {
+  background: var(--aa-surface);
+  border: 1px solid var(--aa-border);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--aa-surface);
+}
+
+th,
+td {
+  border-bottom: 1px solid var(--aa-border);
+  text-align: left;
+  vertical-align: top;
+  padding: 10px 12px;
+}
+
+th {
+  background: #f9fafb;
+  color: var(--aa-muted);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+tbody tr:nth-child(odd) {
+  background: #ffffff;
+}
+
+tbody tr:nth-child(even) {
+  background: #f7f9fc;
+}
+
+tbody tr:hover {
+  background: #edf2fb;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="number"],
+input[type="search"],
+select,
+textarea {
+  width: 100%;
+  min-height: 38px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 8px 10px;
+  font: inherit;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: 2px solid #93c5fd;
+  border-color: #60a5fa;
+}
+
+button,
+.button,
+input[type="submit"] {
+  border: 0;
+  border-radius: 8px;
+  background: var(--aa-primary);
+  color: #fff;
+  min-height: 36px;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+button:hover,
+.button:hover,
+input[type="submit"]:hover {
+  filter: brightness(0.96);
+  text-decoration: none;
+}
+
+@media (max-width: 1279px) {
+  .xl\:ms-60,
+  .xl\\:ms-60 {
+    margin-left: 0;
+  }
+}

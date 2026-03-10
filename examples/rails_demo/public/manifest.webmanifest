@@ -1,0 +1,19 @@
+{
+  "name": "ActiveVersion Demo",
+  "short_name": "ActiveVersion",
+  "description": "Demo app for translations, revisions, and audits.",
+  "start_url": "/posts",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f5f5f7",
+  "theme_color": "#f5f5f7",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

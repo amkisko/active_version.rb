@@ -1,0 +1,150 @@
+module ActiveVersion
+  module Audits
+    module HasAudits
+      REDACTED: String
+
+      module ClassMethods
+        def audit_record?: () -> bool
+        def audit_class: () -> Class?
+        def has_audits: (?Hash[Symbol, untyped] options) -> untyped
+        def audited?: () -> bool
+        def without_auditing: () { () -> untyped } -> untyped
+        def with_auditing: () { () -> untyped } -> untyped
+        def revisions: (?Integer from_version) -> Array[untyped]
+        def revision_at: (untyped date_or_time) -> untyped
+        def with_audited_options: (?Hash[Symbol, untyped] options) { () -> untyped } -> untyped
+        def class_auditing_enabled?: () -> bool
+        def audit_on_create: () -> untyped
+        def audit_on_update: () -> untyped
+        def audit_on_destroy: () -> untyped
+        def audit_on_touch: () -> untyped
+        def revision_with: (Hash[untyped, untyped] attributes, ?id: untyped) -> untyped
+      end
+
+      attr_accessor audit_version: Integer?
+      attr_accessor audit_comment: String?
+      attr_accessor audit_context: Hash[untyped, untyped]?
+
+      def audit_revision: (?version: Integer?) -> untyped
+      def audit_revision_at: (untyped date_or_time) -> untyped
+      def audit_sql: (?destroy: bool) -> String
+      def own_and_associated_audits: () -> untyped
+      def without_auditing: () { () -> untyped } -> untyped
+      def with_auditing: () { () -> untyped } -> untyped
+      def should_audit?: () -> bool
+      def auditing_enabled: () -> bool
+      def audits: () -> untyped
+      def active_audits: () -> Array[untyped]
+      def audited_changes: (?for_touch: bool, ?exclude_readonly_attrs: bool) -> Hash[String, untyped]
+    end
+
+    module AuditRecord
+      module ClassMethods
+        def audit_record?: () -> bool
+        def dangerous_attribute_method?: (Symbol | String name) -> bool
+        def configure_audit: (
+          ?storage: Symbol | String?,
+          ?action_column: Symbol | String?,
+          ?changes_column: Symbol | String?,
+          ?context_column: Symbol | String?,
+          ?comment_column: Symbol | String?,
+          ?version_column: Symbol | String?,
+          ?user_column: Symbol | String?,
+          ?auditable_column: Symbol | String?,
+          ?associated_column: Symbol | String?,
+          ?remote_address_column: Symbol | String?,
+          ?request_uuid_column: Symbol | String?
+        ) -> Hash[Symbol, untyped]
+        def active_version_audit: (
+          ?storage: Symbol | String?,
+          ?action_column: Symbol | String?,
+          ?changes_column: Symbol | String?,
+          ?context_column: Symbol | String?,
+          ?comment_column: Symbol | String?,
+          ?version_column: Symbol | String?,
+          ?user_column: Symbol | String?,
+          ?auditable_column: Symbol | String?,
+          ?associated_column: Symbol | String?,
+          ?remote_address_column: Symbol | String?,
+          ?request_uuid_column: Symbol | String?
+        ) -> Hash[Symbol, untyped]
+        def audit_storage: (?Symbol | String value) -> Symbol?
+        def audit_action_column: (?Symbol | String value) -> Symbol?
+        def audit_changes_column: (?Symbol | String value) -> Symbol?
+        def audit_context_column: (?Symbol | String value) -> Symbol?
+        def audit_comment_column: (?Symbol | String value) -> Symbol?
+        def audit_version_column: (?Symbol | String value) -> Symbol?
+        def audit_user_column: (?Symbol | String value) -> Symbol?
+        def audit_auditable_column: (?Symbol | String value) -> Symbol?
+        def audit_associated_column: (?Symbol | String value) -> Symbol?
+        def audit_remote_address_column: (?Symbol | String value) -> Symbol?
+        def audit_request_uuid_column: (?Symbol | String value) -> Symbol?
+        def configure_active_version_audit: (
+          ?storage: Symbol | String?,
+          ?action_column: Symbol | String?,
+          ?changes_column: Symbol | String?,
+          ?context_column: Symbol | String?,
+          ?comment_column: Symbol | String?,
+          ?version_column: Symbol | String?,
+          ?user_column: Symbol | String?,
+          ?auditable_column: Symbol | String?,
+          ?associated_column: Symbol | String?,
+          ?remote_address_column: Symbol | String?,
+          ?request_uuid_column: Symbol | String?
+        ) -> Hash[Symbol, untyped]
+        def audit_storage_mode: () -> Symbol?
+        def audit_column_for: (Symbol concept) -> Symbol?
+        def source_name: () -> Symbol?
+        def source_class: () -> Class
+        def source_foreign_key: () -> Symbol | String
+        def setup_associations: () -> untyped
+        def setup_serializers: () -> untyped
+        def add_audited_class: (Class audited_class) -> Set[Class]
+        def audited_classes: () -> Set[Class]
+        def initialize_serializers: () -> untyped
+        def reconstruct_attributes: (Array[untyped] audits) -> Hash[Symbol | String, untyped]
+      end
+
+      attr_accessor _allow_update_for_readonly_check: bool?
+
+      def audited_changes: () -> Hash[untyped, untyped] | Array[untyped] | String | nil
+      def audited_changes=: (untyped value) -> untyped
+      def audited_context: () -> Hash[untyped, untyped] | Array[untyped] | String | nil
+      def audited_context=: (untyped value) -> untyped
+      def readonly?: () -> bool
+      def save: (*untyped args, **untyped kwargs) -> bool
+      def save!: (*untyped args, **untyped kwargs) -> bool
+      def destroy: (*untyped args, **untyped kwargs) -> untyped
+      def new_attributes: () -> Hash[untyped, untyped]
+      def old_attributes: () -> Hash[untyped, untyped]
+      def ancestors: () -> untyped
+      def revision: () -> untyped
+    end
+
+    module ChangeFilters
+      def audited_changes: (?for_touch: bool, ?exclude_readonly_attrs: bool) -> Hash[String, untyped]
+      def audited_attributes: () -> Hash[String, untyped]
+      def non_audited_columns: () -> Array[String]
+      def normalize_enum_changes: (Hash[String, untyped] changes) -> Hash[String, untyped]
+      def redact_values: (Hash[String, untyped] filtered_changes) -> Hash[String, untyped]
+      def filter_encrypted_attrs: (Hash[String, untyped] filtered_changes) -> Hash[String, untyped]
+      def filter_attr_values: (?audited_changes: Hash[String, untyped], ?attrs: Array[Symbol | String], ?placeholder: String) -> Hash[String, untyped]
+      def prepare_sql_values: (Hash[untyped, untyped] changes) -> Hash[untyped, untyped]
+    end
+
+    module AuditCallbacks
+      def audit_create: () -> untyped
+      def audit_update: () -> untyped
+      def audit_touch: () -> untyped
+      def audit_destroy: () -> untyped
+    end
+
+    module AuditWriter
+      def write_audit: (Hash[untyped, untyped] attrs) -> untyped
+    end
+
+    module AuditCombiner
+      def combine_audits_if_needed: () -> untyped
+    end
+  end
+end

@@ -1,0 +1,40 @@
+<div class="card">
+  <div class="av-flex av-flex-between" style="margin-bottom: var(--av-space-md);">
+    <div>
+      <h2 style="margin-bottom: 0; border-bottom: none; padding-bottom: 0;">Issues</h2>
+      <p class="av-section-subtitle">Track work items with full audit, revision and translation history.</p>
+    </div>
+    <%= link_to "New Issue", new_issue_path, class: "btn btn-success" %>
+  </div>
+
+  <div class="av-search-form">
+    <%= form_with url: issues_path, method: :get, local: true do |f| %>
+      <%= f.text_field :search, placeholder: "Search issues", value: params[:search] %>
+      <%= f.submit "Search", class: "btn" %>
+    <% end %>
+  </div>
+
+  <div class="av-table-wrap">
+    <table>
+      <thead><tr><th>Title</th><th>Status</th><th>Labels</th><th>Author</th><th>Assignee</th><th>Actions</th></tr></thead>
+      <tbody>
+        <% @issues.each do |issue| %>
+          <tr>
+            <td><%= link_to issue.title, issue_path(issue) %></td>
+            <td><span class="badge badge-update"><%= issue.status %></span></td>
+            <td><%= issue.labels_csv.presence || "—" %></td>
+            <td><%= issue.author&.name || "—" %></td>
+            <td><%= issue.assignee&.name || "—" %></td>
+            <td>
+              <div class="av-action-row">
+                <%= link_to "View", issue_path(issue), class: "btn btn-secondary btn-sm" %>
+                <%= link_to "Edit", edit_issue_path(issue), class: "btn btn-sm" %>
+                <%= link_to "Delete", issue_path(issue), method: :delete, data: { confirm: "Delete issue?" }, class: "btn btn-danger btn-sm" %>
+              </div>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>

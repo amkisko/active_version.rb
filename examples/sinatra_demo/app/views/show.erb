@@ -1,0 +1,115 @@
+<article class="card">
+  <h2><%= @item.title %></h2>
+  <p><%= @item.body %></p>
+  <dl>
+    <dt>Type</dt><dd><%= @item.kind_label %></dd>
+    <dt>Labels</dt><dd><%= @item.labels %></dd>
+    <dt>Assignee</dt><dd><%= @item.assignee %></dd>
+    <dt>Updated</dt><dd><%= @item.updated_at&.strftime("%Y-%m-%d %H:%M") %></dd>
+  </dl>
+
+  <div class="actions">
+    <a class="button" href="/<%= @resource %>/<%= @item.id %>/edit">Edit</a>
+    <form method="post" action="/<%= @resource %>/<%= @item.id %>" onsubmit="return confirm('Delete item?')">
+      <input type="hidden" name="_method" value="delete">
+      <button class="button danger" type="submit">Delete</button>
+    </form>
+    <a class="button secondary" href="/<%= @resource %>">Back</a>
+  </div>
+</article>
+
+<section class="card">
+  <h3>Translations</h3>
+  <form method="post" action="/<%= @resource %>/<%= @item.id %>/translations" class="stack">
+    <label for="locale">Locale</label>
+    <input id="locale" name="locale" type="text" value="en" required>
+    <label for="translation_title">Title</label>
+    <input id="translation_title" name="title" type="text" value="<%= @item.title %>" required>
+    <label for="translation_body">Body</label>
+    <textarea id="translation_body" name="body" rows="3"><%= @item.body %></textarea>
+    <label for="translation_labels">Labels</label>
+    <input id="translation_labels" name="labels" type="text" value="<%= @item.labels %>">
+    <button class="button" type="submit">Save Translation</button>
+  </form>
+
+  <% if @translations.empty? %>
+    <p class="muted">No translations yet.</p>
+  <% else %>
+    <table>
+      <thead>
+        <tr>
+          <th>Locale</th>
+          <th>Title</th>
+          <th>Body</th>
+          <th>Labels</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @translations.each do |translation| %>
+          <tr>
+            <td><%= translation.locale %></td>
+            <td><%= translation.title %></td>
+            <td><%= translation.body %></td>
+            <td><%= translation.labels %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% end %>
+</section>
+
+<section class="card">
+  <h3>Revisions</h3>
+  <% if @revisions.empty? %>
+    <p class="muted">No revisions yet.</p>
+  <% else %>
+    <table>
+      <thead>
+        <tr>
+          <th>Version</th>
+          <th>Title</th>
+          <th>Labels</th>
+          <th>Updated</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @revisions.each do |revision| %>
+          <tr>
+            <td>v<%= revision.version %></td>
+            <td><%= revision.title %></td>
+            <td><%= revision.labels %></td>
+            <td><%= revision.updated_at&.strftime("%Y-%m-%d %H:%M") %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% end %>
+</section>
+
+<section class="card">
+  <h3>Audits</h3>
+  <% if @audits.empty? %>
+    <p class="muted">No audits yet.</p>
+  <% else %>
+    <table>
+      <thead>
+        <tr>
+          <th>Version</th>
+          <th>Action</th>
+          <th>Changes</th>
+          <th>Context</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @audits.each do |audit| %>
+          <tr>
+            <td>v<%= audit.version %></td>
+            <td><%= audit.action %></td>
+            <td><%= audit.audited_changes %></td>
+            <td><%= audit.audited_context %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% end %>
+</section>

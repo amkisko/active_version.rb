@@ -1,0 +1,14 @@
+<div class="card">
+  <h2>Edit Profile</h2>
+
+  <%= form_with model: @user, local: true do |f| %>
+    <div class="form-group"><%= f.label :name %><%= f.text_field :name, required: true %></div>
+    <div class="form-group"><%= f.label :email %><%= f.email_field :email, required: true %></div>
+    <div class="form-group"><%= f.label :password, "New Password (optional)" %><%= f.password_field :password %></div>
+    <div class="form-group"><%= f.label :password_confirmation %><%= f.password_field :password_confirmation %></div>
+    <div class="form-group">
+      <%= f.submit "Save", class: "btn btn-success" %>
+      <%= link_to "Cancel", user_path(@user), class: "btn btn-secondary" %>
+    </div>
+  <% end %>
+</div>

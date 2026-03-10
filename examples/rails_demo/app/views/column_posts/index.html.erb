@@ -1,0 +1,33 @@
+<div class="card">
+  <h2>Column-Based Audit Demo</h2>
+  <p class="av-section-subtitle">
+    This model uses table storage without <code>audited_changes</code> JSON.
+    Audited values are written to dedicated columns on the audit table.
+  </p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Title</th>
+        <th>Published</th>
+        <th>Internal Notes</th>
+        <th>Audits</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @column_posts.each do |post| %>
+        <tr>
+          <td><%= post.title %></td>
+          <td><%= post.published ? "Yes" : "No" %></td>
+          <td><%= truncate(post.internal_notes, length: 60) %></td>
+          <td><%= @audit_counts_by_post_id.fetch(post.id, 0) %></td>
+          <td>
+            <%= link_to "View", column_post_path(post), class: "btn btn-secondary", style: "padding: 5px 10px; font-size: 12px;" %>
+            <%= link_to "Edit", edit_column_post_path(post), class: "btn", style: "padding: 5px 10px; font-size: 12px;" %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

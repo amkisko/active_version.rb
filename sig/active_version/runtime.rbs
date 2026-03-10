@@ -1,0 +1,29 @@
+module ActiveVersion
+  module Runtime
+    class NullAdapter
+      def base_connection: () -> untyped
+      def connection_for: (Class model_class, Symbol | String version_type) -> untyped
+      def supports_transactional_context?: (untyped connection) -> bool
+      def supports_current_transaction_id?: (untyped connection) -> bool
+      def supports_partition_catalog_checks?: (untyped connection) -> bool
+    end
+
+    class ActiveRecordAdapter
+      def base_connection: () -> untyped
+      def connection_for: (Class model_class, Symbol | String version_type) -> untyped
+      def supports_transactional_context?: (untyped connection) -> bool
+      def supports_current_transaction_id?: (untyped connection) -> bool
+      def supports_partition_catalog_checks?: (untyped connection) -> bool
+    end
+
+    def self.adapter: () -> untyped
+    def self.adapter=: (untyped runtime_adapter) -> untyped
+    def self.reset_adapter!: () -> untyped
+    def self.required_adapter_methods: () -> Array[Symbol]
+    def self.valid_adapter?: (untyped runtime_adapter) -> bool
+    def self.supports_transactional_context?: (untyped connection) -> bool
+    def self.supports_current_transaction_id?: (untyped connection) -> bool
+    def self.supports_partition_catalog_checks?: (untyped connection) -> bool
+    def self.active_record_connection_errors: () -> Array[untyped]
+  end
+end

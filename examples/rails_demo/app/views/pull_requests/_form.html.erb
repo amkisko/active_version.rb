@@ -1,0 +1,25 @@
+<%= form_with model: pull_request, local: true do |f| %>
+  <% token = demo_prefill_token("pr") if pull_request.new_record? %>
+  <div class="form-group"><%= f.label :title %><%= f.text_field :title, required: true, value: (pull_request.new_record? ? pull_request.title.presence || "Pull request #{token}" : pull_request.title) %></div>
+  <div class="form-group"><%= f.label :body %><%= f.text_area :body, value: (pull_request.new_record? ? pull_request.body.presence || "Summary for #{token}: implementation details, test plan, and rollout notes." : pull_request.body) %></div>
+
+  <div class="av-flex">
+    <div class="form-group" style="flex: 1;"><%= f.label :source_branch %><%= f.text_field :source_branch, value: (pull_request.new_record? ? pull_request.source_branch.presence || "feature/#{token.parameterize}" : pull_request.source_branch) %></div>
+    <div class="form-group" style="flex: 1;"><%= f.label :target_branch %><%= f.text_field :target_branch, value: (pull_request.new_record? ? pull_request.target_branch.presence || "main" : pull_request.target_branch) %></div>
+  </div>
+
+  <div class="form-group"><%= f.label :status %><%= f.select :status, options_for_select([["open", "open"], ["merged", "merged"], ["closed", "closed"]], pull_request.status) %></div>
+  <div class="form-group"><%= f.label :labels_csv, "Labels (comma separated)" %><%= f.text_field :labels_csv, value: (pull_request.new_record? ? pull_request.labels_csv.presence || "feature, review, #{token.split('-').last}" : pull_request.labels_csv), placeholder: "feature, backend" %></div>
+  <div class="form-group"><%= f.label :assignee_id, "Assignee" %><%= f.select :assignee_id, options_from_collection_for_select(@users, :id, :name, (pull_request.assignee_id || (pull_request.new_record? ? @users.first&.id : nil))), { include_blank: "Unassigned" } %></div>
+
+  <div class="form-group">
+    <%= f.label :attachment, "Attachment" %>
+    <%= f.file_field :attachment %>
+    <% if pull_request.attachment.present? %>
+      <p style="margin-top: var(--av-space-xs);">Current: <%= link_to attachment_label(pull_request), pull_request.attachment_url, target: "_blank", rel: "noopener" %></p>
+    <% end %>
+  </div>
+
+  <div class="form-group"><%= f.label :audit_comment, "Change Comment (optional)" %><%= f.text_field :audit_comment, value: (pull_request.new_record? ? pull_request.audit_comment.presence || "Initial pull request draft for #{token}" : pull_request.audit_comment) %></div>
+  <div class="form-group"><%= f.submit class: "btn btn-success" %></div>
+<% end %>

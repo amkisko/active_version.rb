@@ -1,0 +1,72 @@
+<div class="card">
+  <h2>Manage Translations: <%= @post.title %></h2>
+
+  <%= link_to "Back to Post", @post, class: "btn btn-secondary" %>
+
+  <div class="tabs" style="margin-top: 20px;">
+    <% I18n.available_locales.each do |locale| %>
+      <button class="tab <%= 'active' if locale.to_s == @current_locale.to_s %>" onclick="showLocale('<%= locale %>')">
+        <%= locale.to_s.upcase %>
+      </button>
+    <% end %>
+  </div>
+
+  <% I18n.available_locales.each do |locale| %>
+    <div id="locale-<%= locale %>" class="tab-content <%= 'active' if locale.to_s == @current_locale.to_s %>">
+      <% translation = @post.translations.find_or_initialize_by(locale: locale) %>
+      <%= form_with model: translation, url: translations_post_path(@post), method: :patch, local: true do |f| %>
+        <%= f.hidden_field :locale, value: locale %>
+
+        <div class="form-group">
+          <%= f.label :title, "Title (#{locale})" %>
+          <%= f.text_field :title, value: translation.persisted? ? translation.title : @post.translate(:title, locale: locale) %>
+        </div>
+
+        <div class="form-group">
+          <%= f.label :body, "Body (#{locale})" %>
+          <%= f.text_area :body, value: translation.persisted? ? translation.body : @post.translate(:body, locale: locale) %>
+        </div>
+
+        <div class="form-group">
+          <%= f.label :seo_title, "SEO Title (#{locale}, virtual -> JSON)" %>
+          <%= f.text_field :seo_title, value: translation.seo_title %>
+        </div>
+
+        <div class="form-group">
+          <%= f.label :keywords_csv, "Keywords CSV (#{locale}, virtual -> flex store)" %>
+          <%= f.text_field :keywords_csv, value: translation.keywords_csv, placeholder: "locale-specific, terms" %>
+        </div>
+
+        <div class="form-group">
+          <%= f.label :labels_csv, "Labels (#{locale}, comma separated)" %>
+          <%= f.text_field :labels_csv, value: translation.labels_csv, placeholder: "translated, locale-tag" %>
+        </div>
+
+        <div class="form-group">
+          <%= f.label :attachment, "Attachment (#{locale}, optional)" %>
+          <%= f.file_field :attachment %>
+          <% if translation.attachment.present? %>
+            <p style="margin-top: var(--av-space-xs);">
+              Current: <%= link_to attachment_label(translation), translation.attachment_url, target: "_blank", rel: "noopener" %>
+            </p>
+          <% end %>
+        </div>
+
+        <%= f.submit "Save Translation", class: "btn btn-success" %>
+      <% end %>
+    </div>
+  <% end %>
+</div>
+
+<script>
+  function showLocale(locale) {
+    document.querySelectorAll('.tab-content').forEach(tab => {
+      tab.classList.remove('active');
+    });
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.classList.remove('active');
+    });
+    document.getElementById('locale-' + locale).classList.add('active');
+    event.target.classList.add('active');
+  }
+</script>
