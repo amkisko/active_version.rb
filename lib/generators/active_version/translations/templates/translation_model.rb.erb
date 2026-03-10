@@ -1,0 +1,15 @@
+
+class <%= translation_class_name %> < ApplicationRecord
+  include ActiveVersion::Translations::TranslationRecord
+
+  configure_translation(locale_column: :<%= locale_column %>,
+    foreign_key: :<%= foreign_key %>
+  )
+
+<% if translated_attributes.any? -%>
+  # Translated attributes:
+<% translated_attributes.each do |attr| -%>
+  #   <%= attr.split(':').first %>
+<% end -%>
+<% end -%>
+end

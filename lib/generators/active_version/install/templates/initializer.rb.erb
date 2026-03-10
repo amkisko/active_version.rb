@@ -1,0 +1,38 @@
+
+# ActiveVersion Configuration
+# See https://github.com/amkisko/active_version.rb for documentation
+
+ActiveVersion.configure do |config|
+  # Global auditing control
+  config.auditing_enabled = true
+
+  # Current user method (for audits)
+  config.current_user_method = :current_user
+
+  # Ignored attributes (won't be tracked in audits/revisions)
+  config.ignored_attributes = %w[lock_version created_at updated_at created_on updated_on]
+
+  # Translation defaults
+  config.translation_locale_column = :locale
+  config.translation_default_locale = :en
+
+  # Revision defaults
+  config.revision_version_column = :version
+
+  # Audit defaults
+  # Prefer explicit destination model config via:
+  #   configure_audit { storage :json_column; action_column :action; ... }
+  #   configure_revision(version_column:, foreign_key:, ...)
+  #   configure_translation(locale_column:, foreign_key:, ...)
+  # These global values are fallbacks for audit models that do not declare schema.
+  config.audit_storage = :json_column
+  config.audit_auditable_column = :auditable
+  config.audit_associated_column = :associated
+  config.audit_remote_address_column = :remote_address
+  config.audit_request_uuid_column = :request_uuid
+
+  # Infrastructure note:
+  # Connection routing / connection topology / partition lifecycle are application-owned.
+  # ActiveVersion reads/writes using the active ActiveRecord connection.
+
+end

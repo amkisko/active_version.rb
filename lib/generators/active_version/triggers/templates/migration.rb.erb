@@ -1,0 +1,100 @@
+class Add<%= type.camelize %>TriggerTo<%= class_name.pluralize %> < ActiveRecord::Migration<%= migration_version %>
+  def up
+    <%- if type == "audit" -%>
+    # Create audit trigger function
+    execute <<-SQL
+<%= ActiveVersion::Database::Triggers::PostgreSQL.generate_audit_trigger_function(
+  table_name,
+  audit_table_name,
+  auditable_type: auditable_type,
+  version_column: ActiveVersion.config.audit_version_column,
+  changes_column: ActiveVersion.config.audit_changes_column,
+  context_column: ActiveVersion.config.audit_context_column,
+  action_column: ActiveVersion.config.audit_action_column
+).indent(4) %>
+    SQL
+
+    # Create audit trigger
+    execute <<-SQL
+<%= ActiveVersion::Database::Triggers::PostgreSQL.generate_audit_trigger(
+  table_name,
+  trigger_name: trigger_name,
+  events: events.map(&:to_sym)
+).indent(4) %>
+    SQL
+    <%- elsif type == "revision" -%>
+    # Create revision trigger function
+    execute <<-SQL
+<%= ActiveVersion::Database::Triggers::PostgreSQL.generate_revision_trigger_function(
+  table_name,
+  revision_table_name,
+  foreign_key: "#{file_name}_id",
+  version_column: ActiveVersion.config.revision_version_column,
+  columns: tracked_columns
+).indent(4) %>
+    SQL
+
+    # Create revision trigger
+    execute <<-SQL
+<%= ActiveVersion::Database::Triggers::PostgreSQL.generate_revision_trigger(
+  table_name,
+  trigger_name: trigger_name
+).indent(4) %>
+    SQL
+    <%- end -%>
+  end
+
+  def down
+    <%- if type == "audit" -%>
+    # Drop audit trigger
+    execute <<-SQL
+<%= ActiveVersion::Database::Triggers::PostgreSQL.drop_trigger(trigger_name, table_name).indent(4) %>
+    SQL
+
+    # Drop audit trigger function
+    execute <<-SQL
+<%= ActiveVersion::Database::Triggers::PostgreSQL.drop_trigger_function(trigger_function_name).indent(4) %>
+    SQL
+    <%- elsif type == "revision" -%>
+    # Drop revision trigger
+    execute <<-SQL
+<%= ActiveVersion::Database::Triggers::PostgreSQL.drop_trigger(trigger_name, table_name).indent(4) %>
+    SQL
+
+    # Drop revision trigger function
+    execute <<-SQL
+<%= ActiveVersion::Database::Triggers::PostgreSQL.drop_trigger_function(trigger_function_name).indent(4) %>
+    SQL
+    <%- end -%>
+  end
+
+  private
+
+  def table_name
+    "<%= table_name %>"
+  end
+
+  def audit_table_name
+    "<%= audit_table_name %>"
+  end
+
+  def revision_table_name
+    "<%= revision_table_name %>"
+  end
+
+  def auditable_type
+    "<%= auditable_type %>"
+  end
+
+  def trigger_name
+    "<%= trigger_name %>"
+  end
+
+  def trigger_function_name
+    "<%= trigger_function_name %>"
+  end
+
+  def tracked_columns
+    <%= tracked_columns.inspect %>
+  end
+end

@@ -1,0 +1,16 @@
+
+class <%= audit_class_name %> < ApplicationRecord
+  include ActiveVersion::Audits::AuditRecord
+
+  self.table_name = "<%= table_name %>"
+
+  configure_audit do
+    storage :<%= storage_type %>
+    action_column :action
+    changes_column :audited_changes
+    context_column :audited_context
+    comment_column :comment
+    version_column :version
+    user_column :user_id
+  end
+end

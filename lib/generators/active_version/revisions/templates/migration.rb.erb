@@ -1,0 +1,20 @@
+class Create<%= revision_class_name.pluralize %> < ActiveRecord::Migration<%= migration_version %>
+  def change
+    create_table :<%= table_name %> do |t|
+      t.references :<%= file_name %>, null: false, foreign_key: true, index: false
+      t.integer :<%= version_column %>, null: false
+
+      # Copy all columns from source table
+      # Note: This is a simplified version - in production, you'd want to
+      # inspect the actual source table columns dynamically
+      # For now, we'll add common columns that can be customized
+      t.text :title
+      t.text :body
+      # Add other columns as needed
+
+      t.timestamps
+    end
+
+    add_index :<%= table_name %>, [:<%= foreign_key %>, :<%= version_column %>], unique: true, name: "index_<%= table_name %>_on_<%= foreign_key %>_and_<%= version_column %>"
+  end
+end
