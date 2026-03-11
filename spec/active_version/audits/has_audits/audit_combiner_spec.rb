@@ -206,6 +206,7 @@ RSpec.describe ActiveVersion::Audits::HasAudits::AuditCombiner, type: :integrati
       audits = post.audits.to_a
 
       # Remove audits method temporarily
+      allow(post).to receive(:respond_to?).and_call_original
       allow(post).to receive(:respond_to?).with(:audits).and_return(false)
 
       expect { post.send(:combine_audits, audits.first(2)) }.not_to raise_error

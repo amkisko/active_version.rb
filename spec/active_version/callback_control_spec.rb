@@ -306,6 +306,7 @@ RSpec.describe "ActiveVersion Callback Control", type: :integration do
         _reflections.delete(:revisions)
         has_many :revisions,
           class_name: "PostRevision",
+          foreign_key: "post_id",
           inverse_of: :post,
           dependent: :delete_all
 

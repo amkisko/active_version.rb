@@ -19,6 +19,7 @@ RSpec.describe "ActiveVersion on partitioned tables (PostgreSQL)", type: :integr
   before(:all) do
     DatabaseHelper.setup
     skip "Partitioned table integration tests require PostgreSQL" unless postgresql?
+    skip "Composite primary keys in partitioned integration tests require ActiveRecord 7.1+" if ActiveRecord.gem_version < Gem::Version.new("7.1.0")
     setup_partitioned_tables!
     define_partitioned_models!
   end
