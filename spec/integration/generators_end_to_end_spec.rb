@@ -5,6 +5,12 @@ require "shellwords"
 require "fileutils"
 
 RSpec.describe "ActiveVersion generators end-to-end", type: :integration do
+  before do
+    if RUBY_ENGINE == "truffleruby"
+      skip("generator e2e is skipped on TruffleRuby due to rbs native extension incompatibility under bundle exec in fixture apps")
+    end
+  end
+
   before(:all) do
     @tmp_root = Dir.mktmpdir("active_version_generator_e2e")
     @app_path = File.join(@tmp_root, "fixture_app")

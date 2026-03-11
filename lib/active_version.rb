@@ -1,3 +1,4 @@
+require "logger"
 require "active_support"
 begin
   require "active_record"
