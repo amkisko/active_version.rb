@@ -168,35 +168,7 @@ module ActiveVersion
           # This ensures class_audited_options can find it
           @audited_options_base = normalized.dup
           self.audited_options = normalized
-
-          # Override audited_options to merge thread-local config
-          # class_attribute methods can't be easily overridden, so we need to use alias_method
-          unless respond_to?(:audited_options_without_thread_local, true)
-            alias_method :audited_options_without_thread_local, :audited_options
-            define_singleton_method :audited_options do
-              # Get base class-level options (without thread-local)
-              # Use send to call private method in correct context
-              class_level = send(:class_audited_options)
-              key = send(:audited_current_options_key)
-              thread_local = ActiveVersion.store_get(key)
-
-              # Start with class-level options (deep copy to avoid reference issues)
-              result = if class_level.is_a?(Hash)
-                class_level.deep_dup
-              else
-                {}
-              end
-
-              # Merge thread-local over class-level (thread-local takes precedence)
-              if thread_local.is_a?(Hash) && !thread_local.empty?
-                thread_local.each do |k, v|
-                  result[k] = v
-                end
-              end
-
-              result
-            end
-          end
+          install_thread_local_audited_options_reader!
 
           self.audit_associated_with = audited_options[:associated_with]
 
@@ -261,6 +233,7 @@ module ActiveVersion
           @audited_options_base = normalized.dup
           self.audit_class = resolved_audit_class
           @audit_class = resolved_audit_class  # Also set instance variable for the custom method
+          install_thread_local_audited_options_reader!
 
           # Ensure audit class associations are set up
           resolved_audit_class.setup_associations if resolved_audit_class.respond_to?(:setup_associations)
@@ -330,6 +303,7 @@ module ActiveVersion
           self.audited_options = normalized
           # Store base value in instance variable for class_audited_options to access
           @audited_options_base = normalized.dup
+          install_thread_local_audited_options_reader!
           self.audit_associated_with = audited_options[:associated_with]
         end
 
@@ -366,6 +340,7 @@ module ActiveVersion
         public
 
         def with_audited_options(options = {})
+          install_thread_local_audited_options_reader!
           thread_key = audited_current_options_key
           current = ActiveVersion.store_get(thread_key)
           # Store only the thread-local overrides (merge with existing if any)
@@ -375,12 +350,22 @@ module ActiveVersion
           normalized = {}
           # Convert options to hash (paper_trail pattern: simple to_h call)
           # Handle both Hash and objects that respond to to_h
-          opts_hash = if options.respond_to?(:to_h)
-            options.to_h
-          elsif options.is_a?(Hash)
+          opts_hash = if options.is_a?(Hash)
             options
+          elsif options.respond_to?(:to_h)
+            options.to_h
           else
             {}
+          end
+
+          # Some objects (e.g. Struct.new(:to_h).new({...})) stringify into
+          # { to_h: {...} } instead of returning the intended options hash.
+          if opts_hash.is_a?(Hash)
+            if opts_hash.key?(:to_h) && opts_hash[:to_h].is_a?(Hash)
+              opts_hash = opts_hash[:to_h]
+            elsif opts_hash.key?("to_h") && opts_hash["to_h"].is_a?(Hash)
+              opts_hash = opts_hash["to_h"]
+            end
           end
 
           opts_hash.each do |k, v|
@@ -421,6 +406,33 @@ module ActiveVersion
         end
 
         private
+
+        def install_thread_local_audited_options_reader!
+          unless singleton_class.instance_methods(false).include?(:audited_options_without_thread_local)
+            singleton_class.alias_method :audited_options_without_thread_local, :audited_options
+          end
+
+          define_singleton_method :audited_options do
+            class_level = send(:class_audited_options)
+            key = send(:audited_current_options_key)
+            thread_local = ActiveVersion.store_get(key)
+
+            result = if class_level.is_a?(Hash)
+              class_level.deep_dup
+            else
+              {}
+            end
+
+            if thread_local.is_a?(Hash) && !thread_local.empty?
+              thread_local.each do |k, v|
+                result[k] = v
+              end
+            end
+
+            result
+          end
+          @active_version_audited_options_wrapped = true
+        end
 
         # Get the base class_attribute value without thread-local merging
         def class_audited_options
