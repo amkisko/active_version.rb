@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 1.0.1 (2026-03-11)
+
+- Fixed Rails 7.2 thread-local audited options handling in `with_audited_options`
+- Added Rails 6 appraisal and CI matrix coverage
+- Improved test DB connection setup to honor `DATABASE_URL` and fail fast when PostgreSQL is explicitly requested
+- Added compatibility fix for ActiveSupport on older Rails with newer Ruby by loading `logger` early
+- Updated generator integration spec behavior on TruffleRuby to avoid known native extension incompatibility
+
 ## 1.0.0 (2026-03-08)
 
 - Initial release of ActiveVersion library
@@ -33,4 +41,3 @@
 - Added instrumentation hooks via ActiveSupport::Notifications
 - Added configurable column naming and per-model and global configuration options
 - Added comprehensive test suite with unit tests, integration tests, and test helpers
-
