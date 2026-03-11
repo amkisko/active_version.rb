@@ -13,6 +13,8 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          - gemfile: rails6
+            ruby_version: "3.2"
           - gemfile: rails72
             ruby_version: "3.2"
           - gemfile: rails8ruby34
