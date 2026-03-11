@@ -116,7 +116,15 @@ RSpec.describe "ActiveVersion generators end-to-end", type: :integration do
   end
 
   def run_cmd_in_app!(command)
-    stdout, stderr, status = Open3.capture3(command, chdir: @app_path)
+    env = {
+      "DATABASE_URL" => nil,
+      "PGHOST" => nil,
+      "PGPORT" => nil,
+      "PGDATABASE" => nil,
+      "PGUSER" => nil,
+      "PGPASSWORD" => nil
+    }
+    stdout, stderr, status = Open3.capture3(env, command, chdir: @app_path)
     return stdout if status.success?
 
     raise <<~MSG

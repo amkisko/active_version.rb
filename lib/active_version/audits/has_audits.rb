@@ -775,7 +775,7 @@ module ActiveVersion
       end
 
       def clear_rolled_back_audits
-        audits.reset
+        association(:audits).reset if association_cached?(:audits)
       end
 
       # Override audits method to handle dynamically created classes
