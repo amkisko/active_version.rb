@@ -1,5 +1,6 @@
 require "active_version/revisions/has_revisions/revision_queries"
 require "active_version/revisions/has_revisions/revision_manipulation"
+require "json"
 
 module ActiveVersion
   module Revisions
@@ -329,7 +330,7 @@ module ActiveVersion
       def revision_sql_value(value)
         case value
         when Hash, Array
-          value.to_json
+          JSON.generate(value)
         when Time, DateTime
           value.utc
         when Date
@@ -394,16 +395,18 @@ module ActiveVersion
 
       def create_revision_before_update
         pointer = instance_variable_get(:@active_version_pointer)
+        truncated_forward_history = false
         if pointer
           version_column = revision_version_column
           # Classic linear undo/redo behavior: editing after undo drops forward history.
           revisions_scope.where("#{version_column} > ?", pointer).delete_all
           revisions.reset
           remove_instance_variable(:@active_version_pointer)
+          truncated_forward_history = true
         end
         # Check if we should create revision
         return unless should_create_revision?
-        return if latest_revision_matches_current_state?
+        return if truncated_forward_history && latest_revision_matches_current_state?
 
         result = create_snapshot!(use_old_values: true)
 

@@ -76,7 +76,7 @@ module ActiveVersion
           return locale_column if column_names.include?(locale_column.to_s)
 
           ActiveVersion.config.translation_locale_column
-        rescue NameError, ActiveRecord::ConnectionNotDefined
+        rescue NameError, *ActiveVersion::Runtime.active_record_connection_errors
           ActiveVersion.config.translation_locale_column
         end
 
@@ -99,7 +99,7 @@ module ActiveVersion
           begin
             locale_column = locale_column_name
             validates locale_column, presence: true, uniqueness: {scope: Array(source_foreign_key)}
-          rescue NameError, ActiveRecord::ConnectionNotDefined
+          rescue NameError, *ActiveVersion::Runtime.active_record_connection_errors
             # Source class not yet defined, will be set up later
           end
         end
@@ -116,7 +116,7 @@ module ActiveVersion
             column = columns_hash[locale_column.to_s]
             return unless column&.type == :integer
             enum locale_column, I18n.available_locales.index_by(&:to_s)
-          rescue NameError, ActiveRecord::ConnectionNotDefined
+          rescue NameError, *ActiveVersion::Runtime.active_record_connection_errors
             # Source class not yet defined
           end
         end

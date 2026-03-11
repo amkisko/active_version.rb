@@ -1,3 +1,5 @@
+require "json"
+
 module ActiveVersion
   module Revisions
     # SQL builder for batch revision operations
@@ -251,7 +253,7 @@ module ActiveVersion
         def prepare_sql_value(value)
           case value
           when Hash, Array
-            value.to_json
+            JSON.generate(value)
           when Time, DateTime
             value.utc
           when Date

@@ -1,3 +1,5 @@
+require "json"
+
 module ActiveVersion
   module Audits
     module HasAudits
@@ -105,7 +107,7 @@ module ActiveVersion
           changes.each_with_object({}) do |(k, v), h|
             h[k] = v.last if v.is_a?(Array)
             h[k] = v unless v.is_a?(Array)
-            h[k] = h[k].to_json if h[k].is_a?(Hash)
+            h[k] = JSON.generate(h[k]) if h[k].is_a?(Hash) || h[k].is_a?(Array)
           end
         end
       end
