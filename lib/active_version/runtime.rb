@@ -91,12 +91,13 @@ module ActiveVersion
       def active_record_connection_errors
         return [] unless defined?(::ActiveRecord)
 
-        [
+        errors = [
           ::ActiveRecord::ConnectionNotEstablished,
           ::ActiveRecord::NoDatabaseError,
-          ::ActiveRecord::StatementInvalid,
-          ::ActiveRecord::ConnectionNotDefined
+          ::ActiveRecord::StatementInvalid
         ]
+        errors << ::ActiveRecord::ConnectionNotDefined if defined?(::ActiveRecord::ConnectionNotDefined)
+        errors
       end
 
       def supports_transactional_context?(connection)

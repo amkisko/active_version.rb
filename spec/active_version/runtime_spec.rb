@@ -44,7 +44,9 @@ RSpec.describe ActiveVersion::Runtime do
     expect(errors).to include(ActiveRecord::ConnectionNotEstablished)
     expect(errors).to include(ActiveRecord::NoDatabaseError)
     expect(errors).to include(ActiveRecord::StatementInvalid)
-    expect(errors).to include(ActiveRecord::ConnectionNotDefined)
+    if defined?(ActiveRecord::ConnectionNotDefined)
+      expect(errors).to include(ActiveRecord::ConnectionNotDefined)
+    end
   end
 
   it "reports PostgreSQL capabilities through default runtime adapter" do
