@@ -190,7 +190,7 @@ module ActiveVersion
               begin
                 audit_class.create!(insert_attrs)
                 combine_audits_if_needed if attrs[:action] != "create"
-                audits.reset
+                association(:audits).reset if association_cached?(:audits)
                 nil
               rescue ActiveRecord::RecordNotUnique => e
                 # Handle unique constraint violation (likely version conflict)
@@ -208,7 +208,7 @@ module ActiveVersion
                   begin
                     audit_class.create!(insert_attrs)
                     combine_audits_if_needed if attrs[:action] != "create"
-                    audits.reset
+                    association(:audits).reset if association_cached?(:audits)
                     nil
                   rescue => retry_error
                     handle_audit_errors(retry_error, attrs[:action])
