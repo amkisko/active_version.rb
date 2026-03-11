@@ -59,7 +59,7 @@ module DatabaseHelper
     # examples execute in normal suite runs.
     ActiveRecord::Base.establish_connection(postgresql_connection_config)
     ActiveRecord::Base.connection.execute("SELECT 1")
-  rescue StandardError
+  rescue
     raise if postgresql_explicitly_requested?
 
     ActiveRecord::Base.establish_connection(
