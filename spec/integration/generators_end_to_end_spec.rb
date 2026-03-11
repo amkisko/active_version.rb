@@ -102,7 +102,8 @@ RSpec.describe "ActiveVersion generators end-to-end", type: :integration do
   end
 
   def run_cmd!(command)
-    stdout, stderr, status = Open3.capture3(command)
+    env = {"RUBYOPT" => [ENV["RUBYOPT"], "-rlogger"].compact.join(" ").strip}
+    stdout, stderr, status = Open3.capture3(env, command)
     return stdout if status.success?
 
     raise <<~MSG
@@ -117,6 +118,8 @@ RSpec.describe "ActiveVersion generators end-to-end", type: :integration do
 
   def run_cmd_in_app!(command)
     env = {
+      "RAILS_ENV" => "test",
+      "RUBYOPT" => [ENV["RUBYOPT"], "-rlogger"].compact.join(" ").strip,
       "DATABASE_URL" => nil,
       "PGHOST" => nil,
       "PGPORT" => nil,

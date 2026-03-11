@@ -24,13 +24,7 @@ module ActiveVersion
 
         # Get audit class name
         def self.audit_class
-          # Check class attribute first (set by set_audit)
-          return superclass.audit_class if respond_to?(:superclass) && superclass.respond_to?(:audit_class) && superclass.audit_class
           return @audit_class if @audit_class
-
-          # Check if class attribute was set via class_attribute
-          attr_value = read_inheritable_attribute(:audit_class) if respond_to?(:read_inheritable_attribute)
-          return attr_value if attr_value
 
           if audited_options && audited_options[:as]
             klass = case audited_options[:as]
@@ -297,7 +291,17 @@ module ActiveVersion
         # This overrides the class_attribute reader to merge thread-local overrides
         def update_audited_options(new_options)
           normalized = normalize_audited_options(new_options)
-          resolved_audit_class = audit_class
+          resolved_audit_class = resolve_audit_class_option(normalized[:as]) || audit_class
+          if resolved_audit_class
+            self.audit_class = resolved_audit_class
+            @audit_class = resolved_audit_class
+            if resolved_audit_class.name.present?
+              has_many :audits,
+                as: :auditable,
+                class_name: resolved_audit_class.name.to_s,
+                inverse_of: false
+            end
+          end
           register_audit_column_mappings_from_destination(resolved_audit_class) if resolved_audit_class
           normalized = infer_audit_storage_and_columns(resolved_audit_class, normalized) if resolved_audit_class
           self.audited_options = normalized
@@ -305,6 +309,15 @@ module ActiveVersion
           @audited_options_base = normalized.dup
           install_thread_local_audited_options_reader!
           self.audit_associated_with = audited_options[:associated_with]
+        end
+
+        def resolve_audit_class_option(value)
+          case value
+          when String, Symbol
+            value.to_s.safe_constantize
+          when Class
+            value
+          end
         end
 
         def normalize_audited_options(options)
@@ -418,7 +431,9 @@ module ActiveVersion
             thread_local = ActiveVersion.store_get(key)
 
             result = if class_level.is_a?(Hash)
-              class_level.deep_dup
+              class_level.each_with_object({}) do |(k, v), hash|
+                hash[k] = safe_dup_audited_option_value(v)
+              end
             else
               {}
             end
@@ -432,6 +447,17 @@ module ActiveVersion
             result
           end
           @active_version_audited_options_wrapped = true
+        end
+
+        def safe_dup_audited_option_value(value)
+          case value
+          when Hash
+            value.each_with_object({}) { |(k, v), hash| hash[k] = safe_dup_audited_option_value(v) }
+          when Array
+            value.map { |item| safe_dup_audited_option_value(item) }
+          else
+            value
+          end
         end
 
         # Get the base class_attribute value without thread-local merging
@@ -789,18 +815,24 @@ module ActiveVersion
           raise ConfigurationError, "Cannot determine class name for dynamically created class. Please specify class_name option in has_audits (e.g., has_audits as: PostAudit, class_name: 'Post')"
         end
 
-        # If class_name is different from actual class name, query directly
         uses_custom_auditable_id = audited_options[:identity_resolver].present? ||
           Array(active_version_audit_identity_columns).length > 1
-        if auditable_type != self.class.name || uses_custom_auditable_id
-          auditable_column = ActiveVersion.column_mapper.column_for(self.class, :audits, :auditable)
-          version_column = ActiveVersion.column_mapper.column_for(self.class, :audits, :version)
-          self.class.audit_class.where({"#{auditable_column}_type" => auditable_type}.merge(active_version_audit_identity_map))
-            .order(version_column => :asc)
-        else
-          # Use normal association for classes with proper names
-          super
+
+        audit_klass =
+          if !uses_custom_auditable_id && self.class.reflect_on_association(:audits)
+            association(:audits).klass
+          else
+            self.class.audit_class
+          end
+        audit_klass ||= self.class.send(:resolve_audit_class_option, audited_options[:as]) if self.class.respond_to?(:resolve_audit_class_option, true)
+        raise ConfigurationError, "No audit class configured for #{self.class.name}" unless audit_klass
+
+        if !uses_custom_auditable_id && auditable_type == self.class.name && self.class.reflect_on_association(:audits)
+          return super
         end
+
+        auditable_column = ActiveVersion.column_mapper.column_for(self.class, :audits, :auditable)
+        audit_klass.where({"#{auditable_column}_type" => auditable_type}.merge(active_version_audit_identity_map))
       end
 
       def active_version_auditable_id_value

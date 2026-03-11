@@ -117,6 +117,18 @@ RSpec.configure do |config|
     ActiveVersion.clear_context!
     ActiveVersion.auditing_enabled = true
     ActiveVersion.clear_scoped_keys!(/active_version_.*_audited_options/)
+    if defined?(ActiveVersion::RequestStore)
+      ActiveVersion::RequestStore.audited_user = nil if ActiveVersion::RequestStore.respond_to?(:audited_user=)
+      ActiveVersion::RequestStore.request_uuid = nil if ActiveVersion::RequestStore.respond_to?(:request_uuid=)
+      ActiveVersion::RequestStore.remote_address = nil if ActiveVersion::RequestStore.respond_to?(:remote_address=)
+    end
+
+    # Keep shared test model configuration deterministic across examples.
+    if defined?(Post)
+      Post.has_translations(as: PostTranslation) if defined?(PostTranslation) && Post.respond_to?(:has_translations)
+      Post.has_revisions(as: PostRevision) if defined?(PostRevision) && Post.respond_to?(:has_revisions)
+      Post.has_audits(as: PostAudit) if defined?(PostAudit) && Post.respond_to?(:has_audits)
+    end
   end
 
   # Integration test configuration
