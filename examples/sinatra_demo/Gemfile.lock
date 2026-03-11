@@ -1,7 +1,7 @@
 PATH
   remote: ../..
   specs:
-    active_version (1.0.0)
+    active_version (1.0.1)
       activesupport (>= 6.0.0)
 
 GEM
@@ -137,7 +137,7 @@ DEPENDENCIES
   sqlite3 (~> 1.7)
 
 CHECKSUMS
-  active_version (1.0.0)
+  active_version (1.0.1)
   activesupport (8.1.2) sha256=88842578ccd0d40f658289b0e8c842acfe9af751afee2e0744a7873f50b6fdae
   addressable (2.8.9) sha256=cc154fcbe689711808a43601dee7b980238ce54368d23e127421753e46895485
   base64 (0.3.0) sha256=27337aeabad6ffae05c265c450490628ef3ebd4b67be58257393227588f5a97b
