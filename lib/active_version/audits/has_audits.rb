@@ -516,7 +516,7 @@ module ActiveVersion
             else
               inferred[:only] ||= []
             end
-          rescue ActiveRecord::ConnectionNotDefined, ActiveRecord::ConnectionNotEstablished, ActiveRecord::NoDatabaseError, ActiveRecord::StatementInvalid
+          rescue *ActiveVersion::Runtime.active_record_connection_errors
             inferred[:storage] ||= ActiveVersion.config.audit_storage
             inferred[:only] ||= []
           end

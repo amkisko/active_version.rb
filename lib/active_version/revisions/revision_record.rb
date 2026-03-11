@@ -103,7 +103,7 @@ module ActiveVersion
               version_column = fallback_column.to_sym if fallback_column
             end
             validates version_column, presence: true, uniqueness: {scope: Array(source_foreign_key)} if version_column
-          rescue NameError, ActiveRecord::ConnectionNotDefined
+          rescue NameError, *ActiveVersion::Runtime.active_record_connection_errors
             # Source class not yet defined, will be set up later
           end
         end

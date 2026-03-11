@@ -5,9 +5,6 @@ require "shellwords"
 require "fileutils"
 
 RSpec.describe "ActiveVersion generators end-to-end", type: :integration do
-  let(:repo_root) { File.expand_path("../..", __dir__) }
-  let(:root_gemfile) { File.join(repo_root, "Gemfile") }
-
   before(:all) do
     @tmp_root = Dir.mktmpdir("active_version_generator_e2e")
     @app_path = File.join(@tmp_root, "fixture_app")
@@ -19,19 +16,19 @@ RSpec.describe "ActiveVersion generators end-to-end", type: :integration do
 
   it "generates files, migrates, and boots with active version runtime smoke checks" do
     run_cmd!(
-      %(BUNDLE_GEMFILE=#{shell_escape(root_gemfile)} bundle exec rails new #{shell_escape(@app_path)} \
+      %(bundle exec rails new #{shell_escape(@app_path)} \
         --api --skip-bundle --skip-javascript --skip-hotwire --skip-active-job \
         --skip-action-mailer --skip-action-cable --skip-action-mailbox \
         --skip-action-text --skip-active-storage --skip-jbuilder --skip-system-test \
         --skip-bootsnap --database=sqlite3)
     )
 
-    run_cmd_in_app!("BUNDLE_GEMFILE=#{shell_escape(root_gemfile)} bundle exec rails generate model Post title:string body:text --no-test-framework")
-    run_cmd_in_app!("BUNDLE_GEMFILE=#{shell_escape(root_gemfile)} bundle exec rails generate active_version:install")
-    run_cmd_in_app!("BUNDLE_GEMFILE=#{shell_escape(root_gemfile)} bundle exec rails generate active_version:audits Post --storage=yaml_column")
-    run_cmd_in_app!("BUNDLE_GEMFILE=#{shell_escape(root_gemfile)} bundle exec rails generate active_version:revisions Post")
-    run_cmd_in_app!("BUNDLE_GEMFILE=#{shell_escape(root_gemfile)} bundle exec rails generate active_version:translations Post --translated-attributes title:string body:text")
-    run_cmd_in_app!("BUNDLE_GEMFILE=#{shell_escape(root_gemfile)} bundle exec rails generate active_version:triggers Post --type=audit")
+    run_cmd_in_app!("bundle exec rails generate model Post title:string body:text --no-test-framework")
+    run_cmd_in_app!("bundle exec rails generate active_version:install")
+    run_cmd_in_app!("bundle exec rails generate active_version:audits Post --storage=yaml_column")
+    run_cmd_in_app!("bundle exec rails generate active_version:revisions Post")
+    run_cmd_in_app!("bundle exec rails generate active_version:translations Post --translated-attributes title:string body:text")
+    run_cmd_in_app!("bundle exec rails generate active_version:triggers Post --type=audit")
 
     expect(File).to exist(File.join(@app_path, "config/initializers/active_version.rb"))
     expect(File).to exist(File.join(@app_path, "app/models/post_audit.rb"))
@@ -67,7 +64,7 @@ RSpec.describe "ActiveVersion generators end-to-end", type: :integration do
     # Trigger migrations are PostgreSQL-specific and intentionally fail on SQLite.
     FileUtils.mv(trigger_migration_path, "#{trigger_migration_path}.skip")
 
-    run_cmd_in_app!("BUNDLE_GEMFILE=#{shell_escape(root_gemfile)} bundle exec rails db:migrate")
+    run_cmd_in_app!("bundle exec rails db:migrate")
 
     smoke_script = <<~RUBY
       raise "missing post_audits" unless ActiveRecord::Base.connection.table_exists?(:post_audits)
@@ -88,7 +85,7 @@ RSpec.describe "ActiveVersion generators end-to-end", type: :integration do
     RUBY
 
     run_cmd_in_app!(
-      "BUNDLE_GEMFILE=#{shell_escape(root_gemfile)} bundle exec rails runner #{shell_escape(smoke_script)}"
+      "bundle exec rails runner #{shell_escape(smoke_script)}"
     )
   end
 
