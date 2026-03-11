@@ -44,3 +44,5 @@ Thumbs.db
 /pkg/
 
 docs/THIRD_PARTY_LICENSE_MANIFEST.tsv
+
+/gemfiles/*.lock
