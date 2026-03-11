@@ -59,6 +59,8 @@ For a step-by-step guide (prerequisites, generators, migrations, model setup, an
 
 Quick checklist: add the gem → `bundle install` → `rails g active_version:install` → run the feature generators for your models (e.g. `rails g active_version:audits Post --storage=json_column`) → `rails db:migrate` → include the concerns and `has_translations` / `has_revisions` / `has_audits` in each model.
 
+For production usage, also configure destination models (`PostAudit`, `PostRevision`, `PostTranslation`) with `configure_audit`, `configure_revision`, and `configure_translation`.
+
 ## Quick Start
 
 ### Setup
@@ -221,19 +223,43 @@ end
 class PostRevision < ApplicationRecord
   include ActiveVersion::Revisions::RevisionRecord
 
-  configure_revision(version_column: :version,
-    foreign_key: :post_id
-  )
+  configure_revision do
+    version_column :version
+    foreign_key :post_id
+  end
 end
 
 class PostTranslation < ApplicationRecord
   include ActiveVersion::Translations::TranslationRecord
 
-  configure_translation(locale_column: :locale,
-    foreign_key: :post_id
-  )
+  configure_translation do
+    locale_column :locale
+    foreign_key :post_id
+  end
 end
 ```
+
+Keyword-argument style is also supported:
+
+```ruby
+configure_revision(version_column: :version, foreign_key: :post_id)
+configure_translation(locale_column: :locale, foreign_key: :post_id)
+```
+
+### Schema Evolution and Sync Strategy
+
+When using `:mirror_columns` audits, revisions, and translations, destination tables must stay schema-compatible with their source model payload.
+
+- Keep source and destination columns in sync for attributes you persist.
+- Avoid destructive one-shot renames/drops across source and destination.
+- Prefer gradual schema rollout:
+  1. add new column(s) to source and destination
+  2. deploy write path that can populate both shapes
+  3. backfill historical rows as needed
+  4. migrate readers to the new shape
+  5. deprecate and later remove old columns in a separate rollout
+
+This phased approach avoids runtime mismatches and preserves audit/revision/translation continuity during deploys.
 
 ### Per-Model Configuration
 
