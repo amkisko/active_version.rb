@@ -48,6 +48,24 @@ RSpec.describe ActiveVersion::Audits::AuditRecord do
     end
   end
 
+  describe ".setup_associations" do
+    it "does not raise when audit table is not migrated yet" do
+      expect do
+        klass = Class.new(ApplicationRecord) do
+          self.table_name = "missing_post_audits"
+
+          def self.name
+            "PostAudit"
+          end
+
+          include ActiveVersion::Audits::AuditRecord
+        end
+
+        klass.setup_associations if klass.respond_to?(:setup_associations)
+      end.not_to raise_error
+    end
+  end
+
   describe ".creates" do
     it "defines creates scope" do
       expect(audit_class).to respond_to(:creates)
