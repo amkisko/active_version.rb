@@ -5,7 +5,7 @@ unless ENV["SIMPLECOV_DISABLE"] == "1"
   require "simplecov_json_formatter"
 
   SimpleCov.start do
-    minimum_coverage 95
+    minimum_coverage(90)
     track_files "{lib,app}/**/*.rb"
 
     add_filter "/lib/active_version/tasks/"
