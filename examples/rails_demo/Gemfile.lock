@@ -1,7 +1,7 @@
 PATH
   remote: ../..
   specs:
-    active_version (1.0.0)
+    active_version (1.0.1)
       activesupport (>= 6.0.0)
 
 GEM
@@ -364,7 +364,7 @@ CHECKSUMS
   actionpack (8.1.1) sha256=192e27c39a63c7d801ac7b6d50505f265e389516985eed9b2ee364896a6a06d7
   actiontext (8.1.1) sha256=fd8d8da1e6bc0b04ff72fccfd127e78431238a99a82e736c7b52727c576a7640
   actionview (8.1.1) sha256=ca480c8b099dea0862b0934f24182b84c2d29092e7dbf464fb3e6d4eb9b468dc
-  active_version (1.0.0)
+  active_version (1.0.1)
   activeadmin (4.0.0.beta19) sha256=b0a01eeb217b51d72e68929beb6a654ef98dda38c6ddfa1b956f8b13e15f3164
   activejob (8.1.1) sha256=94f438a9f3b5a6b130fef53d8313f869dbd379309e7d639891bda36b12509383
   activemodel (8.1.1) sha256=8b7e2496b9e333ced06248c16a43217b950192c98e0fe3aa117eee21501c6fbd
