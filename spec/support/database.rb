@@ -57,12 +57,35 @@ module DatabaseHelper
   def self.establish_test_connection
     # Prefer PostgreSQL when available so PostgreSQL-specific integration
     # examples execute in normal suite runs.
-    ActiveRecord::Base.establish_connection(adapter: "postgresql")
+    ActiveRecord::Base.establish_connection(postgresql_connection_config)
     ActiveRecord::Base.connection.execute("SELECT 1")
-  rescue
+  rescue StandardError
+    raise if postgresql_explicitly_requested?
+
     ActiveRecord::Base.establish_connection(
       adapter: "sqlite3",
       database: ":memory:"
     )
+  end
+
+  def self.postgresql_connection_config
+    database_url = ENV["DATABASE_URL"]
+    return database_url if database_url&.match?(/\Apostgres(?:ql)?:\/\//)
+
+    {
+      adapter: "postgresql",
+      host: ENV.fetch("PGHOST", "localhost"),
+      port: ENV.fetch("PGPORT", 5432),
+      database: ENV.fetch("PGDATABASE", "active_version_test"),
+      username: ENV.fetch("PGUSER", "postgres"),
+      password: ENV["PGPASSWORD"]
+    }
+  end
+
+  def self.postgresql_explicitly_requested?
+    database_url = ENV["DATABASE_URL"]
+    return true if database_url&.match?(/\Apostgres(?:ql)?:\/\//)
+
+    ENV.key?("PGHOST") || ENV.key?("PGPORT") || ENV.key?("PGDATABASE") || ENV.key?("PGUSER")
   end
 end
