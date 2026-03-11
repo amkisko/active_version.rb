@@ -29,28 +29,31 @@ module ActiveVersion
               reload
             end
 
-            # Clear association cache to ensure we get fresh data from database
-            if respond_to?(:audits)
-              audits.reset
-              if respond_to?(:association)
-                assoc = association(:audits)
-                assoc.reset if assoc.respond_to?(:loaded?) && assoc.loaded?
-              end
+            # Clear association cache to ensure we get fresh data from database.
+            # Avoid calling audits reader directly here to prevent AR 6.1
+            # delegation edge cases on dynamic models.
+            if respond_to?(:association) && association_cached?(:audits)
+              association(:audits).reset
             end
 
             # Get all audits fresh from database (not from cache)
             # Query directly to ensure we get updated values after SQL updates
             auditable_type = audited_options[:class_name] || self.class.name
-            if auditable_type != self.class.name
-              auditable_column = ActiveVersion.column_mapper.column_for(self.class, :audits, :auditable)
-              version_column = ActiveVersion.column_mapper.column_for(self.class, :audits, :version)
-              all_audits = self.class.audit_class.where({"#{auditable_column}_type" => auditable_type}.merge(active_version_audit_identity_map))
-                .order(version_column => :asc)
-                .to_a
-            else
-              # Use association but ensure it's not cached
-              all_audits = audits.reload.to_a
+            auditable_column = ActiveVersion.column_mapper.column_for(self.class, :audits, :auditable)
+            version_column = ActiveVersion.column_mapper.column_for(self.class, :audits, :version)
+            audit_klass =
+              if self.class.reflect_on_association(:audits)
+                association(:audits).klass
+              else
+                self.class.audit_class
+              end
+            if audit_klass.nil? && self.class.respond_to?(:resolve_audit_class_option, true)
+              audit_klass = self.class.send(:resolve_audit_class_option, audited_options[:as])
             end
+            break unless audit_klass
+            all_audits = audit_klass.where({"#{auditable_column}_type" => auditable_type}.merge(active_version_audit_identity_map))
+              .order(version_column => :asc)
+              .to_a
 
             # Filter out combined audits (those with empty changes)
             # Check raw column value first (before JSON parsing) for "{}" string
@@ -196,16 +199,13 @@ module ActiveVersion
           end
 
           # Clear association cache to ensure fresh data is loaded after updates
-          if respond_to?(:audits)
-            # Clear the association cache
+          if respond_to?(:association) && association_cached?(:audits)
+            association(:audits).reset
+          end
+          begin
             audits.reset
-            # Also clear any loaded association state
-            if respond_to?(:association)
-              assoc = association(:audits)
-              if assoc.respond_to?(:loaded?) && assoc.loaded?
-                assoc.reset
-              end
-            end
+          rescue NoMethodError
+            nil
           end
         end
       end

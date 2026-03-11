@@ -255,6 +255,8 @@ RSpec.describe "ActiveVersion configurable identity strategy", type: :integratio
   end
 
   it "supports composite identity across revisions, translations, audits, and query helpers" do
+    skip "Composite primary keys require ActiveRecord 7.1+" if ActiveRecord.gem_version < Gem::Version.new("7.1.0")
+
     conn = ActiveRecord::Base.connection
     conn.create_table :composite_identity_posts, id: false, force: true do |t|
       t.integer :tenant_id, null: false
