@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 1.1.0 (2026-03-27)
+
+- Added `audit_auditable_optional` configuration option to control polymorphic `belongs_to :auditable` optionality
+
 ## 1.0.1 (2026-03-11)
 
 - Fixed Rails 7.2 thread-local audited options handling in `with_audited_options`
