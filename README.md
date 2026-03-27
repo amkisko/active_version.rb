@@ -182,6 +182,8 @@ end
 
 ### Destination Audit Model Configuration (Preferred)
 
+The gem defines `belongs_to :auditable` (or your configured column) once, with `optional: false` by default (see `config.audit_auditable_optional`). Set `config.audit_auditable_optional = true` if `auditable_id` is composite or synthetic so polymorphic `load` may not resolve even when columns are valid. Do not re-declare `belongs_to :auditable` in subclasses to tweak options, that can leave duplicate validators from Rails. For presence checks without relying on association load, validate `auditable_type` and `auditable_id` explicitly.
+
 ```ruby
 class PostAudit < ApplicationRecord
   include ActiveVersion::Audits::AuditRecord

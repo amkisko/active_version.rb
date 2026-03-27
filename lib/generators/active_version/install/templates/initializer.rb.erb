@@ -31,6 +31,10 @@ ActiveVersion.configure do |config|
   config.audit_remote_address_column = :remote_address
   config.audit_request_uuid_column = :request_uuid
 
+  # Polymorphic belongs_to :auditable uses optional: false by default. Set true if
+  # auditable_id is composite / synthetic and Rails' must-exist validation is wrong for your app.
+  # config.audit_auditable_optional = true
+
   # Infrastructure note:
   # Connection routing / connection topology / partition lifecycle are application-owned.
   # ActiveVersion reads/writes using the active ActiveRecord connection.

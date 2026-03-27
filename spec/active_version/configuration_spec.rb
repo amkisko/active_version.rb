@@ -40,6 +40,10 @@ RSpec.describe ActiveVersion::Configuration do
       expect(config.audit_version_column).to eq(:version)
     end
 
+    it "does not make polymorphic auditable belongs_to optional by default" do
+      expect(config.audit_auditable_optional).to be false
+    end
+
     it "fails fast on audit and revision write errors by default" do
       expect(config.audit_error_behavior).to eq(:exception)
       expect(config.revision_error_behavior).to eq(:exception)
