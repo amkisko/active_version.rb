@@ -21,6 +21,7 @@ module ActiveVersion
     attr_accessor audit_version_column: Symbol | String
     attr_accessor audit_user_column: Symbol | String
     attr_accessor audit_auditable_column: Symbol | String
+    attr_accessor audit_auditable_optional: bool
     attr_accessor audit_associated_column: Symbol | String
     attr_accessor audit_remote_address_column: Symbol | String
     attr_accessor audit_request_uuid_column: Symbol | String
