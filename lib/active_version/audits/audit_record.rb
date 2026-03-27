@@ -135,7 +135,12 @@ module ActiveVersion
             # Set up polymorphic association only when conventional id/type columns exist.
             auditable_column = ActiveVersion.column_mapper.column_for(source_class, :audits, :auditable)
             if column_names.include?("#{auditable_column}_id") && column_names.include?("#{auditable_column}_type")
-              send(:belongs_to, auditable_column, polymorphic: true)
+              send(
+                :belongs_to,
+                auditable_column,
+                polymorphic: true,
+                optional: ActiveVersion.config.audit_auditable_optional
+              )
             end
 
             # Set up user association (if configured)

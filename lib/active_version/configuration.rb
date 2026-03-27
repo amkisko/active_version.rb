@@ -26,6 +26,7 @@ module ActiveVersion
     attr_accessor :audit_version_column
     attr_accessor :audit_user_column
     attr_accessor :audit_auditable_column
+    attr_accessor :audit_auditable_optional
     attr_accessor :audit_associated_column
     attr_accessor :audit_remote_address_column
     attr_accessor :audit_request_uuid_column
@@ -64,6 +65,7 @@ module ActiveVersion
       @audit_version_column = :version
       @audit_user_column = :user_id
       @audit_auditable_column = :auditable
+      @audit_auditable_optional = false
       @audit_associated_column = :associated
       @audit_remote_address_column = :remote_address
       @audit_request_uuid_column = :request_uuid
