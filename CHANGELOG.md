@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 1.2.0 (2026-03-27)
+
+- Fixed SQL generation for audit creation to avoid duplicate `created_at` and `updated_at` columns (or other possible duplicate columns)
+
 ## 1.1.0 (2026-03-27)
 
 - Added `audit_auditable_optional` configuration option to control polymorphic `belongs_to :auditable` optionality
