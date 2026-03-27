@@ -233,6 +233,30 @@ RSpec.describe "ActiveVersion Audits Integration", type: :integration do
       expect(sql).to include("post_audits")
     end
 
+    it "does not duplicate created_at or updated_at columns in the INSERT" do
+      post = Post.create!(title: "Hello")
+      post.title = "World"
+      post.save!
+
+      sql = post.audit_sql
+      expect(sql.scan('"created_at"').size).to eq(1)
+      expect(sql.scan('"updated_at"').size).to eq(1)
+    end
+
+    it "prepare_sql_values stringifies keys and merges symbol/string duplicates (last wins)" do
+      post = Post.new(title: "Hello")
+      out = post.send(
+        :prepare_sql_values,
+        {
+          :action => "update",
+          "action" => "create"
+        }
+      )
+      expect(out.keys).to eq(["action"])
+      expect(out["action"]).to eq("create")
+      expect(out.keys).to all(be_a(String))
+    end
+
     it "generates batch SQL for multiple records" do
       post1 = Post.create!(title: "Hello")
       post2 = Post.create!(title: "World")
