@@ -77,11 +77,11 @@ jobs:
       - run: bundle exec rspec
         env:
           DATABASE_URL: postgres://postgres@localhost:5432/active_version_test
-      - uses: codecov/codecov-action@v5
+      - uses: codecov/codecov-action@v6
         continue-on-error: true
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-      - uses: codecov/codecov-action@v5
+      - uses: codecov/codecov-action@v6
         if: ${{ !cancelled() }}
         continue-on-error: true
         with:
