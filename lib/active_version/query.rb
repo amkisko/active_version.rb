@@ -92,14 +92,6 @@ module ActiveVersion
         version_column = ActiveVersion.column_mapper.column_for(record.class, :revisions, :version)
         query.order(version_column => :asc)
       end
-
-      private
-
-      def log_debug(message)
-        if defined?(Rails) && Rails.respond_to?(:logger)
-          Rails.logger&.debug("[ActiveVersion::Query] #{message}")
-        end
-      end
     end
   end
 end

@@ -22,7 +22,13 @@ module ActiveVersion
           false
         end
 
-        # Get audit class name
+        # Class attributes (must be declared before the custom .audit_class reader below —
+        # otherwise class_attribute :audit_class overwrites the resolver and leaves it dead code.)
+        class_attribute :audit_associated_with, instance_writer: false
+        class_attribute :audited_options, instance_writer: false
+        class_attribute :audit_class, instance_writer: false
+
+        # Get audit class name (overrides class_attribute reader with resolution logic)
         def self.audit_class
           return @audit_class if @audit_class
 
@@ -52,11 +58,6 @@ module ActiveVersion
             end
           end
         end
-
-        # Class attributes
-        class_attribute :audit_associated_with, instance_writer: false
-        class_attribute :audited_options, instance_writer: false
-        class_attribute :audit_class, instance_writer: false
 
         # Instance attributes
         attr_accessor :audit_version, :audit_comment, :audit_context
@@ -121,13 +122,10 @@ module ActiveVersion
         def revisions(from_version = 1)
           return [] unless audits.from_version(from_version).exists?
 
-          version_column = ActiveVersion.column_mapper.column_for(self, :audits, :version)
-          all_audits = audits.to_a
-          targeted_audits = all_audits.select do |audit|
-            audit.read_attribute(version_column).to_i >= from_version
-          end
+          prior_audits = audits.to_version(from_version - 1).ascending.to_a
+          targeted_audits = audits.from_version(from_version).ascending.to_a
 
-          previous_attributes = audit_class.reconstruct_attributes(all_audits - targeted_audits)
+          previous_attributes = audit_class.reconstruct_attributes(prior_audits)
 
           targeted_audits.map do |audit|
             previous_attributes.merge!(audit.new_attributes)

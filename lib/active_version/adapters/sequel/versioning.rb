@@ -1,4 +1,5 @@
 require "json"
+require "active_support/core_ext/string/inflections"
 
 module ActiveVersion
   module Adapters
@@ -51,7 +52,7 @@ module ActiveVersion
 
         module InstanceMethods
           def active_version_foreign_key
-            self.class.active_version_config[:foreign_key] || :"#{model_name.singular}_id"
+            self.class.active_version_config[:foreign_key] || :"#{model_name.singularize}_id"
           end
 
           def active_version_tracked_columns

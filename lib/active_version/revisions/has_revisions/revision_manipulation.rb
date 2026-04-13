@@ -17,10 +17,13 @@ module ActiveVersion
 
           # Check debounce time - merge with previous revision if within window
           debounce_time = opts[:debounce_time] || ActiveVersion.config.debounce_time
-          if !batch_capture_active && debounce_time && should_merge_with_previous?(debounce_time, timestamp)
-            merge_with_previous_revision!(timestamp, only_attrs, except_attrs, use_old_values)
-            version_column = revision_version_column
-            return revisions_scope.order(version_column => :desc).first
+          if !batch_capture_active && debounce_time
+            last_for_merge = last_revision_for_debounce_merge(debounce_time, timestamp)
+            if last_for_merge
+              merge_with_previous_revision!(timestamp, only_attrs, except_attrs, use_old_values, last_revision: last_for_merge)
+              version_column = revision_version_column
+              return revisions_scope.order(version_column => :desc).first
+            end
           end
 
           new_version = if batch_capture_active
@@ -113,7 +116,7 @@ module ActiveVersion
 
             # Use create! instead of build + save to get better error messages
             begin
-              revision = revisions.create!(revision_attrs)
+              revision = create_revision_record_with_version_retry!(revision_attrs, version_column_sym)
             rescue ActiveRecord::RecordInvalid => e
               ActiveVersion::Instrumentation.instrument_revision_write_failed(self, error: e)
               error_msg = "Failed to create revision: #{e.class}"
@@ -251,7 +254,7 @@ module ActiveVersion
             end
 
             # Create the revision using the association (it will set foreign_key automatically)
-            revision = revisions.create!(revision_attrs)
+            revision = create_revision_record_with_version_retry!(revision_attrs, version_column_sym)
             # Ensure it was created and persisted
             raise "Failed to create revision" unless revision.persisted?
             # Reload the post to clear all caches and see the new revision
@@ -350,19 +353,26 @@ module ActiveVersion
         end
 
         def should_merge_with_previous?(debounce_time, timestamp)
-          return false unless revisions_scope.exists?
-
-          version_column = ActiveVersion.column_mapper.column_for(self.class, :revisions, :version)
-          last_revision = revisions_scope.order(version_column => :desc).first
-          return false unless last_revision
-
-          time_diff = timestamp.to_f - last_revision.created_at.to_f
-          time_diff <= debounce_time
+          !last_revision_for_debounce_merge(debounce_time, timestamp).nil?
         end
 
-        def merge_with_previous_revision!(timestamp, only_attrs, except_attrs, use_old_values)
+        # Latest revision row if +timestamp+ falls within +debounce_time+ seconds after that revision; one query.
+        def last_revision_for_debounce_merge(debounce_time, timestamp)
+          return nil unless debounce_time
+
           version_column = ActiveVersion.column_mapper.column_for(self.class, :revisions, :version)
           last_revision = revisions_scope.order(version_column => :desc).first
+          return nil unless last_revision
+
+          time_diff = timestamp.to_f - last_revision.created_at.to_f
+          return nil if time_diff > debounce_time
+
+          last_revision
+        end
+
+        def merge_with_previous_revision!(timestamp, only_attrs, except_attrs, use_old_values, last_revision: nil)
+          version_column = ActiveVersion.column_mapper.column_for(self.class, :revisions, :version)
+          last_revision ||= revisions_scope.order(version_column => :desc).first
           return unless last_revision
 
           # Update last revision with current or persisted attributes (filtered by only/except)
@@ -415,6 +425,22 @@ module ActiveVersion
           last_revision.class.where(id: last_revision.id).update_all(update_hash)
           revisions.reset
         end
+
+        # One retry on unique (version) violation, matching audit_writer behavior when a DB unique index exists.
+        def create_revision_record_with_version_retry!(revision_attrs, version_column_sym)
+          attempt = 0
+          begin
+            attempt += 1
+            revisions.create!(revision_attrs)
+          rescue ActiveRecord::RecordNotUnique => e
+            raise e if attempt >= 2
+
+            max_version = revisions_scope.maximum(version_column_sym) || 0
+            revision_attrs[version_column_sym] = max_version + 1
+            retry
+          end
+        end
+        private :create_revision_record_with_version_retry!
 
         def refreshable_column_names
           @refreshable_column_names ||=
