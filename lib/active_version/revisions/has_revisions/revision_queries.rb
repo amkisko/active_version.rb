@@ -91,7 +91,9 @@ module ActiveVersion
         # Enumerate all versions (lazy enumerator returning revision instances)
         def versions(reverse: false, include_self: false)
           version_column = revision_version_column
-          version_list = revisions_scope.order(version_column => (reverse ? :desc : :asc)).pluck(version_column)
+          ordered_rows = revisions_scope.order(version_column => (reverse ? :desc : :asc)).to_a
+          entries_by_version = ordered_rows.index_by { |row| row.public_send(version_column) }
+          version_list = ordered_rows.map { |row| row.public_send(version_column) }
 
           # If include_self, prepare current state as a revision instance
           current_self = nil
@@ -104,7 +106,10 @@ module ActiveVersion
 
           Enumerator.new do |yielder|
             version_list.each do |v|
-              revision = at_version(v)
+              revision_entry = entries_by_version[v]
+              next unless revision_entry
+
+              revision = build_revision_dup(revision_entry)
               yielder << revision if revision
             end
             if include_self
