@@ -17,9 +17,11 @@ module ActiveVersion
 
         # Detect option conflicts
         if existing[:options] != options
-          warn "[ActiveVersion] Re-registering #{model_class.name} with :#{version_type} " \
-               "with different options. Previous: #{existing[:options].inspect}, " \
-               "New: #{options.inspect}. This may indicate a configuration issue."
+          ActiveVersion.logger&.warn(
+            "[ActiveVersion] Re-registering #{model_class.name} with :#{version_type} " \
+            "with different options. Previous: #{existing[:options].inspect}, " \
+            "New: #{options.inspect}. This may indicate a configuration issue."
+          )
         else
           # Same options - likely a double include, but not necessarily a problem
           # Log at debug level if needed

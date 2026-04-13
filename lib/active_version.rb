@@ -163,7 +163,7 @@ module ActiveVersion
     elsif Fiber.current.respond_to?(:[])
       Fiber.current[key]
     else
-      Thread.current[key]
+      thread_current_for_fallback_store[key]
     end
   end
 
@@ -173,7 +173,7 @@ module ActiveVersion
     elsif Fiber.current.respond_to?(:[]=)
       Fiber.current[key] = value
     else
-      Thread.current[key] = value
+      thread_current_for_fallback_store[key] = value
     end
   end
 
@@ -184,12 +184,17 @@ module ActiveVersion
   def self.store_keys
     if config.execution_scope == :thread
       Thread.current.thread_variables
-    elsif Thread.current.respond_to?(:keys)
-      Thread.current.keys
+    elsif thread_current_for_fallback_store.respond_to?(:keys)
+      thread_current_for_fallback_store.keys
     else
       []
     end
   end
+
+  def self.thread_current_for_fallback_store
+    Thread.current
+  end
+  private_class_method :thread_current_for_fallback_store
 
   def self.clear_scoped_keys!(pattern)
     store_keys.grep(pattern).each { |key| store_delete(key) }
@@ -321,6 +326,25 @@ module ActiveVersion
 
   def self.with_connection(model_class, version_type, &block)
     yield(Runtime.adapter.connection_for(model_class, version_type))
+  end
+
+  # Library warnings (defaults to stderr). Set to +nil+ to silence; use +Logger.new(File::NULL)+ in tests.
+  class << self
+    attr_writer :logger
+
+    def logger
+      return @logger if defined?(@logger)
+
+      @logger = default_logger
+    end
+
+    def default_logger
+      l = Logger.new($stderr)
+      l.level = Logger::WARN
+      l.formatter = proc { |_, _, _, msg| "#{msg}\n" }
+      l
+    end
+    private :default_logger
   end
 end
 
