@@ -1,18 +1,14 @@
 ENV["RAILS_ENV"] ||= "test"
 
-require "mocha/minitest"
-
-require "simplecov"
-
-SimpleCov.start "rails" do
-  enable_coverage :branch
-  track_files "app/models/**/*.rb"
-  track_files "app/controllers/**/*.rb"
-  minimum_coverage line: 30  # Demo app; raise for production
+unless %w[1 true yes].include?(ENV["POLYRUN_COVERAGE_DISABLE"]&.to_s&.downcase)
+  require "polyrun"
+  Polyrun::Coverage::Rails.start!(root: File.expand_path("..", __dir__))
 end
 
 require_relative "../config/environment"
 require "rails/test_help"
+
+require "mocha/minitest"
 
 Dir[File.expand_path("support/**/*.rb", __dir__)].sort.each { |file| require file }
 

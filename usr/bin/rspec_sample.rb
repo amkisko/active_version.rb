@@ -15,8 +15,8 @@ class RSpecSample
   def run
     FileUtils.mkdir_p(File.dirname(@log_file))
 
-    # Run rspec and capture output to log file
-    system("cd #{@root_dir} && bundle exec rspec > #{@log_file} 2>&1")
+    # Run full suite via Polyrun (parallel OS processes + merged coverage); same as CI.
+    system("cd #{@root_dir} && ./bin/polyrun > #{@log_file} 2>&1")
     exit_status = $?.exitstatus
 
     # If RSpec exited successfully, there were no failures.

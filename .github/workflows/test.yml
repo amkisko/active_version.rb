@@ -8,7 +8,7 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    
+
     strategy:
       fail-fast: false
       matrix:
@@ -21,10 +21,11 @@ jobs:
             ruby_version: "3.4"
           - gemfile: rails8truffleruby
             ruby_version: "truffleruby"
-    
+
     env:
       BUNDLE_GEMFILE: ${{ github.workspace }}/gemfiles/${{ matrix.gemfile }}.gemfile
-    
+      DATABASE_URL: postgres://postgres@localhost:5432/active_version_test
+
     services:
       postgres:
         image: postgres:16
@@ -38,23 +39,31 @@ jobs:
           --health-retries 5
         ports:
           - 5432:5432
-    
+
     steps:
     - uses: actions/checkout@v6
-    
+
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1
       with:
         ruby-version: ${{ matrix.ruby_version }}
         bundler-cache: true
-    
-    - name: Run tests
-      env:
-        DATABASE_URL: postgres://postgres@localhost:5432/active_version_test
-      run: bundle exec rspec
 
-  coverage:
+    - name: Install PostgreSQL client
+      run: sudo apt-get update && sudo apt-get install -y postgresql-client
+
+    - name: Create shard databases for parallel RSpec
+      run: ./script/create_postgres_shard_databases.sh
+
+    - name: Run tests (parallel OS processes via polyrun)
+      run: |
+        ./bin/polyrun parallel-rspec --workers 5
+
+  # One job: 5 RSpec processes on one runner + merged coverage + per-shard JSON for JUnit
+  coverage-shard:
     runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: postgres://postgres@localhost:5432/active_version_test
     services:
       postgres:
         image: postgres:16
@@ -74,9 +83,48 @@ jobs:
         with:
           ruby-version: "3.4"
           bundler-cache: true
-      - run: bundle exec rspec
+
+      - name: Install PostgreSQL client
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client
+
+      - name: Create shard databases for parallel RSpec
+        run: ./script/create_postgres_shard_databases.sh
+
+      - name: Run parallel RSpec with Polyrun coverage
         env:
-          DATABASE_URL: postgres://postgres@localhost:5432/active_version_test
+          POLYRUN_COVERAGE: "1"
+          POLYRUN_RSPEC_JSON: "1"
+        run: |
+          ./bin/polyrun parallel-rspec --workers 5 -- bundle exec rspec --format documentation
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: polyrun-coverage-parallel
+          path: |
+            coverage/merged.json
+            coverage/polyrun-fragment-*.json
+            tmp/rspec-*.json
+
+  coverage-merge:
+    needs: coverage-shard
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.4"
+          bundler-cache: true
+      - uses: actions/download-artifact@v4
+        with:
+          name: polyrun-coverage-parallel
+          path: _artifacts
+      - name: Merge coverage + JUnit for Codecov
+        run: |
+          set -euo pipefail
+          test -f _artifacts/coverage/merged.json
+          cp _artifacts/coverage/merged.json coverage/polyrun-merged.json
+          ./bin/polyrun report-coverage -i coverage/polyrun-merged.json -o coverage --basename coverage --format json,lcov,cobertura,console,html
+          ./bin/polyrun report-junit -i "_artifacts/tmp/rspec-*.json" -o coverage/junit-coverage.xml
       - uses: codecov/codecov-action@v5
         continue-on-error: true
         env:
