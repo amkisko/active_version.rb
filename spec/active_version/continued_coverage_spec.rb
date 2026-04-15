@@ -28,6 +28,7 @@ RSpec.describe "Continued coverage (change filters + edge paths)" do
       klass = Class.new(ApplicationRecord) do
         self.table_name = "posts"
         include ActiveVersion::Audits::HasAudits
+
         has_audits as: PostAudit, class_name: "Post", except: [:title]
       end
 

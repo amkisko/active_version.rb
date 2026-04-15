@@ -26,6 +26,7 @@ RSpec.describe ActiveVersion::Audits::HasAudits do
     it "returns nil when no matching audit class exists" do
       klass = Class.new(ApplicationRecord) do
         include ActiveVersion::Audits::HasAudits
+
         self.table_name = "posts"
         def self.name
           "TotallyNoAuditModel"

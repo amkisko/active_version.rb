@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 1.3.0 (2026-04-15)
+
+- Add `polyrun` `~> 1.2.0` development dependency; `bin/polyrun`, `bin/rspec`, `polyrun.yml`, and `config/polyrun_coverage.yml` for parallel RSpec and merged coverage.
+- Add `script/create_postgres_shard_databases.sh` for CI and local Postgres shard databases; document in `POLYRUN.md`; set job-level `DATABASE_URL` in GitHub Actions test workflow.
+- Add internal library logger.
+- Fix audits, Sequel foreign keys, revision debounce, and versions walk edge cases.
+- Adjust RSpec and RuboCop test configuration; update spec coverage.
+
 ## 1.2.0 (2026-03-27)
 
 - Fixed SQL generation for audit creation to avoid duplicate `created_at` and `updated_at` columns (or other possible duplicate columns)
