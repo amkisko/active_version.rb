@@ -116,7 +116,7 @@ bin/rails test test/system
 
 Notes:
 - System tests use Capybara + Playwright (`driven_by :playwright`).
-- Test coverage uses [polyrun](https://rubygems.org/gems/polyrun) **`~> 1.2.0`** (stdlib `Coverage` via `Polyrun::Coverage::Rails` in `test/test_helper.rb`; not SimpleCov). Disable with `POLYRUN_COVERAGE_DISABLE=1`.
+- Test coverage uses [polyrun](https://rubygems.org/gems/polyrun) **`~> 1.3.0`** (stdlib `Coverage` via `Polyrun::Coverage::Rails` in `test/test_helper.rb`; not SimpleCov). Disable with `POLYRUN_COVERAGE_DISABLE=1`.
 - Current minimum line coverage gate in demo app is `30%` (`test/test_helper.rb`).
 
 ## Boot Profiling

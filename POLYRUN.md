@@ -1,8 +1,8 @@
 # Polyrun integration
 
-This repo uses [polyrun](https://rubygems.org/gems/polyrun) **`~> 1.2.0`** (development dependency in `active_version.gemspec`) for:
+This repo uses [polyrun](https://rubygems.org/gems/polyrun) **`~> 1.3.0`** (development dependency in `active_version.gemspec`) for:
 
-- **Coverage** — stdlib `Coverage` + `Polyrun::Coverage::Rails` in `spec/spec_helper.rb` (no SimpleCov). Output: `coverage/polyrun-fragment-<shard>.json`.
+- **Coverage** — stdlib `Coverage` + `Polyrun::Coverage::Rails` in `spec/spec_helper.rb` (no SimpleCov). Output: `coverage/polyrun-fragment-*.json` (Polyrun 1.3+ may include shard and worker segments in the basename; **`merge-coverage`** still matches this glob).
 - **CI reports** — `polyrun report-coverage` (Cobertura, JSON, LCOV, console) and `polyrun report-junit` from RSpec JSON.
 - **Parallel RSpec** — per-shard PostgreSQL databases (`active_version_test_0`, …) via `Polyrun::Database::Shard.database_url_with_shard`.
 
@@ -75,8 +75,8 @@ Optional: **`ACTIVE_VERSION_PG_SHARD_BASE`**, **`ACTIVE_VERSION_PG_SHARD_COUNT`*
 | `POLYRUN_COVERAGE_WORKER_FORMATS=1` | Rare: run per-worker LCOV/HTML formatters in parallel (duplicates work; merged output is canonical) |
 | `DEBUG=1` / `POLYRUN_DEBUG=1` | Verbose polyrun stderr trace (timings, shard layout) |
 
-**Parallel runs:** each worker writes only **`coverage/polyrun-fragment-<shard>.json`**. Full multi-format reports (LCOV, Cobertura, HTML, etc.) come from **`merge-coverage`** / **`report-coverage`** on the **merged** JSON — not from each worker (avoids N× overhead).
+**Parallel runs:** each worker writes **`coverage/polyrun-fragment-*.json`**. Full multi-format reports (LCOV, Cobertura, HTML, etc.) come from **`merge-coverage`** / **`report-coverage`** on the **merged** JSON — not from each worker (avoids N× overhead).
 
 ## Other projects
 
-Reuse the same pattern: add the `polyrun` gem (≥ **1.2.0** for **`polyrun config`**, **`partition.suite`**, implicit default parallel run, **`ci-shard-rspec`**), call `Polyrun::Coverage::Rails.start!` (or `Collector.start!`) in `spec_helper`, add **`polyrun.yml`** (including optional **`partition.paths_build`** to order spec files), a repo **`bin/polyrun`** wrapper (optional) + **`ci-shard-rspec`** for matrix jobs, and wire `Shard.database_url_with_shard` when `POLYRUN_SHARD_TOTAL` > 1.
+Reuse the same pattern: add the `polyrun` gem (≥ **1.3.0** for **`polyrun config`**, **`partition.suite`**, implicit default parallel run, **`ci-shard-rspec`**, safer **`ci-shard-*`** argv parsing), call `Polyrun::Coverage::Rails.start!` (or `Collector.start!`) in `spec_helper`, add **`polyrun.yml`** (including optional **`partition.paths_build`** to order spec files), a repo **`bin/polyrun`** wrapper (optional) + **`ci-shard-rspec`** for matrix jobs, and wire `Shard.database_url_with_shard` when `POLYRUN_SHARD_TOTAL` > 1.
