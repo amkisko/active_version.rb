@@ -507,7 +507,7 @@ Environment knobs:
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/amkisko/active_version.rb.
 
-Development dependencies include [polyrun](https://rubygems.org/gems/polyrun) **`~> 1.2.0`** (declared in `active_version.gemspec`) for **parallel RSpec** (`./bin/polyrun`), coverage, and CI report formats—see [POLYRUN.md](POLYRUN.md).
+Development dependencies include [polyrun](https://rubygems.org/gems/polyrun) **`~> 1.3.0`** (declared in `active_version.gemspec`) for **parallel RSpec** (`./bin/polyrun`), coverage, and CI report formats—see [POLYRUN.md](POLYRUN.md).
 
 ## License
 

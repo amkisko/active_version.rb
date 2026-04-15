@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Polyrun 1.2+: delegates to `bundle exec polyrun` with repo config.
+# Delegates to `bundle exec polyrun` with repo config.
 # - No args → same as `polyrun` with no subcommand (auto parallel RSpec from polyrun.yml / spec/**/*_spec.rb).
-# - Path-like argv (spec files, globs, dirs) → polyrun implicit parallel (1.2+).
+# - Path-like argv (spec files, globs, dirs) → polyrun implicit parallel (path-only argv).
 # - Named subcommands (plan, config, parallel-rspec, ci-shard-rspec, …) → pass through.
 # - Otherwise (RSpec flags first, e.g. --format) → `start --workers N -- bundle exec rspec "$@"`.
 # Globals: -c/--config, -v/--verbose, -h/--help, --help (same as bundle exec polyrun).
@@ -63,7 +63,7 @@ is_polyrun_command() {
   esac
 }
 
-# True if argv should use polyrun 1.2+ implicit path parallel (any path-like token).
+# True if argv should use polyrun implicit path parallel (any path-like token).
 implicit_path_in_argv() {
   for a in "$@"; do
     case "$a" in
