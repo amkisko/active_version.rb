@@ -1,12 +1,15 @@
 require "active_record"
 
+SpecTestLogging.silence! if defined?(SpecTestLogging)
+
 # Database setup for integration tests
 module DatabaseHelper
   def self.setup
+    SpecTestLogging.silence! if defined?(SpecTestLogging)
     establish_test_connection
 
     # Create tables
-    ActiveRecord::Schema.define do
+    ActiveRecord::Schema.define(verbose: false) do
       create_table :posts, force: :cascade do |t|
         t.string :title
         t.text :body
@@ -70,6 +73,20 @@ module DatabaseHelper
 
   def self.postgresql_connection_config
     database_url = ENV["DATABASE_URL"]
+    # +polyrun run-shards+ may already set DATABASE_URL to the shard DB; +polyrun env+ (CI matrix / ci-shard-rspec)
+    # does not — only add _{idx} when missing, so we never double-suffix (e.g. _0_0).
+    if database_url&.match?(/\Apostgres(?:ql)?:\/\//) && ENV["POLYRUN_SHARD_TOTAL"].to_i > 1
+      idx = Integer(ENV.fetch("POLYRUN_SHARD_INDEX", "0"), exception: false)
+      idx = 0 if idx.nil?
+      if (m = database_url.match(%r{/([^/?]+)(\?|$)})) && !m[1].end_with?("_#{idx}")
+        begin
+          require "polyrun"
+          database_url = Polyrun::Database::Shard.database_url_with_shard(database_url, idx)
+        rescue LoadError
+          # polyrun optional for contributors without the gem
+        end
+      end
+    end
     return database_url if database_url&.match?(/\Apostgres(?:ql)?:\/\//)
 
     {

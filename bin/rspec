@@ -1,0 +1,11 @@
+#!/usr/bin/env ruby
+#
+# Generated for Bundler: loads the rspec-core executable from the resolved gem set.
+#
+
+ENV["BUNDLE_GEMFILE"] ||= File.expand_path("../Gemfile", __dir__)
+
+require "rubygems"
+require "bundler/setup"
+
+load Gem.bin_path("rspec-core", "rspec")

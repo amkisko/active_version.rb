@@ -1,27 +1,32 @@
 # Running Tests
 
-## Using rspec
+## Using RSpec (default: Polyrun parallel)
 
-All tests should be run using `bundle exec rspec`
+The full suite matches CI: **parallel OS processes** via **`./bin/polyrun`** (or **`bundle exec polyrun parallel-rspec`**) — see [POLYRUN.md](../POLYRUN.md). **`polyrun.yml`** **`partition.paths_build`** refreshes **`spec/spec_paths.txt`** before **`plan`** / **`run-shards`**; to regenerate only that file: **`./bin/polyrun build-paths`**.
 
 ```bash
-# Run all tests
-bundle exec rspec
+# Run all tests (parallel + merged coverage)
+./bin/polyrun
+# or: ./bin/polyrun parallel-rspec --workers 5
+```
 
+For **focused** runs (single file, line number, or `--fail-fast`), use **serial** **`bin/rspec`** (plain RSpec; no polyrun fan-out):
+
+```bash
 # Run with fail-fast (stop on first failure)
-bundle exec rspec --fail-fast
+bin/rspec --fail-fast
 
 # For verbose output
-DEBUG=1 bundle exec rspec
+DEBUG=1 bin/rspec
 
 # Run single spec file at exact line number
-DEBUG=1 bundle exec rspec spec/active_version/configuration_inheritance_spec.rb:21
+DEBUG=1 bin/rspec spec/active_version/configuration_inheritance_spec.rb:21
 
 # Run tests for a specific module
-bundle exec rspec spec/active_version/audits/
+bin/rspec spec/active_version/audits/
 
 # Run integration tests only
-bundle exec rspec spec/integration/
+bin/rspec spec/integration/
 ```
 
 ## Test Structure
@@ -598,7 +603,7 @@ end
 - Test edge cases (empty strings, nil values, special characters)
 - Test error conditions and boundary cases
 - Focus on behavior that matters to users of the gem
-- Minimum coverage: 85% (enforced by SimpleCov; raise to 95% when generators/triggers are covered)
+- Minimum line coverage: see `config/polyrun_coverage.yml` (Polyrun `Coverage::Collector`; not SimpleCov)
 
 ### Database Testing
 

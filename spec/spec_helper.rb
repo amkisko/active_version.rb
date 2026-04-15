@@ -1,50 +1,85 @@
-unless ENV["SIMPLECOV_DISABLE"] == "1"
-  require "simplecov"
-  require "simplecov-console"
-  require "simplecov-cobertura"
-  require "simplecov_json_formatter"
+require "bundler/setup"
+require "logger"
 
-  SimpleCov.start do
-    minimum_coverage(90)
-    track_files "{lib,app}/**/*.rb"
+# Default: quiet SQL/schema/migration/Rails chatter. Set SPEC_VERBOSE=1 to restore loggers and schema output.
+module SpecTestLogging
+  NULL = Logger.new(File::NULL)
 
-    add_filter "/lib/active_version/tasks/"
-    add_filter "/lib/active_version/version.rb"
+  def self.enabled?
+    !%w[1 true yes].include?(ENV["SPEC_VERBOSE"]&.to_s&.downcase)
+  end
 
-    add_filter "/lib/generators/"
+  def self.silence!
+    return unless enabled?
 
-    add_filter "/lib/active_version/railtie.rb"
-    add_filter "/lib/active_version/adapters/active_record.rb"
-    add_filter "/lib/active_version/database/triggers/postgresql.rb"
-    add_filter "/lib/active_version/audits/has_audits/database_adapter_helper.rb"
-    add_filter "/lib/active_version/migrators/audited.rb"
-    add_filter "/lib/active_version/revisions/has_revisions/revision_queries.rb"
+    silence_active_record!
+    silence_rails_log_level!
+    silence_active_version_log!
+  end
 
-    add_filter "/spec/integration/partitioned_tables_postgresql_spec.rb"
-    add_filter "/spec/benchmark/"
+  def self.silence_active_version_logger!
+    return unless enabled?
 
-    formatter SimpleCov::Formatter::MultiFormatter.new([
-      SimpleCov::Formatter::HTMLFormatter,
-      SimpleCov::Formatter::Console,
-      SimpleCov::Formatter::CoberturaFormatter,
-      SimpleCov::Formatter::JSONFormatter
-    ])
+    silence_active_version_log!
+  end
+
+  def self.silence_active_record!
+    if defined?(ActiveRecord::Base)
+      ActiveRecord::Base.logger = NULL
+      ActiveRecord.verbose_query_logs = false if ActiveRecord.respond_to?(:verbose_query_logs=)
+    end
+    if defined?(ActiveRecord::Migration) && ActiveRecord::Migration.respond_to?(:verbose=)
+      ActiveRecord::Migration.verbose = false
+    end
+    if defined?(ActiveRecord::Schema) && ActiveRecord::Schema.respond_to?(:verbose=)
+      ActiveRecord::Schema.verbose = false
+    end
+    return unless defined?(ActiveRecord::LogSubscriber)
+
+    ActiveRecord::LogSubscriber.logger = NULL
+  end
+
+  def self.silence_rails_log_level!
+    return unless defined?(Rails) && Rails.respond_to?(:logger) && Rails.logger
+
+    Rails.logger.level = Logger::WARN
+  end
+
+  def self.silence_active_version_log!
+    return unless defined?(ActiveVersion)
+
+    ActiveVersion.logger = nil
   end
 end
 
-require "bundler/setup"
-require "active_version"
+# When POLYRUN_RSPEC_JSON=1, each parallel worker (POLYRUN_SHARD_INDEX) writes tmp/rspec-<i>.json for CI report-junit.
+if ENV["POLYRUN_RSPEC_JSON"] == "1" && ENV["POLYRUN_SHARD_INDEX"]
+  require "fileutils"
+  idx = ENV.fetch("POLYRUN_SHARD_INDEX")
+  json_out = File.expand_path("../tmp/rspec-#{idx}.json", __dir__)
+  FileUtils.mkdir_p(File.dirname(json_out))
+  RSpec.configure do |config|
+    config.add_formatter(:json, json_out)
+  end
+end
 
-# Load support files after ApplicationRecord is defined
-Dir[File.join(__dir__, "support", "*.rb")].each { |file| require file }
+unless ENV["POLYRUN_COVERAGE_DISABLE"] == "1"
+  require "polyrun"
+  Polyrun::Coverage::Rails.start!
+end
 
-# Load Rails constants when available, but never load rails/test_help in RSpec.
-# rails/test_help boots Minitest and can hijack CLI options (e.g. --tag, --format).
+# Load Rails before the gem so `lib/active_version.rb` can require the railtie (coverage + realistic load order).
 begin
   require "rails"
 rescue LoadError, NoMethodError
   # Not in Rails environment or Rails not fully initialized
 end
+
+require "active_version"
+SpecTestLogging.silence_active_version_logger! if defined?(SpecTestLogging)
+
+# Load support files after ApplicationRecord is defined
+Dir[File.join(__dir__, "support", "*.rb")].each { |file| require file }
 
 # Configure Time.zone if ActiveSupport is available
 if defined?(ActiveSupport::TimeZone)
@@ -75,6 +110,8 @@ if defined?(ActiveRecord::Base)
 end
 
 RSpec.configure do |config|
+  config.before(:suite) { SpecTestLogging.silence! }
+
   # Enable flags like --only-failures and --next-failure
   config.example_status_persistence_file_path = ".rspec_status"
 
