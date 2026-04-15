@@ -233,6 +233,29 @@ RSpec.describe "ActiveVersion Migrators::Base Integration", type: :integration d
       end.to raise_error(NotImplementedError, /Subclasses must implement migrate/)
     end
 
+    it "normalizes mirror_columns from Array to :text column map" do
+      expect(
+        ActiveVersion::Migrators::Base.send(:normalize_mirror_columns, [:title, :body])
+      ).to eq({title: :text, body: :text})
+    end
+
+    it "raises when mirror_columns is not a Hash, Array, or nil" do
+      expect do
+        ActiveVersion::Migrators::Base.send(:normalize_mirror_columns, "oops")
+      end.to raise_error(ArgumentError, /mirror_columns must be/)
+    end
+
+    it "chooses payload column type for json_column storage" do
+      expect(
+        ActiveVersion::Migrators::Base.send(:payload_column_type_for, :json_column)
+      ).to be_a(Symbol)
+    end
+
+    it "returns nil from current_connection when ActiveRecord connection raises" do
+      allow(ActiveRecord::Base).to receive(:connection).and_raise(ActiveRecord::ConnectionNotEstablished)
+      expect(ActiveVersion::Migrators::Base.send(:current_connection)).to be_nil
+    end
+
     it "exposes protected helper methods for subclasses" do
       model_class = Class.new(ApplicationRecord) do
         self.table_name = "posts"

@@ -44,7 +44,7 @@ RSpec.describe "ActiveVersion AuditRecord Callbacks Integration", type: :integra
       expect(audits[2].action).to eq("update")
     end
 
-    it "handles concurrent updates correctly using database MAX" do
+    it "assigns sequential audit versions for serial updates (MAX + 1 per save)" do
       post = Post.create!(title: "v1")
 
       # Ensure actual changes for updates
@@ -53,7 +53,6 @@ RSpec.describe "ActiveVersion AuditRecord Callbacks Integration", type: :integra
       post.title = "v3"
       post.save!
 
-      # Verify versions are sequential
       versions = post.audits.order(version: :asc).pluck(:version)
       expect(versions).to eq([1, 2, 3])
     end

@@ -19,8 +19,19 @@ RSpec.describe ActiveVersion::Audits::HasAudits do
   end
 
   describe ".audit_class" do
-    it "returns nil when audit class doesn't exist" do
-      expect(model_class.audit_class).to be_nil
+    it "resolves {name}Audit via naming convention when :as is not set" do
+      expect(model_class.audit_class).to eq(PostAudit)
+    end
+
+    it "returns nil when no matching audit class exists" do
+      klass = Class.new(ApplicationRecord) do
+        include ActiveVersion::Audits::HasAudits
+        self.table_name = "posts"
+        def self.name
+          "TotallyNoAuditModel"
+        end
+      end
+      expect(klass.audit_class).to be_nil
     end
   end
 
