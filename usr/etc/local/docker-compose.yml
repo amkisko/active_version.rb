@@ -1,7 +1,7 @@
 # Isolated dev/test environment. Run from repo root:
-#   docker compose -f usr/etc/local/docker-compose.yml run --rm app bundle exec rspec
+#   docker compose -f usr/etc/local/docker-compose.yml run --rm app ./bin/polyrun parallel-rspec
 # Or from this directory:
-#   docker compose run --rm app bundle exec rspec
+#   docker compose run --rm app ./bin/polyrun parallel-rspec
 services:
   app:
     build: .
@@ -10,5 +10,5 @@ services:
       - ../..:/app
     stdin_open: true
     tty: true
-    # Default: shell. Override to run tests: docker compose run --rm app bundle exec rspec
+    # Default: shell. Override to run tests: docker compose run --rm app ./bin/polyrun parallel-rspec
     command: ["/bin/sh"]

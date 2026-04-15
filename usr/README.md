@@ -14,9 +14,9 @@ Use it for isolated, script-driven, or bot-driven development (e.g. CI-like runs
 usr/
 ├── README.md          # This file
 ├── bin/               # Executable scripts (run from repo root or usr/bin)
-│   ├── release.rb     # Release checklist: bundle, appraisal, rubocop, rspec, build, push, tag
+│   ├── release.rb     # Release checklist: bundle, appraisal, rubocop, polyrun parallel-rspec, build, push, tag
 │   ├── analyze.rb     # Library structure and quality analysis → tmp/analyze.log
-│   └── rspec_sample.rb # Run rspec, output first failure only (for tooling)
+│   └── rspec_sample.rb # Run polyrun parallel-rspec, output first failure only (for tooling)
 └── etc/
     └── local/         # Optional: isolated Docker-based dev/test (see below)
 ```
@@ -43,20 +43,20 @@ ruby usr/bin/rspec_sample.rb
 For a reproducible, isolated environment (e.g. agentic or bot-driven runs), use the minimal Docker setup under `usr/etc/local/`:
 
 - Dockerfile: Ruby + Bundler; no app code in the image.
-- docker-compose.yml: Mounts the repo and runs commands there (e.g. `bundle install`, `bundle exec rspec`).
+- docker-compose.yml: Mounts the repo and runs commands there (e.g. `bundle install`, `./bin/polyrun`).
 
 From the repository root:
 
 ```bash
 cd usr/etc/local
 docker compose run --rm app bundle install
-docker compose run --rm app bundle exec rspec
+docker compose run --rm app ./bin/polyrun parallel-rspec --workers 5
 ```
 
 Or a one-liner from repo root:
 
 ```bash
-docker compose -f usr/etc/local/docker-compose.yml run --rm -w /app app bundle exec rspec
+docker compose -f usr/etc/local/docker-compose.yml run --rm -w /app app ./bin/polyrun parallel-rspec --workers 5
 ```
 
 This keeps the host clean and gives a consistent Ruby/Bundler environment for automation.

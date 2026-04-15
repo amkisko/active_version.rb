@@ -447,8 +447,8 @@ The report includes per-record overhead vs ActiveRecord baseline (`p5`, `mean`, 
 The report also separates ActiveRecord and Sequel benchmark groups to avoid cross-ORM baseline mixing.
 
 ```bash
-# Normal test run (benchmarks excluded)
-bundle exec rspec
+# Normal test run (benchmarks excluded) — parallel OS processes via Polyrun (same as CI)
+./bin/polyrun
 
 # Explicit benchmark run
 usr/bin/benchmark.rb
@@ -506,6 +506,8 @@ Environment knobs:
 ## Contributing
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/amkisko/active_version.rb.
+
+Development dependencies include [polyrun](https://rubygems.org/gems/polyrun) **`~> 1.2.0`** (declared in `active_version.gemspec`) for **parallel RSpec** (`./bin/polyrun`), coverage, and CI report formats—see [POLYRUN.md](POLYRUN.md).
 
 ## License
 

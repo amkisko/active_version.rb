@@ -1,0 +1,4 @@
+# Polyrun stdlib Coverage (see main gem POLYRUN.md). No SimpleCov.
+track_under:
+  - app
+minimum_line_percent: 30

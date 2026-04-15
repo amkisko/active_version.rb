@@ -17,7 +17,7 @@ class BenchmarkRunner
 
     env = {
       "BENCHMARK" => "1",
-      "SIMPLECOV_DISABLE" => "1"
+      "POLYRUN_COVERAGE_DISABLE" => "1"
     }
 
     iterations = ENV["ACTIVE_VERSION_BENCH_ITERATIONS"] || "5000"

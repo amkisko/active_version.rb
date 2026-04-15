@@ -1,0 +1,26 @@
+# Polyrun::Coverage::Rails — loaded from spec/spec_helper via Polyrun::Coverage::Rails.start!
+# (must run before application code; keep coverage config here, not in initializers)
+#
+# Do not set track_files here: with track_files, Polyrun merges the full Coverage.result blob
+# (every loaded gem / dependency) before filtering, which dilutes the line % and breaks the gate.
+# Default track_under: ["lib"] keeps only this gem under the project root.
+
+track_under:
+  - lib
+groups:
+  Audits: "lib/active_version/audits/**/*.rb"
+  Revisions: "lib/active_version/revisions/**/*.rb"
+  Translations: "lib/active_version/translations/**/*.rb"
+reject_patterns:
+  - "/lib/active_version/tasks/"
+  - "/lib/active_version/version.rb"
+  - "/lib/generators/"
+  - "/lib/active_version/railtie.rb"
+  - "/lib/active_version/adapters/active_record.rb"
+  - "/lib/active_version/database/triggers/postgresql.rb"
+  - "/lib/active_version/audits/has_audits/database_adapter_helper.rb"
+  - "/lib/active_version/migrators/audited.rb"
+  - "/lib/active_version/revisions/has_revisions/revision_queries.rb"
+  - "/spec/integration/partitioned_tables_postgresql_spec.rb"
+  - "/spec/benchmark/"
+minimum_line_percent: 90
