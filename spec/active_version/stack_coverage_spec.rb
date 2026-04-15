@@ -177,6 +177,7 @@ RSpec.describe "Stack coverage (audit / revision / SQL builders)" do
       def fake_row.respond_to?(name, *)
         name.to_s == "[]" || name.to_s == "[]="
       end
+
       def fake_row.[](key)
         {"title" => "from_bracket", "updated_at" => Time.current}[key.to_s]
       end
