@@ -183,6 +183,53 @@ RSpec.describe ActiveVersion::Adapters::Sequel::Versioning do
     expect(klass.active_version_config[:foreign_key]).to eq(:custom_id)
   end
 
+  it "supports class-level active_version DSL" do
+    klass = Class.new do
+      extend ActiveVersion::Adapters::Sequel::Versioning::ClassMethods
+
+      def self.name
+        "DslSequelModel"
+      end
+    end
+    klass.active_version(foreign_key: :widget_id, revision_model: SequelSpecStore)
+    expect(klass.active_version_config[:foreign_key]).to eq(:widget_id)
+    expect(klass.active_version_config[:revision_model]).to eq(SequelSpecStore)
+  end
+
+  it "inherits active_version_config from superclass when no ivar is set" do
+    parent = Class.new do
+      extend ActiveVersion::Adapters::Sequel::Versioning::ClassMethods
+
+      def self.name
+        "ParentSequelModel"
+      end
+    end
+    parent.active_version(foreign_key: :parent_fk)
+
+    child = Class.new(parent) do
+      def self.name
+        "ChildSequelModel"
+      end
+    end
+
+    expect(child.instance_variable_get(:@active_version_sequel_config)).to be_nil
+    expect(child.active_version_config[:foreign_key]).to eq(:parent_fk)
+  end
+
+  it "derives foreign key from model name when foreign_key is nil" do
+    ActiveVersion::Adapters::Sequel::Versioning.configure(
+      model_class,
+      foreign_key: nil,
+      tracked_columns: %i[title body],
+      translation_columns: [:title],
+      revision_model: SequelSpecStore,
+      audit_model: SequelSpecStore,
+      translation_model: SequelSpecStore
+    )
+    expect(instance.class.active_version_config[:foreign_key]).to be_nil
+    expect(instance.active_version_foreign_key).to eq(:sequelspecmodel_id)
+  end
+
   it "supports class DSL and versioning checks" do
     expect(model_class.has_versioning?(:revisions)).to eq(true)
     expect(model_class.has_versioning?(:audits)).to eq(true)

@@ -1,4 +1,5 @@
 require "spec_helper"
+require "stringio"
 
 RSpec.describe ActiveVersion::VersionRegistry do
   subject(:registry) { described_class.new }
@@ -29,9 +30,17 @@ RSpec.describe ActiveVersion::VersionRegistry do
     context "when re-registering with different options" do
       it "warns about option conflicts" do
         registry.register(model_class, :audits, {storage: :json_column})
-        expect {
+        io = StringIO.new
+        log = Logger.new(io)
+        log.formatter = proc { |_, _, _, msg| "#{msg}\n" }
+        previous = ActiveVersion.logger
+        ActiveVersion.logger = log
+        begin
           registry.register(model_class, :audits, {storage: :mirror_columns})
-        }.to output(/Re-registering.*with different options/).to_stderr
+          expect(io.string).to match(/Re-registering.*with different options/)
+        ensure
+          ActiveVersion.logger = previous
+        end
       end
 
       it "updates to new options" do
