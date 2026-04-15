@@ -26,7 +26,7 @@ bundle exec polyrun -c polyrun.yml config partition.shard_total
 # equivalent: polyrun run-shards --workers 5 -c polyrun.yml --merge-coverage -- bundle exec rspec
 ```
 
-Any **polyrun** subcommand passes through (`plan`, `config`, `report-coverage`, **`ci-shard-rspec`**, …). **Path-like** arguments (spec paths, globs, existing files) use **polyrun 1.2+ implicit parallel** (shard those paths without naming `start` or `parallel-rspec`). Leading **`-c` / `-v` / `-h` / `--help`** match **`bundle exec polyrun`**. When the first tokens are **RSpec-only flags** (e.g. **`--format`**), **`bin/polyrun`** still uses **`start --workers $POLYRUN_WORKERS -- bundle exec rspec …`**. **`POLYRUN_WORKERS`** caps worker count (default **5**, max **10**).
+Any **polyrun** subcommand passes through (`plan`, `config`, `report-coverage`, **`ci-shard-rspec`**, …). **Path-like** arguments (spec paths, globs, existing files) use **implicit parallel** routing (shard those paths without naming `start` or `parallel-rspec`; gemspec pins **`polyrun` `~> 1.3.0`**). Leading **`-c` / `-v` / `-h` / `--help`** match **`bundle exec polyrun`**. When the first tokens are **RSpec-only flags** (e.g. **`--format`**), **`bin/polyrun`** still uses **`start --workers $POLYRUN_WORKERS -- bundle exec rspec …`**. **`POLYRUN_WORKERS`** caps worker count (default **5**, max **10**).
 
 ## One shard (matrix job or local)
 
