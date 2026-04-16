@@ -19,7 +19,7 @@ else
   gem "active_version", path: "../.."
 end
 
-gem "activeadmin", "4.0.0.beta19"
+gem "activeadmin", "4.0.0.beta22"
 gem "shrine", "~> 3.5"
 
 gem "pry-rails"
