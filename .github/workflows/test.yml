@@ -125,11 +125,11 @@ jobs:
           cp _artifacts/coverage/merged.json coverage/polyrun-merged.json
           ./bin/polyrun report-coverage -i coverage/polyrun-merged.json -o coverage --basename coverage --format json,lcov,cobertura,console,html
           ./bin/polyrun report-junit -i "_artifacts/tmp/rspec-*.json" -o coverage/junit-coverage.xml
-      - uses: codecov/codecov-action@v6
+      - uses: codecov/codecov-action@v7
         continue-on-error: true
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-      - uses: codecov/codecov-action@v6
+      - uses: codecov/codecov-action@v7
         if: ${{ !cancelled() }}
         continue-on-error: true
         with:
