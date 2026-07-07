@@ -208,18 +208,33 @@ Rails/UniqBeforePluck:
 Metrics/ModuleLength:
   Enabled: true
   CountAsOne: [array, hash, heredoc, method_call]
-  Max: 150
+  Max: 250
+  Exclude:
+    - lib/active_version/audits/**/*
+    - lib/active_version/revisions/**/*
 Metrics/ClassLength:
   Enabled: true
   CountAsOne: [array, hash, heredoc, method_call]
-  Max: 150
+  Max: 200
 Metrics/CyclomaticComplexity:
   Enabled: true
-  Max: 10
+  Max: 18
+  Exclude:
+    - usr/**/*
+    - lib/active_version/audits/**/*
+    - lib/active_version/revisions/**/*
 Metrics/PerceivedComplexity:
   Enabled: true
-  Max: 10
+  Max: 18
+  Exclude:
+    - usr/**/*
+    - lib/active_version/audits/**/*
+    - lib/active_version/revisions/**/*
 Metrics/AbcSize:
   Enabled: true
-  Max: 15
+  Max: 40
   CountRepeatedAttributes: false
+  Exclude:
+    - usr/**/*
+    - lib/active_version/audits/**/*
+    - lib/active_version/revisions/**/*

@@ -86,7 +86,7 @@ GEM
     pg (1.6.2)
     pg (1.6.2-arm64-darwin)
     pg (1.6.2-x86_64-linux)
-    polyrun (1.3.0)
+    polyrun (1.5.0)
     pp (0.6.3)
       prettyprint
     prettyprint (0.2.0)
@@ -242,7 +242,7 @@ DEPENDENCIES
   appraisal (~> 2)
   benchmark (>= 0.4)
   pg (~> 1.5)
-  polyrun (~> 1.3.0)
+  polyrun (~> 1.5.0)
   rake (~> 13)
   rbs (~> 3)
   rspec (~> 3)
@@ -295,7 +295,7 @@ CHECKSUMS
   pg (1.6.2) sha256=58614afd405cc9c2c9e15bffe8432e0d6cfc58b722344ad4a47c73a85189c875
   pg (1.6.2-arm64-darwin) sha256=4d44500b28d5193b26674583d199a6484f80f1f2ea9cf54f7d7d06a1b7e316b6
   pg (1.6.2-x86_64-linux) sha256=525f438137f2d1411a1ebcc4208ec35cb526b5a3b285a629355c73208506a8ea
-  polyrun (1.3.0) sha256=43e4d61b6f5076151fcd85e7fe9bcfbb7a815a48b73605f32821241d20957224
+  polyrun (1.5.0) sha256=dfb58978eb11c7aa35a56e3d33e75671a5cc727652bc5b8bbc5dd798cfdc0189
   pp (0.6.3) sha256=2951d514450b93ccfeb1df7d021cae0da16e0a7f95ee1e2273719669d0ab9df6
   prettyprint (0.2.0) sha256=2bc9e15581a94742064a3cc8b0fb9d45aae3d03a1baa6ef80922627a0766f193
   prism (1.7.0) sha256=10062f734bf7985c8424c44fac382ac04a58124ea3d220ec3ba9fe4f2da65103
