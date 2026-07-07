@@ -173,3 +173,5 @@ RSpec.configure do |config|
     metadata[:type] = :integration
   end
 end
+require "polyrun/rspec"
+Polyrun::RSpec.install_failure_fragments!
