@@ -99,7 +99,7 @@ jobs:
         run: |
           ./bin/polyrun parallel-rspec --workers 5 -- bundle exec rspec --format documentation
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: polyrun-coverage-parallel
           path: |
@@ -116,7 +116,7 @@ jobs:
         with:
           ruby-version: "3.4"
           bundler-cache: true
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: polyrun-coverage-parallel
           path: _artifacts
@@ -127,11 +127,11 @@ jobs:
           cp _artifacts/coverage/merged.json coverage/polyrun-merged.json
           ./bin/polyrun report-coverage -i coverage/polyrun-merged.json -o coverage --basename coverage --format json,lcov,cobertura,console,html
           ./bin/polyrun report-junit -i "_artifacts/tmp/rspec-*.json" -o coverage/junit-coverage.xml
-      - uses: codecov/codecov-action@v5
+      - uses: codecov/codecov-action@v6
         continue-on-error: true
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-      - uses: codecov/codecov-action@v5
+      - uses: codecov/codecov-action@v6
         if: ${{ !cancelled() }}
         continue-on-error: true
         with:
