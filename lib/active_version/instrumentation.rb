@@ -217,9 +217,7 @@ module ActiveVersion
       end
 
       def log_debug(message)
-        if defined?(Rails) && Rails.respond_to?(:logger)
-          Rails.logger&.debug("[ActiveVersion::Instrumentation] #{message}")
-        end
+        ActiveVersion.log_debug("[ActiveVersion::Instrumentation] #{message}")
       end
     end
   end

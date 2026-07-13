@@ -419,7 +419,7 @@ module ActiveVersion
         private
 
         def install_thread_local_audited_options_reader!
-          unless singleton_class.instance_methods(false).include?(:audited_options_without_thread_local)
+          unless singleton_class.method_defined?(:audited_options_without_thread_local, false)
             singleton_class.alias_method :audited_options_without_thread_local, :audited_options
           end
 
