@@ -3,8 +3,10 @@
 ## 1.4.0 (2026-07-13)
 
 - Add `revision_error_behavior` configuration (`:exception`, `:log`, `:silent`) and per-model `has_revisions error_behavior:` override for revision snapshot failures.
+- Skip post-update revision bookkeeping when snapshot creation returns nil under `:log` or `:silent` revision error handling.
 - Route audit warning output through `ActiveVersion.logger` so non-Rails apps and custom log sinks receive audit write failures consistently.
-- Fix audit combining to refresh the cached audits association instead of reloading the auditable record.
+- Align audit writer fallback error behavior with the configuration default (`:exception`) when neither per-model nor global audit error behavior is set.
+- Fix audit combining to refresh the cached audits association instead of reloading the auditable record, and bound combiner queries with COUNT and LIMIT instead of loading the full audit history each iteration.
 - Fix thread-local audited options reader installation on Rails 6.1 models with delegated class methods.
 - Log debug detail for deferred audit setup, instrumentation probes, and unparseable audit payloads when `ActiveVersion.logger` supports debug output.
 
