@@ -15,6 +15,7 @@ RSpec.describe "ActiveVersion Error Handling", type: :integration do
     Post.destroy_all
     PostAudit.destroy_all
     ActiveVersion.config.audit_error_behavior = :log
+    ActiveVersion.config.revision_error_behavior = :exception
   end
 
   describe "configurable error behavior" do
@@ -22,11 +23,7 @@ RSpec.describe "ActiveVersion Error Handling", type: :integration do
       allow(PostAudit).to receive(:create!).and_raise(StandardError.new("Database error"))
       logger = double("logger")
       allow(logger).to receive(:warn)
-      if defined?(Rails)
-        allow(Rails).to receive(:logger).and_return(logger)
-      else
-        stub_const("Rails", double(logger: logger))
-      end
+      allow(ActiveVersion).to receive(:logger).and_return(logger)
 
       post = Post.create!(title: "Test")
       post.title = "Updated"
@@ -59,11 +56,7 @@ RSpec.describe "ActiveVersion Error Handling", type: :integration do
       allow(PostAudit).to receive(:create!).and_raise(StandardError.new("Database error"))
       logger = double("logger")
       allow(logger).to receive(:warn)
-      if defined?(Rails)
-        allow(Rails).to receive(:logger).and_return(logger)
-      else
-        stub_const("Rails", double(logger: logger))
-      end
+      allow(ActiveVersion).to receive(:logger).and_return(logger)
 
       post = Post.create!(title: "Test")
       post.title = "Updated"
@@ -90,6 +83,39 @@ RSpec.describe "ActiveVersion Error Handling", type: :integration do
         post.title = "Updated"
         post.save!
       }.to raise_error(StandardError)
+    end
+  end
+
+  describe "revision error behavior" do
+    let(:post) { Post.create!(title: "Test", body: "Body") }
+
+    it "raises when revision_error_behavior is :exception" do
+      ActiveVersion.config.revision_error_behavior = :exception
+      allow(post.revisions).to receive(:create!).and_raise(StandardError.new("Database error"))
+
+      expect { post.create_snapshot! }.to raise_error(/Failed to create revision/)
+    end
+
+    it "logs when revision_error_behavior is :log" do
+      ActiveVersion.config.revision_error_behavior = :log
+      allow(post.revisions).to receive(:create!).and_raise(StandardError.new("Database error"))
+      logger = double("logger")
+      allow(logger).to receive(:warn)
+      allow(ActiveVersion).to receive(:logger).and_return(logger)
+
+      expect(post.create_snapshot!).to be_nil
+      expect(logger).to have_received(:warn).with(/Failed to create revision/)
+    end
+
+    it "silently ignores revision errors when revision_error_behavior is :silent" do
+      ActiveVersion.config.revision_error_behavior = :silent
+      allow(post.revisions).to receive(:create!).and_raise(StandardError.new("Database error"))
+      logger = double("logger")
+      allow(logger).to receive(:warn)
+      allow(ActiveVersion).to receive(:logger).and_return(logger)
+
+      expect(post.create_snapshot!).to be_nil
+      expect(logger).not_to have_received(:warn)
     end
   end
 end

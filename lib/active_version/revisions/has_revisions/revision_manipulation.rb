@@ -113,30 +113,25 @@ module ActiveVersion
             pseudo.define_singleton_method(:persisted?) { true }
             pseudo
           else
-
-            # Use create! instead of build + save to get better error messages
             begin
               revision = create_revision_record_with_version_retry!(revision_attrs, version_column_sym)
-            rescue ActiveRecord::RecordInvalid => e
-              ActiveVersion::Instrumentation.instrument_revision_write_failed(self, error: e)
-              error_msg = "Failed to create revision: #{e.class}"
-              error_msg += "\nRevision attribute keys: #{revision_attrs.keys.map(&:to_s).sort.join(", ")}"
-              error_msg += "\nIdentity keys: #{active_version_revision_identity_map.keys.map(&:to_s).sort.join(", ")}"
-              error_msg += "\nVersion column: #{version_column_sym}, New version: #{new_version}"
-              error_msg += "\nRevision class: #{self.class.revision_class.name}"
-              error_msg += "\nSource class: #{self.class.name}"
-              if e.record
-                error_msg += "\nRecord error fields: #{e.record.errors.attribute_names.map(&:to_s).uniq.sort.join(", ")}"
-                error_msg += "\nRecord valid?: #{e.record.valid?}"
-              end
-              raise error_msg
-            rescue => e
-              ActiveVersion::Instrumentation.instrument_revision_write_failed(self, error: e)
-              error_msg = "Failed to create revision: #{e.class}"
-              error_msg += "\nRevision attribute keys: #{revision_attrs.keys.map(&:to_s).sort.join(", ")}"
-              error_msg += "\nIdentity keys: #{active_version_revision_identity_map.keys.map(&:to_s).sort.join(", ")}"
-              error_msg += "\nVersion column: #{version_column_sym}, New version: #{new_version}"
-              raise error_msg
+            rescue ActiveRecord::RecordInvalid => error
+              revision = handle_revision_errors(
+                error,
+                revision_attrs: revision_attrs,
+                version_column_sym: version_column_sym,
+                new_version: new_version,
+                invalid_record: error.record
+              )
+              return revision unless revision
+            rescue => error
+              revision = handle_revision_errors(
+                error,
+                revision_attrs: revision_attrs,
+                version_column_sym: version_column_sym,
+                new_version: new_version
+              )
+              return revision unless revision
             end
 
             # Force reload association to ensure it's visible
@@ -432,15 +427,60 @@ module ActiveVersion
           begin
             attempt += 1
             revisions.create!(revision_attrs)
-          rescue ActiveRecord::RecordNotUnique => e
-            raise e if attempt >= 2
+          rescue ActiveRecord::RecordNotUnique => error
+            raise error if attempt >= 2
 
             max_version = revisions_scope.maximum(version_column_sym) || 0
             revision_attrs[version_column_sym] = max_version + 1
             retry
           end
         end
-        private :create_revision_record_with_version_retry!
+
+        def handle_revision_errors(error, revision_attrs:, version_column_sym:, new_version:, invalid_record: nil)
+          ActiveVersion::Instrumentation.instrument_revision_write_failed(self, error: error)
+          behavior = self.class.revision_options&.dig(:error_behavior) ||
+            ActiveVersion.config.revision_error_behavior ||
+            :exception
+
+          case behavior
+          when :exception
+            raise build_revision_error_message(
+              error,
+              revision_attrs: revision_attrs,
+              version_column_sym: version_column_sym,
+              new_version: new_version,
+              invalid_record: invalid_record
+            )
+          when :log
+            ActiveVersion.logger.warn(
+              build_revision_error_message(
+                error,
+                revision_attrs: revision_attrs,
+                version_column_sym: version_column_sym,
+                new_version: new_version,
+                invalid_record: invalid_record
+              )
+            )
+            nil
+          when :silent
+            nil
+          end
+        end
+
+        def build_revision_error_message(error, revision_attrs:, version_column_sym:, new_version:, invalid_record: nil)
+          message = "Failed to create revision: #{error.class}"
+          message += "\nRevision attribute keys: #{revision_attrs.keys.map(&:to_s).sort.join(", ")}"
+          message += "\nIdentity keys: #{active_version_revision_identity_map.keys.map(&:to_s).sort.join(", ")}"
+          message += "\nVersion column: #{version_column_sym}, New version: #{new_version}"
+          if invalid_record
+            message += "\nRevision class: #{self.class.revision_class.name}"
+            message += "\nSource class: #{self.class.name}"
+            message += "\nRecord error fields: #{invalid_record.errors.attribute_names.map(&:to_s).uniq.sort.join(", ")}"
+            message += "\nRecord valid?: #{invalid_record.valid?}"
+          end
+          message
+        end
+        private :create_revision_record_with_version_retry!, :handle_revision_errors, :build_revision_error_message
 
         def refreshable_column_names
           @refreshable_column_names ||=

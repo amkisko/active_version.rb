@@ -228,7 +228,7 @@ module ActiveVersion
 
         def handle_audit_errors(error, action)
           ActiveVersion::Instrumentation.instrument_audit_write_failed(self, error: error, action: action)
-          behavior = audited_options[:error_behavior] || ActiveVersion.config.audit_error_behavior || :log
+          behavior = audited_options[:error_behavior] || ActiveVersion.config.audit_error_behavior || :exception
 
           case behavior
           when :log
@@ -241,7 +241,7 @@ module ActiveVersion
         end
 
         def log_audit_errors(error, action)
-          Rails.logger&.warn(
+          ActiveVersion.logger.warn(
             "Unable to create audit for #{action} of #{self.class.name}" \
             "##{id}: #{error.message}"
           )
