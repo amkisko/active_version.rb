@@ -305,6 +305,8 @@ rails g active_version:triggers Post --type=audit
 rails g active_version:triggers Post --type=revision
 ```
 
+PostgreSQL audit triggers capture the full row as JSON. They do not apply Ruby-side `only`, `except`, or `redacted` filters from `has_audits`. Use triggers only when you want complete row snapshots at the database layer, or generate custom trigger SQL that matches your column policy.
+
 ### Infrastructure Ownership
 
 ```ruby
@@ -507,7 +509,7 @@ Environment knobs:
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/amkisko/active_version.rb.
 
-Development dependencies include [polyrun](https://rubygems.org/gems/polyrun) **`~> 1.3.0`** (declared in `active_version.gemspec`) for **parallel RSpec** (`./bin/polyrun`), coverage, and CI report formats—see [POLYRUN.md](POLYRUN.md).
+Development dependencies include [polyrun](https://rubygems.org/gems/polyrun) (declared in `active_version.gemspec`) for **parallel RSpec** (`./bin/polyrun`), coverage, and CI report formats—see [spec/README.md](spec/README.md).
 
 ## License
 

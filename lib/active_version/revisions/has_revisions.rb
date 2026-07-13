@@ -113,9 +113,6 @@ module ActiveVersion
 
           # Set up callbacks based on options
           setup_revision_callbacks(revision_options)
-
-          # Register with version registry (idempotent)
-          ActiveVersion.registry.register(self, :revisions, revision_options)
         end
 
         # Check if model has revisions configured
@@ -134,7 +131,8 @@ module ActiveVersion
             except: Array.wrap(options[:except] || []).map(&:to_s),
             foreign_key: normalize_identity_columns(options[:foreign_key]),
             identity_resolver: options[:identity_resolver],
-            table_name: options[:table_name]
+            table_name: options[:table_name],
+            error_behavior: options[:error_behavior]
           }
         end
 
@@ -409,6 +407,7 @@ module ActiveVersion
         return if truncated_forward_history && latest_revision_matches_current_state?
 
         result = create_snapshot!(use_old_values: true)
+        return unless result
 
         # Ensure revision is persisted and visible in association
         unless result.persisted?

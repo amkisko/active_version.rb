@@ -338,6 +338,13 @@ module ActiveVersion
       @logger = default_logger
     end
 
+    def log_debug(message)
+      logger = self.logger
+      return if logger.nil?
+
+      logger.debug(message) if logger.respond_to?(:debug)
+    end
+
     def default_logger
       l = Logger.new($stderr)
       l.level = Logger::WARN

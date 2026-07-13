@@ -128,6 +128,19 @@ RSpec.describe "ActiveVersion core helpers" do
     expect(result).to eq(:ok)
   end
 
+  it "logs debug messages through ActiveVersion.logger" do
+    logger = instance_double("Logger")
+    allow(logger).to receive(:debug)
+    previous = ActiveVersion.logger
+    ActiveVersion.logger = logger
+
+    ActiveVersion.log_debug("test message")
+
+    expect(logger).to have_received(:debug).with("test message")
+  ensure
+    ActiveVersion.logger = previous
+  end
+
   it "exposes runtime adapter setter/getter and reset helpers" do
     custom = Class.new do
       def base_connection = nil

@@ -239,12 +239,14 @@ RSpec.describe ActiveVersion::Audits::HasAudits::AuditCombiner, type: :integrati
       expect { post.send(:combine_audits_if_needed) }.not_to raise_error
     end
 
-    it "reloads audits from database in loop" do
+    it "refreshes cached audits association before querying in loop" do
       post = post_class.create!(title: "v1")
       5.times { |i| post.update!(title: "v#{i + 2}") }
 
-      # Should reload to see updates
-      expect(post).to receive(:reload).at_least(:once)
+      post.audits.to_a
+      audits_association = post.association(:audits)
+      expect(audits_association).to receive(:reset).at_least(:once).and_call_original
+
       post.send(:combine_audits_if_needed)
     end
 
