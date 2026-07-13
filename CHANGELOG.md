@@ -3,7 +3,7 @@
 ## 1.3.0 (2026-04-15)
 
 - Add `polyrun` `~> 1.3.0` development dependency; `bin/polyrun`, `bin/rspec`, `polyrun.yml`, and `config/polyrun_coverage.yml` for parallel RSpec and merged coverage.
-- Add `script/create_postgres_shard_databases.sh` for CI and local Postgres shard databases; document in `POLYRUN.md`; set job-level `DATABASE_URL` in GitHub Actions test workflow.
+- Add `script/create_postgres_shard_databases.sh` for CI and local Postgres shard databases; document in `spec/README.md`; set job-level `DATABASE_URL` in GitHub Actions test workflow.
 - Add internal library logger.
 - Fix audits, Sequel foreign keys, revision debounce, and versions walk edge cases.
 - Adjust RSpec and RuboCop test configuration; update spec coverage.
