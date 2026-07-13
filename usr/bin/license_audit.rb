@@ -2,35 +2,76 @@
 
 require "bundler"
 require "pathname"
+require "rubygems"
 
 ROOT = Pathname(__dir__).join("../..").expand_path
 MANIFEST = ROOT.join("docs/THIRD_PARTY_LICENSE_MANIFEST.tsv")
 
-def specs_for(gemfile_path = nil)
-  previous = ENV["BUNDLE_GEMFILE"]
-  ENV["BUNDLE_GEMFILE"] = gemfile_path.to_s if gemfile_path
-  definition = Bundler::Definition.build(
-    gemfile_path ? gemfile_path.to_s : ROOT.join("Gemfile").to_s,
-    nil,
-    nil
-  )
-  definition.specs.sort_by(&:name)
-ensure
-  ENV["BUNDLE_GEMFILE"] = previous
+def locked_specs_for(gemfile_path)
+  gemfile = Pathname(gemfile_path)
+  lockfile = gemfile.dirname.join("Gemfile.lock")
+  raise "Missing lockfile: #{lockfile}" unless lockfile.exist?
+
+  Bundler::LockfileParser.new(lockfile.read).specs.sort_by(&:name)
 end
 
-rows = []
+def licenses_from_project_gemspec(gem_name)
+  gemspec_path = ROOT.glob("*.gemspec").find { |path| File.basename(path, ".gemspec") == gem_name }
+  return [] unless gemspec_path
 
-rows << ["bundle", "gem", "version", "licenses"]
-specs_for.each do |spec|
-  rows << ["root", spec.name, spec.version.to_s, (spec.licenses || []).join("|")]
+  Gem::Specification.load(gemspec_path.to_s).licenses
 end
+
+def licenses_for(gem_name, version)
+  version_string = version.to_s
+
+  begin
+    licenses = Gem::Specification.find_by_name(gem_name, version_string).licenses
+    return licenses if licenses&.any?
+  rescue Gem::MissingSpecError
+  end
+
+  project_licenses = licenses_from_project_gemspec(gem_name)
+  return project_licenses if project_licenses&.any?
+
+  spec_fetcher = (@spec_fetcher ||= Gem::SpecFetcher.new)
+  dependency = Gem::Dependency.new(gem_name, version_string)
+  remote_spec = spec_fetcher.spec_for_dependency(dependency).first&.first&.first
+  remote_spec&.licenses || []
+end
+
+def report_progress(bundle_label, index, total, gem_name)
+  message = "License audit: #{bundle_label} #{index}/#{total} #{gem_name}"
+  if $stderr.tty?
+    $stderr.print("\r\e[2K#{message}")
+    $stderr.flush
+  else
+    $stderr.puts(message)
+  end
+end
+
+def finish_progress
+  $stderr.puts if $stderr.tty?
+end
+
+def rows_for(bundle_label, gemfile_path)
+  specs = locked_specs_for(gemfile_path)
+  total = specs.size
+
+  specs.map.with_index(1) do |spec, index|
+    report_progress(bundle_label, index, total, spec.name)
+    [bundle_label, spec.name, spec.version.to_s, licenses_for(spec.name, spec.version).join("|")]
+  end
+end
+
+rows = [["bundle", "gem", "version", "licenses"]]
+rows.concat(rows_for("root", ROOT.join("Gemfile")))
 
 demo_gemfile = ROOT.join("examples/rails_demo/Gemfile")
-specs_for(demo_gemfile).each do |spec|
-  rows << ["rails_demo", spec.name, spec.version.to_s, (spec.licenses || []).join("|")]
-end
+rows.concat(rows_for("rails_demo", demo_gemfile)) if demo_gemfile.exist?
+
+finish_progress
 
 MANIFEST.dirname.mkpath
-MANIFEST.write(rows.map { |r| r.join("\t") }.join("\n") + "\n")
+MANIFEST.write(rows.map { |row| row.join("\t") }.join("\n") + "\n")
 puts "Wrote #{MANIFEST}"
