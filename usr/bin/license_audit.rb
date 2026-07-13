@@ -45,8 +45,8 @@ def report_progress(bundle_label, index, total, gem_name)
   if $stderr.tty?
     $stderr.print("\r\e[2K#{message}")
     $stderr.flush
-  else
-    $stderr.puts(message)
+  elsif index == 1 || index == total || (index % 25).zero?
+    warn(message)
   end
 end
 
