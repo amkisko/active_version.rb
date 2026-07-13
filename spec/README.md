@@ -2,7 +2,7 @@
 
 ## Using RSpec (default: Polyrun parallel)
 
-The full suite matches CI: **parallel OS processes** via **`./bin/polyrun`** (or **`bundle exec polyrun parallel-rspec`**) — see [POLYRUN.md](../POLYRUN.md). **`polyrun.yml`** **`partition.paths_build`** refreshes **`spec/spec_paths.txt`** before **`plan`** / **`run-shards`**; to regenerate only that file: **`./bin/polyrun build-paths`**.
+The full suite matches CI: **parallel OS processes** via **`./bin/polyrun`** (or **`bundle exec polyrun parallel-rspec`**). **`polyrun.yml`** **`partition.paths_build`** refreshes **`spec/spec_paths.txt`** before **`plan`** / **`run-shards`**; to regenerate only that file: **`./bin/polyrun build-paths`**.
 
 ```bash
 # Run all tests (parallel + merged coverage)
