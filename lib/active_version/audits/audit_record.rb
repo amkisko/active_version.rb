@@ -125,10 +125,10 @@ module ActiveVersion
               attribute changes_column, :text unless attribute_names.include?(changes_column.to_s)
               attribute context_column, :text unless attribute_names.include?(context_column.to_s)
             end
-          rescue *ActiveVersion::Runtime.active_record_connection_errors => e
-            if defined?(Rails) && Rails.respond_to?(:logger)
-              Rails.logger&.debug("[ActiveVersion] Deferred audit attribute setup for #{name}: #{e.class}: #{e.message}")
-            end
+          rescue *ActiveVersion::Runtime.active_record_connection_errors => error
+            ActiveVersion.log_debug(
+              "[ActiveVersion] Deferred audit attribute setup for #{name}: #{error.class}: #{error.message}"
+            )
           end
 
           begin
@@ -156,10 +156,10 @@ module ActiveVersion
             end
           rescue NameError
             # Source class not yet defined, will be set up later
-          rescue *ActiveVersion::Runtime.active_record_connection_errors => e
-            if defined?(Rails) && Rails.respond_to?(:logger)
-              Rails.logger&.debug("[ActiveVersion] Deferred audit association setup for #{name}: #{e.class}: #{e.message}")
-            end
+          rescue *ActiveVersion::Runtime.active_record_connection_errors => error
+            ActiveVersion.log_debug(
+              "[ActiveVersion] Deferred audit association setup for #{name}: #{error.class}: #{error.message}"
+            )
           end
         end
 

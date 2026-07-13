@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 1.4.0 (2026-07-13)
+
+- Add `revision_error_behavior` configuration (`:exception`, `:log`, `:silent`) and per-model `has_revisions error_behavior:` override for revision snapshot failures.
+- Route audit warning output through `ActiveVersion.logger` so non-Rails apps and custom log sinks receive audit write failures consistently.
+- Fix audit combining to refresh the cached audits association instead of reloading the auditable record.
+- Fix thread-local audited options reader installation on Rails 6.1 models with delegated class methods.
+- Log debug detail for deferred audit setup, instrumentation probes, and unparseable audit payloads when `ActiveVersion.logger` supports debug output.
+
 ## 1.3.0 (2026-04-15)
 
 - Add `polyrun` `~> 1.3.0` development dependency; `bin/polyrun`, `bin/rspec`, `polyrun.yml`, and `config/polyrun_coverage.yml` for parallel RSpec and merged coverage.

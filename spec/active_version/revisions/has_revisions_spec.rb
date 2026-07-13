@@ -6,6 +6,10 @@ RSpec.describe ActiveVersion::Revisions::HasRevisions do
     DatabaseHelper.setup
   end
 
+  before do
+    ActiveVersion.config.revision_error_behavior = :exception
+  end
+
   let(:model_class) do
     # Use a class that has the revision class available
     Post

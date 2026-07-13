@@ -207,5 +207,21 @@ RSpec.describe "ActiveVersion AuditCombiner Integration", type: :integration do
         expect(audit.version).to be >= 6
       end
     end
+
+    it "keeps active audit count at max_audits after many updates" do
+      post_class = Class.new(Post) do
+        has_audits as: PostAudit, max_audits: 3, class_name: "Post"
+      end
+
+      post = post_class.create!(title: "v1")
+      20.times { |index|
+        post.title = "v#{index + 2}"
+        post.save!
+      }
+
+      active_audits = post.active_audits.sort_by(&:version)
+      expect(active_audits.length).to eq(3)
+      expect(active_audits.map(&:version)).to eq([19, 20, 21])
+    end
   end
 end
