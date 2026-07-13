@@ -16,7 +16,10 @@ module ActiveVersion
             return value unless value.is_a?(String)
 
             JSON.parse(value)
-          rescue JSON::ParserError
+          rescue JSON::ParserError => error
+            ActiveVersion.log_debug(
+              "[ActiveVersion::Audits::AuditRecord::Serializers::Json] failed to parse audit payload: #{error.message}"
+            )
             value
           end
 
@@ -35,7 +38,10 @@ module ActiveVersion
             return value unless value.is_a?(String)
 
             YAML.safe_load(value, permitted_classes: PERMITTED_CLASSES, aliases: false)
-          rescue Psych::SyntaxError, Psych::DisallowedClass, Psych::AliasesNotEnabled, ArgumentError
+          rescue Psych::SyntaxError, Psych::DisallowedClass, Psych::AliasesNotEnabled, ArgumentError => error
+            ActiveVersion.log_debug(
+              "[ActiveVersion::Audits::AuditRecord::Serializers::Yaml] failed to parse audit payload: #{error.message}"
+            )
             value
           end
 

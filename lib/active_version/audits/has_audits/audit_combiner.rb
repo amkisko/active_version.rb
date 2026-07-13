@@ -24,54 +24,27 @@ module ActiveVersion
             iteration += 1
             break if iteration > max_iterations
 
-            # Force reload from database to see any updates
-            if persisted?
-              reload
-            end
-
-            # Clear association cache to ensure we get fresh data from database.
-            # Avoid calling audits reader directly here to prevent AR 6.1
-            # delegation edge cases on dynamic models.
+            # Clear association cache so the direct audit query below sees SQL updates
+            # from prior combine rounds without reloading the auditable record.
             if respond_to?(:association) && association_cached?(:audits)
               association(:audits).reset
             end
 
-            # Get all audits fresh from database (not from cache)
-            # Query directly to ensure we get updated values after SQL updates
             auditable_type = audited_options[:class_name] || self.class.name
             auditable_column = ActiveVersion.column_mapper.column_for(self.class, :audits, :auditable)
             version_column = ActiveVersion.column_mapper.column_for(self.class, :audits, :version)
-            audit_klass =
-              if self.class.reflect_on_association(:audits)
-                association(:audits).klass
-              else
-                self.class.audit_class
-              end
-            if audit_klass.nil? && self.class.respond_to?(:resolve_audit_class_option, true)
-              audit_klass = self.class.send(:resolve_audit_class_option, audited_options[:as])
-            end
+            audit_klass = combiner_audit_klass
             break unless audit_klass
-            all_audits = audit_klass.where({"#{auditable_column}_type" => auditable_type}.merge(active_version_audit_identity_map))
-              .order(version_column => :asc)
-              .to_a
 
-            # Filter out combined audits (those with empty changes)
-            # Check raw column value first (before JSON parsing) for "{}" string
-            active_audits = all_audits.reject do |audit|
-              # Check raw column value first - combined audits have "{}" as string
-              raw_changes = audit.read_attribute(changes_column)
+            active_scope = active_audits_scope_for_combiner(
+              audit_klass,
+              auditable_type,
+              auditable_column,
+              version_column,
+              changes_column
+            )
 
-              # If raw value is exactly "{}", it's a combined audit
-              if raw_changes.is_a?(String) && raw_changes.strip == "{}"
-                true
-              else
-                # Otherwise check parsed value
-                changes = audit.audited_changes
-                changes.nil? || (changes.is_a?(Hash) && changes.empty?) || (changes.is_a?(String) && changes.strip.empty?)
-              end
-            end
-
-            audits_count = active_audits.length
+            audits_count = active_scope.count
             break if audits_count <= max_audits
 
             # Calculate how many extra audits we have
@@ -79,13 +52,50 @@ module ActiveVersion
 
             # Get the oldest active audits to combine (first extra_count + 1)
             # The +1 is because we'll merge into the last one in this set
-            audits_to_combine = active_audits.first(extra_count + 1)
+            audits_to_combine = active_scope
+              .limit(extra_count + 1)
+              .to_a
+              .reject { |audit| combined_audit_record?(audit, changes_column) }
+              .first(extra_count + 1)
 
             # Safety check to prevent infinite loops
             break if audits_to_combine.empty? || audits_to_combine.length <= 1
 
             # Combine them (this will merge into the last audit and mark older ones as combined)
             combine_audits(audits_to_combine)
+          end
+        end
+
+        def combiner_audit_klass
+          audit_klass =
+            if self.class.reflect_on_association(:audits)
+              association(:audits).klass
+            else
+              self.class.audit_class
+            end
+          if audit_klass.nil? && self.class.respond_to?(:resolve_audit_class_option, true)
+            audit_klass = self.class.send(:resolve_audit_class_option, audited_options[:as])
+          end
+          audit_klass
+        end
+
+        def active_audits_scope_for_combiner(audit_klass, auditable_type, auditable_column, version_column, changes_column)
+          audit_klass
+            .where({"#{auditable_column}_type" => auditable_type}.merge(active_version_audit_identity_map))
+            .where.not(changes_column => nil)
+            .where.not(changes_column => "")
+            .where.not(changes_column => "{}")
+            .order(version_column => :asc)
+        end
+
+        def combined_audit_record?(audit, changes_column)
+          raw_changes = audit.read_attribute(changes_column)
+
+          if raw_changes.is_a?(String) && raw_changes.strip == "{}"
+            true
+          else
+            changes = audit.audited_changes
+            changes.nil? || (changes.is_a?(Hash) && changes.empty?) || (changes.is_a?(String) && changes.strip.empty?)
           end
         end
 
