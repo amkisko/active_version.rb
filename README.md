@@ -1,6 +1,6 @@
 # ActiveVersion
 
-[![Gem Version](https://badge.fury.io/rb/active_version.svg)](https://badge.fury.io/rb/active_version) [![Test Status](https://github.com/amkisko/active_version.rb/actions/workflows/test.yml/badge.svg)](https://github.com/amkisko/active_version.rb/actions/workflows/test.yml) [![codecov](https://codecov.io/gh/amkisko/active_version.rb/graph/badge.svg?token=2U6NXJOVVM)](https://codecov.io/gh/amkisko/active_version.rb)
+[![Gem Version](https://badge.fury.io/rb/active_version.svg)](https://badge.fury.io/rb/active_version) [![Test Status](https://github.com/amkisko/active_version.rb/actions/workflows/test.yml/badge.svg)](https://github.com/amkisko/active_version.rb/actions/workflows/test.yml) [![codecov](https://codecov.io/gh/amkisko/active_version.rb/graph/badge.svg?token=2U6NXJOVVM)](https://app.codecov.io/github/amkisko/active_version.rb)
 
 A unified versioning library for ActiveRecord that handles translations, revisions, and audits in a single, extensible architecture.
 
@@ -510,6 +510,19 @@ Environment knobs:
 Bug reports and pull requests are welcome on GitHub at https://github.com/amkisko/active_version.rb.
 
 Development dependencies include [polyrun](https://rubygems.org/gems/polyrun) (declared in `active_version.gemspec`) for **parallel RSpec** (`./bin/polyrun`), coverage, and CI report formats—see [spec/README.md](spec/README.md).
+
+## Links
+
+- [GitHub](https://github.com/amkisko/active_version.rb)
+- [GitLab](https://gitlab.com/amkisko/active_version.rb)
+- [RubyGems](https://rubygems.org/gems/active_version)
+- [Versions Atom](https://rubygems.org/gems/active_version/versions.atom) (feed id `10668858017926`)
+- [libraries.io](https://libraries.io/rubygems/active_version)
+- [Deps.dev](https://deps.dev/rubygems/active_version)
+- [SonarCloud](https://sonarcloud.io/project/overview?id=amkisko_active_version.rb)
+- [Snyk](https://snyk.io/test/github/amkisko/active_version.rb)
+- [Codecov](https://app.codecov.io/github/amkisko/active_version.rb)
+- [OpenSSF Scorecard](https://scorecard.dev/viewer/?uri=github.com/amkisko/active_version.rb)
 
 ## License
 
