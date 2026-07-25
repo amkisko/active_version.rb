@@ -280,7 +280,7 @@ DEPENDENCIES
   appraisal (~> 2)
   benchmark (>= 0.4)
   bundler-audit (~> 0.9)
-  parallel (< 2.1)
+  parallel (~> 1.26)
   pg (~> 1.5)
   polyrun (>= 2.2.0)
   prosopite (~> 2.0)
