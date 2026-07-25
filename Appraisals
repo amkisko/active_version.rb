@@ -1,7 +1,7 @@
 appraise "rails6" do
   gem "activerecord", "~> 6.1.7"
   gem "activesupport", "~> 6.1.7"
-  gem "sqlite3", ">= 2.9.5"
+  gem "sqlite3", "~> 1.4"
 end
 
 appraise "rails72" do
