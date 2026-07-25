@@ -44,9 +44,11 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "standard-rails", "~> 1.5"
   spec.add_development_dependency "standard-rspec", "~> 0.3"
   spec.add_development_dependency "rubocop-rails", "~> 2.33"
-  spec.add_development_dependency "rubocop-rspec", "~> 3.8"
+  spec.add_development_dependency "rubocop-rspec", "~> 3.9"
   spec.add_development_dependency "rubocop-thread_safety", "~> 0.7"
   spec.add_development_dependency "appraisal", "~> 2"
   spec.add_development_dependency "bundler-audit", "~> 0.9"
   spec.add_development_dependency "rbs", "~> 3"
+  # rubocop pulls parallel; 2.1+ requires Ruby >= 3.3 (rails6 CI matrix uses 3.2).
+  spec.add_development_dependency "parallel", "< 2.1"
 end
