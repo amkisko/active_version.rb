@@ -11,7 +11,7 @@ module ActiveVersion
         module ClassMethods
           # Declare that a model has audits
           def has_audits(options = {})
-            include ActiveVersion::Audits::HasAudits unless included_modules.include?(ActiveVersion::Audits::HasAudits)
+            include ActiveVersion::Audits::HasAudits unless include?(ActiveVersion::Audits::HasAudits)
 
             # Call the HasAudits implementation once included
             ActiveVersion::Audits::HasAudits::ClassMethods.instance_method(:has_audits)
@@ -30,7 +30,7 @@ end
 
 # If ActiveRecord::Base is already loaded, include immediately
 if defined?(ActiveRecord::Base) && ActiveRecord::Base.respond_to?(:include)
-  unless ActiveRecord::Base.included_modules.include?(ActiveVersion::Adapters::ActiveRecord::Audits)
+  unless ActiveRecord::Base.include?(ActiveVersion::Adapters::ActiveRecord::Audits)
     ActiveSupport.on_load(:active_record) { include ActiveVersion::Adapters::ActiveRecord::Audits }
   end
 end

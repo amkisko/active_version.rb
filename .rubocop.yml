@@ -45,6 +45,11 @@ RSpec/ExampleLength:
     - spec/benchmark/runtime_comparison_spec.rb
     - spec/integration/configurable_identity_spec.rb
 
+RSpec/Output:
+  Exclude:
+    - spec/benchmark/**/*
+    - spec/integration/migrators_base_spec.rb
+
 RSpec/SpecFilePathFormat:
   Enabled: false
   Exclude:

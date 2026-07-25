@@ -43,7 +43,7 @@ end
 
 # If ActiveRecord::Base is already loaded, include immediately
 if defined?(ActiveRecord::Base) && ActiveRecord::Base.respond_to?(:include)
-  unless ActiveRecord::Base.included_modules.include?(ActiveVersion::Adapters::ActiveRecord::Revisions)
+  unless ActiveRecord::Base.include?(ActiveVersion::Adapters::ActiveRecord::Revisions)
     ActiveSupport.on_load(:active_record) { include ActiveVersion::Adapters::ActiveRecord::Revisions }
   end
 end
