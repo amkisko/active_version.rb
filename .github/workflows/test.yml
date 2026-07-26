@@ -79,6 +79,7 @@ jobs:
     env:
       BUNDLE_GEMFILE: ${{ github.workspace }}/gemfiles/${{ matrix.gemfile }}.gemfile
       DATABASE_URL: postgres://postgres@localhost:5432/active_version_test
+      POLYRUN_COVERAGE_DISABLE: "1"
 
     services:
       postgres:
