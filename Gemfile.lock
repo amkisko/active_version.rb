@@ -260,7 +260,7 @@ DEPENDENCIES
   rubocop-rspec (~> 3.9)
   rubocop-thread_safety (~> 0.7)
   sequel (~> 5.84)
-  sqlite3 (>= 2.9.5)
+  sqlite3 (>= 1.4)
   standard (~> 1.52)
   standard-custom (~> 1.0)
   standard-performance (~> 1.8)
