@@ -11,7 +11,7 @@ RSpec.describe ActiveVersion::Adapters::ActiveRecord::Audits do
 
     executed_on_load_block = false
     on_load_calls = 0
-    allow(ActiveRecord::Base).to receive(:included_modules).and_return([])
+    allow(ActiveRecord::Base).to receive(:include?).and_return(false)
     allow(ActiveSupport).to receive(:on_load).with(:active_record) do |_name, &blk|
       on_load_calls += 1
       if blk
