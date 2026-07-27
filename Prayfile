@@ -1,5 +1,10 @@
 prayfile "1"
 
+pray do
+  support_email "contact@kiskolabs.com"
+  security_email "security@kiskolabs.com"
+end
+
 source "amkisko", git: "https://github.com/amkisko/prayers", distribution: "prayers"
 
 compose "AGENTS.md" do
@@ -26,7 +31,7 @@ tree ".agents/skills" do
   pray "amkisko/changelog-update", "~> 2.0"
 end
 
-pray "amkisko/community-security", "~> 1.0", file: "SECURITY.md"
-pray "amkisko/community-code-of-conduct", "~> 1.0", file: "CODE_OF_CONDUCT.md"
+pray "amkisko/community-security", "~> 1.1", file: "SECURITY.md"
+pray "amkisko/community-code-of-conduct", "~> 1.1", file: "CODE_OF_CONDUCT.md"
 pray "amkisko/community-governance", "~> 1.0", file: "GOVERNANCE.md"
 pray "amkisko/community-contributing", "~> 1.0", file: "CONTRIBUTING.md"
