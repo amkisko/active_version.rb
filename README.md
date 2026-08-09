@@ -502,7 +502,7 @@ Environment knobs:
 ## Requirements
 
 - Ruby >= 3.0.0
-- ActiveRecord >= 6.0.0 (default runtime)
+- ActiveRecord >= 7.2.3.2 and < 9.0 (default runtime)
 - SQLite or MySQL or PostgreSQL (optional, for triggers and JSONB support)
 
 ## Contributing

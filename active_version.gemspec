@@ -26,14 +26,13 @@ Gem::Specification.new do |spec|
     "rubygems_mfa_required" => "true"
   }
 
-  spec.add_dependency "activesupport", ">= 6.0.0"
+  spec.add_dependency "activesupport", ">= 7.2.3.2", "< 9.0"
 
   spec.add_development_dependency "rake", "~> 13"
-  spec.add_development_dependency "activerecord", ">= 6.0.0"
+  spec.add_development_dependency "activerecord", ">= 7.2.3.2", "< 9.0"
   spec.add_development_dependency "rspec", "~> 3"
   spec.add_development_dependency "rspec-rails", "~> 6.0"
-  # Rails 6.1 needs sqlite3 ~> 1.4; Rails 7+/8 resolve 2.x from this floor.
-  spec.add_development_dependency "sqlite3", ">= 1.4"
+  spec.add_development_dependency "sqlite3", ">= 2.9.5"
   spec.add_development_dependency "pg", "~> 1.5"
   spec.add_development_dependency "sequel", "~> 5.84"
   spec.add_development_dependency "benchmark", ">= 0.4"
@@ -50,6 +49,6 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "appraisal", "~> 2"
   spec.add_development_dependency "bundler-audit", "~> 0.9"
   spec.add_development_dependency "rbs", "~> 3"
-  # rubocop pulls parallel; 2.0+ requires Ruby >= 3.3 (rails6 CI matrix uses 3.2).
+  # Keep development tooling installable on the gem's Ruby 3.0 floor.
   spec.add_development_dependency "parallel", "~> 1.26"
 end

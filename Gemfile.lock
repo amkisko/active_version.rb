@@ -2,7 +2,7 @@ PATH
   remote: .
   specs:
     active_version (1.4.0)
-      activesupport (>= 6.0.0)
+      activesupport (>= 7.2.3.2, < 9.0)
 
 GEM
   remote: https://rubygems.org/
@@ -244,7 +244,7 @@ PLATFORMS
 
 DEPENDENCIES
   active_version!
-  activerecord (>= 6.0.0)
+  activerecord (>= 7.2.3.2, < 9.0)
   appraisal (~> 2)
   benchmark (>= 0.4)
   bundler-audit (~> 0.9)
@@ -260,7 +260,7 @@ DEPENDENCIES
   rubocop-rspec (~> 3.9)
   rubocop-thread_safety (~> 0.7)
   sequel (~> 5.84)
-  sqlite3 (>= 1.4)
+  sqlite3 (>= 2.9.5)
   standard (~> 1.52)
   standard-custom (~> 1.0)
   standard-performance (~> 1.8)
@@ -362,4 +362,4 @@ CHECKSUMS
   zeitwerk (2.7.4) sha256=2bef90f356bdafe9a6c2bd32bcd804f83a4f9b8bc27f3600fff051eb3edcec8b
 
 BUNDLED WITH
-  4.0.6
+   2.7.2
