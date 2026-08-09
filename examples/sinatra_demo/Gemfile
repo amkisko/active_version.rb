@@ -2,7 +2,7 @@ source "https://rubygems.org"
 
 gem "sinatra", "~> 4.1"
 gem "sequel", "~> 5.84"
-gem "sqlite3", "~> 1.7"
+gem "sqlite3", ">= 2.9.5", "< 3.0"
 gem "rackup", "~> 2.1"
 gem "puma", "~> 7.0"
 

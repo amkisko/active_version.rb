@@ -5,7 +5,7 @@ This guide walks through adding the ActiveVersion gem to an existing Rails appli
 ## Prerequisites
 
 - Ruby >= 3.0
-- Rails >= 6.0 (with ActiveRecord)
+- Rails >= 7.2.3.2 and < 9.0 (with ActiveRecord)
 - Database: PostgreSQL recommended for JSONB and optional triggers; SQLite is also supported (uses `json` columns, and `storage: :mirror_columns` works without JSON payload columns)
 
 ## Step-by-Step Setup
