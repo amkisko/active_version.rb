@@ -36,8 +36,7 @@ RSpec.describe "ActiveVersion::Audits::HasAudits coverage" do
   end
 
   before do
-    Post.destroy_all
-    PostAudit.destroy_all
+    DatabaseHelper.empty_test_tables
     ActiveVersion.clear_context!
     ActiveVersion.auditing_enabled = true
   end

@@ -59,3 +59,4 @@ spec/active_version/translations/translation_record_spec.rb
 spec/active_version/unique_version_collision_spec.rb
 spec/active_version/version_registry_spec.rb
 spec/benchmark/runtime_comparison_spec.rb
+spec/database_helper_spec.rb

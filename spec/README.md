@@ -611,12 +611,14 @@ ActiveVersion uses `spec/support/database.rb` for database setup:
 
 ```ruby
 # spec/support/database.rb provides:
-# - DatabaseHelper.setup - Creates test database and tables
+# - DatabaseHelper.setup - Creates tables if missing, then truncates rows
 # - DatabaseHelper.teardown - Cleans up test database
 # - Automatic schema loading for test models
 ```
 
 Always use `DatabaseHelper.setup` in `before(:all)` blocks for integration tests that require database access.
+
+Parallel polyrun workers get `DATABASE_URL` and `TEST_DB_NAME` from `polyrun.yml` `databases:` (`active_version_test_%{shard}`). `DatabaseHelper` uses `DATABASE_URL` when present, otherwise `TEST_DB_NAME`. It refuses a connection whose current database is not `TEST_DB_NAME`. Schema create uses `force: :cascade` only when a required table is missing, so a second `bin/polyrun` on the same shard databases does not drop tables under a running worker. `start.databases` is false because this gem has no `bin/rails`; `bin/polyrun` runs specs without CloneShards migrate. Provision shard databases once with `createdb active_version_test` then `bundle exec polyrun db:clone-shards --no-migrate --workers 5`. Serial `bin/rspec` without those env vars uses the hash fallback `active_version_test`.
 
 ### Thread-Local Storage Testing
 

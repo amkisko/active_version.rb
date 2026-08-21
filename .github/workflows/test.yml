@@ -74,7 +74,6 @@ jobs:
 
     env:
       BUNDLE_GEMFILE: ${{ github.workspace }}/gemfiles/${{ matrix.gemfile }}.gemfile
-      DATABASE_URL: postgres://postgres@localhost:5432/active_version_test
       POLYRUN_COVERAGE_DISABLE: "1"
 
     services:
@@ -104,7 +103,7 @@ jobs:
       run: sudo apt-get update && sudo apt-get install -y postgresql-client
 
     - name: Create shard databases for parallel RSpec
-      run: ./script/create_postgres_shard_databases.sh
+      run: bundle exec polyrun db:clone-shards --no-migrate --workers 5
 
     - name: Run tests (parallel OS processes via polyrun)
       run: |
@@ -114,8 +113,6 @@ jobs:
   coverage-shard:
     needs: audit
     runs-on: ubuntu-latest
-    env:
-      DATABASE_URL: postgres://postgres@localhost:5432/active_version_test
     services:
       postgres:
         image: postgres:16
@@ -140,7 +137,7 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y postgresql-client
 
       - name: Create shard databases for parallel RSpec
-        run: ./script/create_postgres_shard_databases.sh
+        run: bundle exec polyrun db:clone-shards --no-migrate --workers 5
 
       - name: Run parallel RSpec with Polyrun coverage
         env:

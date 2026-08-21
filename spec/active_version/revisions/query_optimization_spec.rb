@@ -12,8 +12,7 @@ RSpec.describe "ActiveVersion Query Optimization", type: :integration do
   end
 
   before do
-    Post.destroy_all
-    PostRevision.destroy_all
+    DatabaseHelper.empty_test_tables
   end
 
   describe "refreshable_column_names" do
