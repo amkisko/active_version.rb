@@ -46,7 +46,7 @@ RSpec.describe DatabaseHelper do
       ENV.replace(previous)
     end
 
-    it "keeps the posts relation when schema already exists" do
+    it "keeps the posts relation when schema already exists", aggregate_failures: true do
       described_class.setup
       skip "PostgreSQL relation identity" unless postgres_adapter?
 
