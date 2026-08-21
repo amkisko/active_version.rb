@@ -4,6 +4,8 @@
 
 A unified versioning library for ActiveRecord that handles translations, revisions, and audits in a single, extensible architecture.
 
+Design changes go through `rfcs/` (RFC 0001).
+
 ## Features
 
 - Translations: Locale-based versioning with automatic value copying
