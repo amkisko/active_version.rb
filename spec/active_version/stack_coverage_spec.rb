@@ -8,9 +8,7 @@ RSpec.describe "Stack coverage (audit / revision / SQL builders)" do
   end
 
   before do
-    Post.destroy_all
-    PostAudit.destroy_all
-    PostRevision.destroy_all
+    DatabaseHelper.empty_test_tables
     ActiveVersion.clear_context!
     ActiveVersion.auditing_enabled = true
   end

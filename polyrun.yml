@@ -1,6 +1,18 @@
 version: 1
 
 # Polyrun — shard env + spec list. spec/spec_paths.txt is written from paths_build before plan/run-shards (or: bundle exec polyrun build-paths).
+# databases: supplies per-worker DATABASE_URL. This gem has no bin/rails, so start skips CloneShards migrate.
+# Provision once: createdb active_version_test && bundle exec polyrun db:clone-shards --no-migrate --workers 5
+
+databases:
+  template_db: active_version_test
+  shard_db_pattern: "active_version_test_%{shard}"
+  postgresql:
+    host: localhost
+    username: postgres
+
+start:
+  databases: false
 
 partition:
   suite: rspec
