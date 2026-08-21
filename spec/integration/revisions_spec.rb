@@ -166,4 +166,55 @@ RSpec.describe "ActiveVersion Revisions Integration", type: :integration do
       expect(post.undo!).to be false
     end
   end
+
+  describe "unique version collision" do
+    it "creates the next revision when undo leaves a taken version inside a transaction" do
+      post = Post.create!(title: "v1", body: "First")
+      post.update!(title: "v2")
+      post.update!(title: "v3")
+      post.undo!
+
+      snapshot = Post.transaction { post.create_snapshot! }
+
+      expect(snapshot.version).to eq(4)
+      expect(PostRevision.where(post_id: post.id).order(:version).pluck(:version)).to eq([1, 2, 3, 4])
+    end
+
+    it "creates the next revision when a unique index collision happens inside a transaction" do
+      uniqueness_validators = []
+      skip "PostgreSQL required" unless ActiveRecord::Base.connection.adapter_name == "PostgreSQL"
+
+      uniqueness_validators = PostRevision.validators_on(:version).select { |validator| validator.kind == :uniqueness }
+      uniqueness_validators.each { |validator| PostRevision.skip_callback(:validate, :before, validator) }
+
+      post = Post.create!(title: "v1", body: "First")
+      post.update!(title: "v2")
+      planted_version = 2
+
+      snapshot = ActiveRecord::Base.connection.cache do
+        expect(post.current_version).to eq(1)
+
+        Thread.new do
+          ActiveRecord::Base.connection_pool.with_connection do
+            PostRevision.insert!(
+              {
+                "post_id" => post.id,
+                "version" => planted_version,
+                "title" => "planted",
+                "created_at" => Time.current,
+                "updated_at" => Time.current
+              }
+            )
+          end
+        end.join
+
+        Post.transaction { post.create_snapshot! }
+      end
+
+      expect(snapshot.version).to eq(3)
+      expect(PostRevision.where(post_id: post.id).order(:version).pluck(:version)).to include(1, planted_version, 3)
+    ensure
+      uniqueness_validators&.each { |validator| PostRevision.set_callback(:validate, :before, validator) }
+    end
+  end
 end

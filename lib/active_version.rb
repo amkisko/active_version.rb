@@ -12,6 +12,7 @@ require "active_version/column_mapper"
 require "active_version/version_registry"
 require "active_version/instrumentation"
 require "active_version/runtime"
+require "active_version/unique_version_collision"
 
 # Main entry point for ActiveVersion
 module ActiveVersion
