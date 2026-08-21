@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## Unreleased
+
+- Add `rfcs/` starter pack: process (RFC 0001), positioning (RFC 0002), and Standards Track design RFCs 0003–0006 for translations, revisions, audits, and generators.
+
 ## 1.4.0 (2026-07-13)
 
 - Add `revision_error_behavior` configuration (`:exception`, `:log`, `:silent`) and per-model `has_revisions error_behavior:` override for revision snapshot failures.
