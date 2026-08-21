@@ -86,7 +86,7 @@ module DatabaseHelper
     return if present.empty?
 
     if postgres_adapter?
-      connection.execute("TRUNCATE TABLE #{present.join(', ')} RESTART IDENTITY CASCADE")
+      connection.execute("TRUNCATE TABLE #{present.join(", ")} RESTART IDENTITY CASCADE")
     else
       present.each { |table_name| connection.execute("DELETE FROM #{table_name}") }
     end
