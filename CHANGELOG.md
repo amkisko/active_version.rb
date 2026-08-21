@@ -1,9 +1,10 @@
 # CHANGELOG
 
-## Unreleased
+## 2.0.0 (2026-08-21)
 
-- Add `rfcs/` starter pack: process (RFC 0001), positioning (RFC 0002), and Standards Track design RFCs 0003–0006 for translations, revisions, audits, and generators.
+- BREAKING: Require Active Support and Active Record `>= 7.2.3.2` and `< 9.0`.
 - Retry unique version collisions so a revision snapshot or audit still writes after a concurrent insert, including inside an open PostgreSQL transaction.
+- Add `rfcs/` starter pack: process (RFC 0001), positioning (RFC 0002), and Standards Track design RFCs 0003–0006 for translations, revisions, audits, and generators.
 
 ## 1.4.0 (2026-07-13)
 
