@@ -1,7 +1,7 @@
 PATH
   remote: ..
   specs:
-    active_version (1.4.0)
+    active_version (2.0.0)
       activesupport (>= 7.2.3.2, < 9.0)
 
 GEM
@@ -304,7 +304,7 @@ DEPENDENCIES
 CHECKSUMS
   actionpack (7.2.3.2) sha256=c1fbb1c4df0f2473ee064ab1412fc2a44c2c2ef337924c5ba3c7998c8529652b
   actionview (7.2.3.2) sha256=42bfd966040c93271dfa9f3243d73c40aa0228108696f956e1f287f3b02edc01
-  active_version (1.4.0)
+  active_version (2.0.0)
   activemodel (7.2.3.2) sha256=3777c67cd8dd1560f30387523013dacb370a0a1cf532037410887819e4416927
   activerecord (7.2.3.2) sha256=e62d24ba7e5f820d24ed122eb9225491b0aaa8398778783b400067c3467285c7
   activesupport (7.2.3.2) sha256=ddc90d11dd88086d78ace03407fe3c2a3f5c8853c3c3046313db5ed823ef3312
