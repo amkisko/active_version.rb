@@ -187,42 +187,46 @@ module ActiveVersion
                 return nil
               end
 
-              begin
-                audit_class.create!(insert_attrs)
-                combine_audits_if_needed if attrs[:action] != "create"
-                association(:audits).reset if association_cached?(:audits)
-                nil
-              rescue ActiveRecord::RecordNotUnique => e
-                # Handle unique constraint violation (likely version conflict)
-                # Retry once with recalculated version
-                if e.message.include?("version") && attrs[:action] != "create"
-                  # Recalculate version and retry
-                  # Use class_name from options if provided (for dynamically created classes)
-                  auditable_type_for_query = audited_options[:class_name] || self.class.name
-                  if auditable_type_for_query.nil?
-                    raise ConfigurationError, "Cannot determine class name for dynamically created class. Please specify class_name option in has_audits"
-                  end
-                  max_version = audit_class.where({"#{auditable_column}_type" => auditable_type_for_query}.merge(active_version_audit_identity_map))
-                    .maximum(version_column) || 0
-                  insert_attrs[version_column] = max_version + 1
-                  begin
-                    audit_class.create!(insert_attrs)
-                    combine_audits_if_needed if attrs[:action] != "create"
-                    association(:audits).reset if association_cached?(:audits)
-                    nil
-                  rescue => retry_error
-                    handle_audit_errors(retry_error, attrs[:action])
-                    nil
-                  end
-                else
-                  handle_audit_errors(e, attrs[:action])
-                  nil
-                end
-              rescue => e
-                handle_audit_errors(e, attrs[:action])
-                nil
-              end
+              create_audit_record_with_version_retry!(
+                insert_attrs,
+                version_column: version_column,
+                auditable_column: auditable_column,
+                action: attrs[:action]
+              )
             end
+          end
+        end
+
+        # One retry on unique (version) collision. Each insert uses a savepoint so
+        # PostgreSQL can continue the outer update/lock transaction after a unique violation.
+        def create_audit_record_with_version_retry!(insert_attrs, version_column:, auditable_column:, action:)
+          attempt = 0
+          begin
+            attempt += 1
+            self.class.transaction(requires_new: true) do
+              audit_class.create!(insert_attrs)
+            end
+            combine_audits_if_needed if action != "create"
+            association(:audits).reset if association_cached?(:audits)
+            nil
+          rescue => error
+            unless ActiveVersion::UniqueVersionCollision.match?(error, version_column: version_column) &&
+                action != "create" && attempt < 2
+              handle_audit_errors(error, action)
+              return nil
+            end
+
+            auditable_type_for_query = audited_options[:class_name] || self.class.name
+            if auditable_type_for_query.nil?
+              raise ConfigurationError, "Cannot determine class name for dynamically created class. Please specify class_name option in has_audits"
+            end
+
+            max_version = audit_class.uncached do
+              audit_class.where({"#{auditable_column}_type" => auditable_type_for_query}.merge(active_version_audit_identity_map))
+                .maximum(version_column) || 0
+            end
+            insert_attrs[version_column] = max_version + 1
+            retry
           end
         end
 

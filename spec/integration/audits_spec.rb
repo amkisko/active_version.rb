@@ -343,6 +343,37 @@ RSpec.describe "ActiveVersion Audits Integration", type: :integration do
     end
   end
 
+  describe "unique version collision" do
+    it "creates the next audit when a unique version collision happens inside a transaction" do
+      skip "PostgreSQL required" unless ActiveRecord::Base.connection.adapter_name == "PostgreSQL"
+
+      post = Post.create!(title: "Hello", body: "World")
+      planted_version = 2
+
+      ActiveRecord::Base.connection.cache do
+        expect(PostAudit.where(auditable_id: post.id).maximum(:version)).to eq(1)
+
+        Thread.new do
+          ActiveRecord::Base.connection_pool.with_connection do
+            PostAudit.create!(
+              auditable_type: "Post",
+              auditable_id: post.id,
+              action: "update",
+              version: planted_version,
+              audited_changes: {"title" => ["Hello", "planted"]}
+            )
+          end
+        end.join
+
+        post.with_lock { post.update!(title: "Updated") }
+      end
+
+      versions = PostAudit.where(auditable_id: post.id).order(:version).pluck(:version)
+      expect(versions).to include(1, planted_version)
+      expect(versions.max).to eq(3)
+    end
+  end
+
   describe "thread-local configuration" do
     it "allows per-thread configuration overrides" do
       Post.with_audited_options(only: ["title"]) do

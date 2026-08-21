@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Add `rfcs/` starter pack: process (RFC 0001), positioning (RFC 0002), and Standards Track design RFCs 0003–0006 for translations, revisions, audits, and generators.
+- Retry unique version collisions so a revision snapshot or audit still writes after a concurrent insert, including inside an open PostgreSQL transaction.
 
 ## 1.4.0 (2026-07-13)
 

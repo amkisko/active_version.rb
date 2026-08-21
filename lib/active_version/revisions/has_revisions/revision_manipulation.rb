@@ -421,16 +421,20 @@ module ActiveVersion
           revisions.reset
         end
 
-        # One retry on unique (version) violation, matching audit_writer behavior when a DB unique index exists.
+        # One retry on unique (version) collision. Each insert uses a savepoint so
+        # PostgreSQL can continue the outer update/lock transaction after a unique violation.
         def create_revision_record_with_version_retry!(revision_attrs, version_column_sym)
           attempt = 0
           begin
             attempt += 1
-            revisions.create!(revision_attrs)
-          rescue ActiveRecord::RecordNotUnique => error
+            self.class.transaction(requires_new: true) do
+              revisions.create!(revision_attrs)
+            end
+          rescue => error
+            raise error unless ActiveVersion::UniqueVersionCollision.match?(error, version_column: version_column_sym)
             raise error if attempt >= 2
 
-            max_version = revisions_scope.maximum(version_column_sym) || 0
+            max_version = revisions_scope.uncached { revisions_scope.maximum(version_column_sym) } || 0
             revision_attrs[version_column_sym] = max_version + 1
             retry
           end

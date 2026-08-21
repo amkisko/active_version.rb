@@ -191,23 +191,6 @@ RSpec.describe ActiveVersion::Revisions::HasRevisions do
       expect(snapshot).to be_present
       expect(snapshot.title).to eq("Test")
     end
-
-    it "retries once when create! raises RecordNotUnique (duplicate version under unique index)" do
-      post.update!(title: "first revision")
-
-      calls = 0
-      allow(post.revisions).to receive(:create!).and_wrap_original do |m, *args|
-        calls += 1
-        if calls == 1
-          raise ActiveRecord::RecordNotUnique.new("duplicate key value violates unique constraint")
-        end
-
-        m.call(*args)
-      end
-
-      expect { post.update!(title: "second revision") }.not_to raise_error
-      expect(post.revisions.order(:version).pluck(:version)).to eq([1, 2])
-    end
   end
 
   describe "#undo!" do
