@@ -71,4 +71,6 @@ Flatten band folders to `rfcs/NNNN-slug.md`. Keep existing numbers. Add `ids/` c
 
 State the fact, open with the claim, and keep agency on the person who acts. Prefer commas and full stops over em dashes. Refuse sales language.
 
+Titles, registrar names, paths, CLI verbs, and identifiers use instrument and protocol words: check-in, last-seen, probe, monitor, expected tick. Body and organism metaphors such as heartbeat, pulse, and organ stay out of the contract. HTTP `/health` remains the liveness probe until a later RFC. Follow writing-prose for the rest of the house vocabulary.
+
 A checkable statement MUST name a command, field, fail mode, fixture, schema, or test a reviewer can open. Mark inference. The RFC subject is the design. Version numbers belong in changelogs. Implementation paths are optional evidence.

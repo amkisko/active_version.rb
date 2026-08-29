@@ -33,7 +33,7 @@ Hashes, signatures, path safety, failure mode. Omit when unused.
 
 ## Registrar
 
-Names this RFC claims: CLI verbs, public methods, file fields. Omit when unused.
+Names this RFC claims: CLI verbs, public methods, file fields. Use instrument and protocol words. Omit when unused.
 
 ## Drawbacks
 
