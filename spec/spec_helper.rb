@@ -147,7 +147,9 @@ RSpec.configure do |config|
       ActiveVersion::RequestStore.audited_user = nil if ActiveVersion::RequestStore.respond_to?(:audited_user=)
       ActiveVersion::RequestStore.request_uuid = nil if ActiveVersion::RequestStore.respond_to?(:request_uuid=)
       ActiveVersion::RequestStore.remote_address = nil if ActiveVersion::RequestStore.respond_to?(:remote_address=)
+      ActiveVersion::RequestStore.version_context = nil if ActiveVersion::RequestStore.respond_to?(:version_context=)
     end
+    ActiveVersion.store_set(:active_version_auditing_disabled_depth, 0) if ActiveVersion.respond_to?(:store_set)
 
     # Keep shared test model configuration deterministic across examples.
     if defined?(Post)

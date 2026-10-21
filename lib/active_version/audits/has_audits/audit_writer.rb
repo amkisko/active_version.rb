@@ -273,7 +273,9 @@ module ActiveVersion
             ActiveVersion.column_mapper.column_for(self.class, :audits, :version).to_s,
             ActiveVersion.column_mapper.column_for(self.class, :audits, :action).to_s
           ]
-          shared_columns -= excluded
+          redacted = Array(audited_options[:redacted]).map(&:to_s)
+          encrypted = respond_to?(:encrypted_attributes) ? Array(encrypted_attributes).map(&:to_s) : []
+          shared_columns -= (excluded + redacted + encrypted)
 
           shared_columns.each do |column_name|
             next if insert_attrs.key?(column_name)

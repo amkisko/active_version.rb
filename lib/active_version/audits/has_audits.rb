@@ -100,18 +100,21 @@ module ActiveVersion
           audited_options.present?
         end
 
-        # Disable auditing for a block
+        # Disable auditing for this fiber/thread only (does not silence other threads)
         def without_auditing
-          auditing_was_enabled = class_auditing_enabled?
-          disable_auditing
+          key = auditing_disabled_depth_store_key
+          depth = ActiveVersion.store_get(key).to_i + 1
+          ActiveVersion.store_set(key, depth)
           yield
         ensure
-          enable_auditing if auditing_was_enabled
+          depth = ActiveVersion.store_get(key).to_i - 1
+          depth = 0 if depth.negative?
+          ActiveVersion.store_set(key, depth)
         end
 
-        # Enable auditing for a block
+        # Enable auditing for a block even when class auditing was disabled permanently
         def with_auditing
-          auditing_was_enabled = class_auditing_enabled?
+          auditing_was_enabled = class_auditing_enabled_without_skip?
           enable_auditing
           yield
         ensure
@@ -506,9 +509,21 @@ module ActiveVersion
         end
 
         def class_auditing_enabled?
-          @class_auditing_enabled != false
+          return false if ActiveVersion.store_get(auditing_disabled_depth_store_key).to_i.positive?
+
+          class_auditing_enabled_without_skip?
         end
         public :class_auditing_enabled?
+
+        def class_auditing_enabled_without_skip?
+          @class_auditing_enabled != false
+        end
+        private :class_auditing_enabled_without_skip?
+
+        def auditing_disabled_depth_store_key
+          :"active_version_#{name}_auditing_disabled_depth"
+        end
+        private :auditing_disabled_depth_store_key
 
         def disable_auditing
           @class_auditing_enabled = false
