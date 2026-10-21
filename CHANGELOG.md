@@ -1,5 +1,19 @@
 # CHANGELOG
 
+## 2.1.0 (2026-10-21)
+
+- Fix `without_auditing` and `without_revisions` to use per-fiber/thread depth so other threads keep writing history.
+- Restore only request-scoped context after `with_context` so persistent keys do not shadow a later `with_context!`; clear persistent context via the Railtie executor `to_complete` hook on request end.
+- Honor `with_context(..., transactional: false)` by skipping the PostgreSQL `SET LOCAL` path.
+- Fix `at(time:)` / `revision_at` to return the live state between updates (earliest revision after the time), matching pre-change snapshot semantics.
+- Keep the earliest pre-change revision payload when debounce merges callback-driven updates inside the window.
+- Skip pending-save columns when refreshing default-function attributes during revision snapshots.
+- Map `action` and optional user/address/request fields in `Migrators::Audited`.
+- Skip `redacted` and `encrypted_attributes` when copying shared columns for `:mirror_columns` storage.
+- Validate `audit_error_behavior` and `revision_error_behavior` in `Configuration#validate!`.
+- Require `Rails::Railtie` before loading the railtie; raise `required_ruby_version` to `>= 3.1` to match Active Support 7.2+.
+- Document sharding as host-connection follow-through, not gem-owned routing.
+
 ## 2.0.0 (2026-08-21)
 
 - BREAKING: Require Active Support and Active Record `>= 7.2.3.2` and `< 9.0`.

@@ -12,7 +12,7 @@ Design changes go through `rfcs/` (RFC 0001).
 - Revisions: Schema-aligned snapshots for workflow management
 - Audits: `:json_column`, `:yaml_column`, or `:mirror_columns` change tracking
 - Database Triggers: Optional PostgreSQL triggers for zero-overhead versioning
-- Sharding Support: Route version tables to separate databases
+- Sharding: Follows the host app connection; this gem does not route shards
 - SQL Generation: Batch operations via SQL generation
 - Configurable: Flexible column naming and per-model configuration
 
@@ -503,7 +503,7 @@ Environment knobs:
 
 ## Requirements
 
-- Ruby >= 3.0.0
+- Ruby >= 3.1.0
 - ActiveRecord >= 7.2.3.2 and < 9.0 (default runtime)
 - SQLite or MySQL or PostgreSQL (optional, for triggers and JSONB support)
 

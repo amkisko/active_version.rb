@@ -77,5 +77,19 @@ RSpec.describe ActiveVersion::Configuration do
         expect { config.validate! }.to raise_error(ActiveVersion::ConfigurationError)
       end
     end
+
+    context "with invalid audit_error_behavior" do
+      it "raises ConfigurationError" do
+        config.audit_error_behavior = :bogus
+        expect { config.validate! }.to raise_error(ActiveVersion::ConfigurationError, /audit_error_behavior/)
+      end
+    end
+
+    context "with invalid revision_error_behavior" do
+      it "raises ConfigurationError" do
+        config.revision_error_behavior = :bogus
+        expect { config.validate! }.to raise_error(ActiveVersion::ConfigurationError, /revision_error_behavior/)
+      end
+    end
   end
 end

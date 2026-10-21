@@ -78,10 +78,13 @@ module ActiveVersion
       @debounce_time = nil  # Time in seconds to merge revisions within window
     end
 
+    ERROR_BEHAVIORS = %i[exception log silent].freeze
+
     # Validate configuration
     def validate!
       validate_storage_type!
       validate_execution_scope!
+      validate_error_behaviors!
       validate_column_names!
     end
 
@@ -99,6 +102,18 @@ module ActiveVersion
 
       raise ConfigurationError,
         "execution_scope must be :fiber or :thread, got: #{@execution_scope.inspect}"
+    end
+
+    def validate_error_behaviors!
+      unless ERROR_BEHAVIORS.include?(@audit_error_behavior)
+        raise ConfigurationError,
+          "audit_error_behavior must be one of #{ERROR_BEHAVIORS.inspect}, got: #{@audit_error_behavior.inspect}"
+      end
+
+      unless ERROR_BEHAVIORS.include?(@revision_error_behavior)
+        raise ConfigurationError,
+          "revision_error_behavior must be one of #{ERROR_BEHAVIORS.inspect}, got: #{@revision_error_behavior.inspect}"
+      end
     end
 
     def validate_column_names!

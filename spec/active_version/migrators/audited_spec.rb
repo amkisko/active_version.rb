@@ -58,13 +58,11 @@ RSpec.describe ActiveVersion::Migrators::Audited do
             auditable_id: 1,
             auditable_type: "Post",
             version: 1,
+            action: "update",
             audited_changes: {"title" => "Hello"},
             comment: "Test",
             created_at: Time.current,
-            updated_at: Time.current,
-            respond_to?: true)
-
-          allow(old_audit).to receive(:respond_to?).with(:audited_context).and_return(false)
+            updated_at: Time.current)
 
           allow(described_class).to receive_messages(source_audits: [old_audit], create_audit: true)
 
@@ -81,14 +79,12 @@ RSpec.describe ActiveVersion::Migrators::Audited do
             auditable_id: 1,
             auditable_type: "Post",
             version: 1,
+            action: "update",
             audited_changes: {"title" => "Hello"},
             audited_context: {"ip" => "127.0.0.1"},
             comment: "Test",
             created_at: Time.current,
-            updated_at: Time.current,
-            respond_to?: true)
-
-          allow(old_audit).to receive(:respond_to?).with(:audited_context).and_return(true)
+            updated_at: Time.current)
 
           allow(described_class).to receive_messages(source_audits: [old_audit], create_audit: true)
 
@@ -148,21 +144,28 @@ RSpec.describe ActiveVersion::Migrators::Audited do
         auditable_id: 1,
         auditable_type: "Post",
         version: 2,
+        action: "update",
         audited_changes: {"title" => ["Old", "New"]},
         comment: "Updated",
         created_at: Time.current,
         updated_at: Time.current,
-        respond_to?: false)
+        user_id: 9,
+        remote_address: "10.0.0.2",
+        request_uuid: "req-1")
     end
 
-    it "converts old audit to new format" do
+    it "converts old audit to new format including required action" do
       result = described_class.send(:convert_audit, old_audit, model_class)
 
       expect(result["auditable_id"]).to eq(1)
       expect(result["auditable_type"]).to eq("Post")
       expect(result["version"]).to eq(2)
+      expect(result["action"]).to eq("update")
       expect(result["audited_changes"]).to eq({"title" => ["Old", "New"]})
       expect(result["comment"]).to eq("Updated")
+      expect(result["user_id"]).to eq(9)
+      expect(result["remote_address"]).to eq("10.0.0.2")
+      expect(result["request_uuid"]).to eq("req-1")
       expect(result[:created_at]).to be_a(Time)
       expect(result[:updated_at]).to be_a(Time)
     end
@@ -173,17 +176,18 @@ RSpec.describe ActiveVersion::Migrators::Audited do
           auditable_id: 1,
           auditable_type: "Post",
           version: 2,
+          action: "create",
           audited_changes: {"title" => ["Old", "New"]},
           comment: "Updated",
           created_at: Time.current,
-          updated_at: nil,
-          respond_to?: false)
+          updated_at: nil)
       end
 
       it "uses created_at for updated_at" do
         result = described_class.send(:convert_audit, old_audit, model_class)
 
         expect(result[:updated_at]).to eq(result[:created_at])
+        expect(result["action"]).to eq("create")
       end
     end
   end

@@ -69,8 +69,11 @@ module ActiveVersion
     config
   end
 
-  # Convenience methods for accessing configuration
+  # Convenience methods for accessing configuration.
+  # +without_auditing+ uses a per-fiber/thread depth so concurrent callers are not silenced.
   def self.auditing_enabled
+    return false if store_get(:active_version_auditing_disabled_depth).to_i.positive?
+
     config.auditing_enabled
   end
 
@@ -100,7 +103,10 @@ module ActiveVersion
   end
 
   def self.context
-    # Merge persistent context with request-scoped context
+    # Merge persistent context (fiber/thread store) with request-scoped context.
+    # with_context ensure must restore only RequestStore.version_context so
+    # persistent keys are not copied into the request store and cannot shadow
+    # a later with_context!.
     persistent = store_get(:active_version_persistent_context) || {}
     request_scoped = RequestStore.version_context || {}
     persistent.merge(request_scoped)
@@ -112,7 +118,8 @@ module ActiveVersion
   end
 
   # Transaction-aware context (uses PostgreSQL session variables)
-  # Accepts either a hash as first argument or keyword arguments
+  # Accepts either a hash as first argument or keyword arguments.
+  # Pass transactional: false to skip SET LOCAL even when PostgreSQL supports it.
   def self.with_context(context = nil, transactional: true, **kwargs, &block)
     raise ArgumentError, "with_context requires a block" unless block_given?
 
@@ -129,16 +136,15 @@ module ActiveVersion
       raise ArgumentError, "context must be a hash or keyword arguments"
     end
 
-    if transactional_context_supported?
-      # Use PostgreSQL session variables for transaction-aware context
+    if transactional && transactional_context_supported?
       with_transactional_context(context_hash, &block)
     else
-      # Fallback to thread-local context
       with_thread_local_context(context_hash, &block)
     end
   end
 
-  # Persistent context (connection-level, persists across operations)
+  # Persistent context for the current fiber/thread (use clear_context! or the
+  # Railtie executor hook so a reused server thread does not leak actors).
   def self.with_context!(context)
     raise ArgumentError, "context must be a hash" unless context.is_a?(Hash)
 
@@ -217,7 +223,7 @@ module ActiveVersion
 
   def self.with_transactional_context(context, &block)
     connection = Runtime.adapter.base_connection
-    old_context = self.context.dup
+    old_request_context = RequestStore.version_context
     old_block_context = store_get(:active_version_block_context)
     enter_context_block!
 
@@ -227,15 +233,15 @@ module ActiveVersion
       connection.execute("SET LOCAL active_version.context = #{encoded_context}")
     end
 
-    # Also update thread-local for immediate access
-    self.context = old_context.merge(context)
+    # Merge into request-scoped store only (not persistent), so ensure restores cleanly
+    RequestStore.version_context = (old_request_context || {}).merge(context)
     store_set(:active_version_block_context, context)
 
     yield
   ensure
     # Context is automatically cleared on transaction rollback
-    # But we still restore thread-local context
-    self.context = old_context
+    # Restore request-scoped context only (do not copy persistent keys into RequestStore)
+    RequestStore.version_context = old_request_context
     store_set(:active_version_block_context, old_block_context)
     leave_context_block!
   end
@@ -255,25 +261,27 @@ module ActiveVersion
   end
 
   def self.with_thread_local_context(context, &block)
-    old_context = self.context.dup
+    old_request_context = RequestStore.version_context
     old_block_context = store_get(:active_version_block_context)
     enter_context_block!
-    self.context = old_context.merge(context)
+    RequestStore.version_context = (old_request_context || {}).merge(context)
     store_set(:active_version_block_context, context)
     yield
   ensure
-    self.context = old_context
+    RequestStore.version_context = old_request_context
     store_set(:active_version_block_context, old_block_context)
     leave_context_block!
   end
 
-  # Disable versioning globally
+  # Disable auditing for this fiber/thread only (nested-safe depth counter)
   def self.without_auditing
-    auditing_was_enabled = auditing_enabled
-    disable_auditing
+    depth = store_get(:active_version_auditing_disabled_depth).to_i + 1
+    store_set(:active_version_auditing_disabled_depth, depth)
     yield
   ensure
-    enable_auditing if auditing_was_enabled
+    depth = store_get(:active_version_auditing_disabled_depth).to_i - 1
+    depth = 0 if depth.negative?
+    store_set(:active_version_auditing_disabled_depth, depth)
   end
 
   def self.disable_auditing
@@ -357,6 +365,6 @@ module ActiveVersion
 end
 
 # Load Rails integration if available
-if defined?(Rails)
+if defined?(Rails::Railtie)
   require "active_version/railtie"
 end

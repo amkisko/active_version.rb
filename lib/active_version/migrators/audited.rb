@@ -66,8 +66,9 @@ module ActiveVersion
           changes_column = ActiveVersion.column_mapper.column_for(model_class, :audits, :changes).to_s
           context_column = ActiveVersion.column_mapper.column_for(model_class, :audits, :context).to_s
           comment_column = ActiveVersion.column_mapper.column_for(model_class, :audits, :comment).to_s
+          action_column = ActiveVersion.column_mapper.column_for(model_class, :audits, :action).to_s
 
-          {
+          data = {
             "#{auditable_column}_id" => old_audit.auditable_id,
             "#{auditable_column}_type" => old_audit.auditable_type,
             version_column => old_audit.version,
@@ -77,6 +78,22 @@ module ActiveVersion
             :created_at => old_audit.created_at,
             :updated_at => old_audit.updated_at || old_audit.created_at
           }
+
+          copy_optional_audit_field(data, old_audit, :action, action_column)
+          copy_optional_audit_field(data, old_audit, :user_id, ActiveVersion.config.audit_user_column)
+          copy_optional_audit_field(data, old_audit, :user_type, :user_type)
+          copy_optional_audit_field(data, old_audit, :remote_address, ActiveVersion.config.audit_remote_address_column)
+          copy_optional_audit_field(data, old_audit, :request_uuid, ActiveVersion.config.audit_request_uuid_column)
+          copy_optional_audit_field(data, old_audit, :associated_id, :"#{ActiveVersion.config.audit_associated_column}_id")
+          copy_optional_audit_field(data, old_audit, :associated_type, :"#{ActiveVersion.config.audit_associated_column}_type")
+
+          data
+        end
+
+        def copy_optional_audit_field(data, old_audit, source_method, destination_column)
+          return unless old_audit.respond_to?(source_method)
+
+          data[destination_column.to_s] = old_audit.public_send(source_method)
         end
       end
     end

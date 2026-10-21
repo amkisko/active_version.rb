@@ -190,27 +190,21 @@ module ActiveVersion
           end
         end
 
-        # Disable revisions for a block
+        # Disable revisions for this fiber/thread only (does not mutate callback chains)
         def without_revisions
-          callbacks = if respond_to?(:_update_callbacks)
-            _update_callbacks.select { |cb| cb.filter == :create_revision_before_update }
-          else
-            []
-          end
-          callback_installed = callbacks.any?
-
-          skip_callback(:update, :before, :create_revision_before_update) if callback_installed
+          key = revision_disabled_depth_store_key
+          depth = ActiveVersion.store_get(key).to_i + 1
+          ActiveVersion.store_set(key, depth)
           yield
         ensure
-          # Restore callback if it was set up
-          if callback_installed && revision_options && revision_options[:auto] != false && revision_options[:on].include?(:update)
-            set_callback(:update, :before, :create_revision_before_update, if: :should_create_revision?)
-          end
+          depth = ActiveVersion.store_get(key).to_i - 1
+          depth = 0 if depth.negative?
+          ActiveVersion.store_set(key, depth)
         end
 
-        # Enable revisions for a block
+        # Enable revisions for a block even when class revisions were disabled permanently
         def with_revisions
-          revision_was_enabled = class_revision_enabled?
+          revision_was_enabled = class_revision_enabled_without_skip?
           enable_revisions
           yield
         ensure
@@ -218,9 +212,21 @@ module ActiveVersion
         end
 
         def class_revision_enabled?
-          @class_revision_enabled != false
+          return false if ActiveVersion.store_get(revision_disabled_depth_store_key).to_i.positive?
+
+          class_revision_enabled_without_skip?
         end
         public :class_revision_enabled?
+
+        def class_revision_enabled_without_skip?
+          @class_revision_enabled != false
+        end
+        private :class_revision_enabled_without_skip?
+
+        def revision_disabled_depth_store_key
+          :"active_version_#{name}_revision_disabled_depth"
+        end
+        private :revision_disabled_depth_store_key
 
         private
 
@@ -362,17 +368,10 @@ module ActiveVersion
           return false
         end
 
-        # Check class-level enabled state (default to true if not set)
-        class_enabled = if self.class.instance_variable_defined?(:@class_revision_enabled)
-          self.class.instance_variable_get(:@class_revision_enabled)
-        else
-          true # Default to enabled
-        end
-        return false unless class_enabled != false
+        return false unless self.class.class_revision_enabled?
 
-        # Check global enabled state
-        # Note: We use config.auditing_enabled for both audits and revisions
-        return false unless ActiveVersion.config.auditing_enabled
+        # Check global enabled state (respects per-fiber without_auditing depth)
+        return false unless ActiveVersion.auditing_enabled
 
         # Get revision options (with defaults if not set)
         options = self.class.revision_options || {auto: true, on: [:update]}

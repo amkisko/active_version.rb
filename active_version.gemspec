@@ -16,7 +16,8 @@ Gem::Specification.new do |spec|
   end
   spec.files += Dir["lib/tasks/**/*.rake"]
   spec.require_paths = ["lib"]
-  spec.required_ruby_version = ">= 3.0"
+  # Matches activesupport >= 7.2.3.2 (Ruby >= 3.1) and CI matrix.
+  spec.required_ruby_version = ">= 3.1"
 
   spec.metadata = {
     "homepage_uri" => spec.homepage,

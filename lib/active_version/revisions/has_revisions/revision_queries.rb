@@ -13,7 +13,9 @@ module ActiveVersion
           at_version(version)
         end
 
-        # Get revision at specific time
+        # Get revision row that encodes state at specific time.
+        # Revision N stores pre-update state and is stamped at that update, so the
+        # state after an update is the next revision's payload (or current self).
         def revision_at(time: nil)
           return nil unless time
 
@@ -21,10 +23,7 @@ module ActiveVersion
           raise ActiveVersion::FutureTimeError, "Future state cannot be known" if time_obj.future?
 
           version_column = revision_version_column
-          revision_entry = revisions_scope.where("created_at <= ?", time_obj).order(version_column => :desc).first
-          # If requested time is before the first revision, return the earliest revision if present.
-          revision_entry ||= revisions_scope.order(version_column => :asc).first
-          revision_entry
+          revisions_scope.where("created_at > ?", time_obj).order(version_column => :asc).first
         end
 
         # Return a copy of record at specified time (read-only)
@@ -133,7 +132,9 @@ module ActiveVersion
 
         def find_revision_by_time(time)
           version_column = revision_version_column
-          revisions_scope.where("created_at <= ?", time).order(version_column => :desc).first
+          # Earliest revision after +time+ holds the live state as of +time+
+          # (that row's payload is the pre-state of the next change).
+          revisions_scope.where("created_at > ?", time).order(version_column => :asc).first
         end
 
         def revisions_scope

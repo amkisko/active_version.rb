@@ -1,5 +1,7 @@
 module ActiveVersion
   class Configuration
+    ERROR_BEHAVIORS: Array[Symbol]
+
     attr_accessor auditing_enabled: bool
     attr_accessor current_user_method: Symbol | String
     attr_accessor ignored_attributes: Array[String]
@@ -13,6 +15,7 @@ module ActiveVersion
     attr_accessor revision_version_column: Symbol | String
     attr_accessor revision_foreign_key_suffix: String
 
+    attr_accessor default_audit_class: Class?
     attr_accessor audit_storage: :json_column | :yaml_column | :mirror_columns
     attr_accessor audit_action_column: Symbol | String
     attr_accessor audit_changes_column: Symbol | String
@@ -32,7 +35,6 @@ module ActiveVersion
     attr_accessor audit_error_behavior: Symbol
     attr_accessor revision_error_behavior: Symbol
     attr_accessor debounce_time: Numeric?
-    attr_accessor partition_schema_guards_enabled: bool
 
     def validate!: () -> void
   end

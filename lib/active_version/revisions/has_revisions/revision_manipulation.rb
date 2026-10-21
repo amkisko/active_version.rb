@@ -37,17 +37,28 @@ module ActiveVersion
             current_version + 1
           end
 
-          # Refresh only columns with default functions (query optimization)
+          # Refresh only columns with default functions (query optimization).
+          # Never overwrite attributes the caller is about to save.
           refreshable_columns = refreshable_column_names
           if refreshable_columns.any?
-            refreshed = self.class.select(refreshable_columns).find(id)
-            refreshable_columns.each do |col|
-              refreshed_value = if refreshed.respond_to?(col)
-                refreshed.public_send(col)
-              elsif refreshed.respond_to?(:[])
-                refreshed[col]
+            pending_changes = if respond_to?(:changes_to_save) && changes_to_save.present?
+              changes_to_save.keys.map(&:to_s)
+            elsif respond_to?(:changed)
+              Array(changed).map(&:to_s)
+            else
+              []
+            end
+            columns_to_refresh = refreshable_columns - pending_changes
+            if columns_to_refresh.any?
+              refreshed = self.class.select(columns_to_refresh).find(id)
+              columns_to_refresh.each do |col|
+                refreshed_value = if refreshed.respond_to?(col)
+                  refreshed.public_send(col)
+                elsif refreshed.respond_to?(:[])
+                  refreshed[col]
+                end
+                self[col] = refreshed_value
               end
-              self[col] = refreshed_value
             end
           end
 
@@ -370,7 +381,16 @@ module ActiveVersion
           last_revision ||= revisions_scope.order(version_column => :desc).first
           return unless last_revision
 
-          # Update last revision with current or persisted attributes (filtered by only/except)
+          # Callback path stores pre-change state. Keep the earliest pre-state and
+          # only extend the debounce window; overwriting would drop history (A -> B
+          # then B -> C within the window must leave A, not replace it with B).
+          if use_old_values
+            last_revision.class.where(id: last_revision.id).update_all(updated_at: timestamp)
+            revisions.reset
+            return
+          end
+
+          # Update last revision with current attributes (filtered by only/except)
           base_attrs = snapshot_base_attributes(use_old_values)
 
           snapshot_attrs = if only_attrs
