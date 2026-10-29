@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## 2.1.0 (2026-10-21)
+## 2.1.0 (2026-10-29)
 
 - Record PostgreSQL audit updates as changed-field pairs and support quoted table and column names.
 - Copy source table columns into generated revision tables so custom attributes retain their values.

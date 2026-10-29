@@ -23,7 +23,8 @@
 
 ## Next
 
-- No confirmed correction remains in the reviewed changes. Hosted GitHub Actions and the complete supported Ruby/framework matrix were not executed locally.
+- Push `main` and run `make release` for 2.1.0 (gem push, tag, GitHub release). See `docs/changelogs/20261029093206_release-2-1-0.md`.
+- Hosted GitHub Actions and the complete supported Ruby/framework matrix were not executed locally in this review.
 - Scope limits: production traffic, production database size and query plans, external service retention, and co-located resource interference were not measured. The local byte/RSS/CPU results do not establish those properties.
 - Trace review follows local file/log and protocol emissions. No live customer identities or credentials were used. Data retention and deletion in embedding applications remain host contracts.
 - Learned-system training/evaluation and cloud deployment modes do not apply to these library trees. Native memory-boundary mode applies to Polyrun's extension; browser presentation applies to Favorites; HTTP/identity and message companions apply only to repositories that expose those boundaries. Libraries have no independent production health endpoint to assess.
