@@ -169,7 +169,7 @@ module ActiveVersion
           end
           return nil if identity_map.values.any?(&:nil?)
           attrs.merge!(identity_map)
-          attrs["#{auditable_column}_type"] = record.class.name
+          attrs["#{auditable_column}_type"] = record.class.polymorphic_name
 
           # Set version
           version_column = ActiveVersion.column_mapper.column_for(record.class, :audits, :version)

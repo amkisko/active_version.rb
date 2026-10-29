@@ -2,7 +2,7 @@ Recorded 2026-10-21. Four parallel model audits (core, adapters/DB, tests/contra
 
 ## Participants
 
-- amkisko
+Andrei Makarov (@amkisko)
 
 ## Decisions
 

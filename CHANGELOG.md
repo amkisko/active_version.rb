@@ -2,6 +2,10 @@
 
 ## 2.1.0 (2026-10-21)
 
+- Record PostgreSQL audit updates as changed-field pairs and support quoted table and column names.
+- Copy source table columns into generated revision tables so custom attributes retain their values.
+- Keep inherited model audits visible through ActiveRecord polymorphic associations.
+
 - Fix `without_auditing` and `without_revisions` to use per-fiber/thread depth so other threads keep writing history.
 - Restore only request-scoped context after `with_context` so persistent keys do not shadow a later `with_context!`; clear persistent context via the Railtie executor `to_complete` hook on request end.
 - Honor `with_context(..., transactional: false)` by skipping the PostgreSQL `SET LOCAL` path.

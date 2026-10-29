@@ -208,7 +208,7 @@ end
 
 ## Optional: Database triggers
 
-To use PostgreSQL triggers instead of (or in addition to) application-level versioning:
+To use PostgreSQL triggers, first disable application callbacks for the same history with `has_audits auto: false` or `has_revisions auto: false`. One writer must own each history; enabling both writers can duplicate records or collide on version numbers. Then generate the trigger migration:
 
 ```bash
 rails g active_version:triggers Post --type=audit

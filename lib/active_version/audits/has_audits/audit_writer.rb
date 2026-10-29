@@ -116,7 +116,7 @@ module ActiveVersion
               insert_attrs.merge!(identity_map)
               # Use class_name from options if provided (for dynamically created classes)
               # Otherwise use the actual class name
-              auditable_type = audited_options[:class_name] || self.class.name
+              auditable_type = audited_options[:class_name] || self.class.polymorphic_name
               if auditable_type.nil?
                 raise ConfigurationError, "Cannot determine class name for dynamically created class. Please specify class_name option in has_audits (e.g., has_audits as: PostAudit, class_name: 'Post')"
               end
@@ -216,7 +216,7 @@ module ActiveVersion
               return nil
             end
 
-            auditable_type_for_query = audited_options[:class_name] || self.class.name
+            auditable_type_for_query = audited_options[:class_name] || self.class.polymorphic_name
             if auditable_type_for_query.nil?
               raise ConfigurationError, "Cannot determine class name for dynamically created class. Please specify class_name option in has_audits"
             end

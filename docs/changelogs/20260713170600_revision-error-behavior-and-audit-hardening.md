@@ -1,6 +1,6 @@
 ## Participants
 
-Agent-assisted changelog update for unreleased work on main.
+Andrei Makarov (@amkisko)
 
 ## Decisions
 

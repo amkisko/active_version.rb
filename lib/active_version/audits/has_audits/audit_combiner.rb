@@ -30,7 +30,7 @@ module ActiveVersion
               association(:audits).reset
             end
 
-            auditable_type = audited_options[:class_name] || self.class.name
+            auditable_type = audited_options[:class_name] || self.class.polymorphic_name
             auditable_column = ActiveVersion.column_mapper.column_for(self.class, :audits, :auditable)
             version_column = ActiveVersion.column_mapper.column_for(self.class, :audits, :version)
             audit_klass = combiner_audit_klass

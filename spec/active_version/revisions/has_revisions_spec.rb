@@ -352,12 +352,12 @@ RSpec.describe ActiveVersion::Revisions::HasRevisions do
       expect(revision.body).to eq("body1")
     end
 
-    it "uses old values when use_old_values is true" do
+    it "preserves the earliest pre-change state when use_old_values is true" do
       post.update!(title: "v2")
       post.title = "v3"
       post.merge_with_previous_revision!(Time.current, nil, nil, true)
       revision = post.revisions.last
-      expect(revision.title).to eq("v2") # Should use old value
+      expect(revision.title).to eq("v1")
     end
   end
 

@@ -4,13 +4,12 @@ class Create<%= revision_class_name.pluralize %> < ActiveRecord::Migration<%= mi
       t.references :<%= file_name %>, null: false, foreign_key: true, index: false
       t.integer :<%= version_column %>, null: false
 
-      # Copy all columns from source table
-      # Note: This is a simplified version - in production, you'd want to
-      # inspect the actual source table columns dynamically
-      # For now, we'll add common columns that can be customized
-      t.text :title
-      t.text :body
-      # Add other columns as needed
+      source_primary_key = connection.primary_key(:<%= source_table_name %>)
+      connection.columns(:<%= source_table_name %>).each do |column|
+        next if [source_primary_key, "created_at", "updated_at"].include?(column.name)
+
+        t.column column.name, column.sql_type, limit: column.limit, precision: column.precision, scale: column.scale
+      end
 
       t.timestamps
     end

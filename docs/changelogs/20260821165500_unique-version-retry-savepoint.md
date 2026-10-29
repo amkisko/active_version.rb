@@ -1,3 +1,7 @@
+## Participants
+
+Andrei Makarov (@amkisko)
+
 ## Decisions
 
 Retry a unique version insert inside a nested transaction so PostgreSQL can continue the outer update or lock transaction after a unique violation.

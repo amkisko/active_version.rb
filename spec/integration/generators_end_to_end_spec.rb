@@ -29,7 +29,7 @@ RSpec.describe "ActiveVersion generators end-to-end", type: :integration do
         --skip-bootsnap --database=sqlite3)
     )
 
-    run_cmd_in_app!("bundle exec rails generate model Post title:string body:text --no-test-framework")
+    run_cmd_in_app!("bundle exec rails generate model Post title:string body:text score:integer enabled:boolean published_at:datetime --no-test-framework")
     run_cmd_in_app!("bundle exec rails generate active_version:install")
     run_cmd_in_app!("bundle exec rails generate active_version:audits Post --storage=yaml_column")
     run_cmd_in_app!("bundle exec rails generate active_version:revisions Post")
@@ -77,11 +77,12 @@ RSpec.describe "ActiveVersion generators end-to-end", type: :integration do
       raise "missing post_revisions" unless ActiveRecord::Base.connection.table_exists?(:post_revisions)
       raise "missing post_translations" unless ActiveRecord::Base.connection.table_exists?(:post_translations)
 
-      post = Post.create!(title: "Hello", body: "World")
+      post = Post.create!(title: "Hello", body: "World", score: 7, enabled: false, published_at: Time.utc(2026, 1, 1))
       post.update!(title: "Updated")
 
       raise "missing audits association" unless post.respond_to?(:audits)
       raise "missing revisions association" unless post.respond_to?(:revisions)
+      raise "missing copied revision values" unless post.revisions.first.score == 7 && post.revisions.first.enabled == false && post.revisions.first.published_at.year == 2026
       raise "missing translations association" unless post.respond_to?(:translations)
 
       raise "expected at least two audits" unless post.audits.count >= 2
