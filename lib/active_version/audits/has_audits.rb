@@ -823,7 +823,7 @@ module ActiveVersion
       # Use active_audits for filtered results
       def audits
         # Use class_name from options if provided (for dynamically created classes)
-        auditable_type = audited_options[:class_name] || self.class.name
+        auditable_type = audited_options[:class_name] || self.class.polymorphic_name
         if auditable_type.nil?
           raise ConfigurationError, "Cannot determine class name for dynamically created class. Please specify class_name option in has_audits (e.g., has_audits as: PostAudit, class_name: 'Post')"
         end

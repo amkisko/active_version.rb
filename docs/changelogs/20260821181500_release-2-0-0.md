@@ -1,6 +1,6 @@
 ## Participants
 
-Andrei Makarov
+Andrei Makarov (@amkisko)
 
 ## Decisions
 

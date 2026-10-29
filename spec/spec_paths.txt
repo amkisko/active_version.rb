@@ -1,5 +1,6 @@
 spec/integration/revisions_spec.rb
 spec/integration/audits_spec.rb
+spec/integration/inherited_audits_spec.rb
 spec/integration/activerecord_compatibility_spec.rb
 spec/integration/translations_spec.rb
 spec/integration/module_compatibility_spec.rb
@@ -12,6 +13,7 @@ spec/integration/generators_end_to_end_spec.rb
 spec/integration/migrators_base_spec.rb
 spec/integration/partitioned_tables_postgresql_spec.rb
 spec/integration/payload_serializer_spec.rb
+spec/integration/postgresql_trigger_contract_spec.rb
 spec/integration/schema_changes_spec.rb
 spec/integration/separate_tables_spec.rb
 spec/integration/table_storage_without_changes_column_spec.rb
@@ -19,6 +21,7 @@ spec/active_version/adapters/active_record/audits_spec.rb
 spec/active_version/adapters/active_record/base_spec.rb
 spec/active_version/adapters/active_record/revisions_spec.rb
 spec/active_version/adapters/sequel/versioning_spec.rb
+spec/active_version/audit_hardening_spec.rb
 spec/active_version/audits/audit_record_spec.rb
 spec/active_version/audits/callback_ordering_spec.rb
 spec/active_version/audits/has_audits/audit_combiner_spec.rb
@@ -39,6 +42,7 @@ spec/active_version/error_handling_spec.rb
 spec/active_version/instrumentation_spec.rb
 spec/active_version/migrators/audited_spec.rb
 spec/active_version/query_spec.rb
+spec/active_version/railtie_load_spec.rb
 spec/active_version/readonly_enforcement_spec.rb
 spec/active_version/revisions/debounce_time_spec.rb
 spec/active_version/revisions/has_revisions_spec.rb
@@ -60,3 +64,4 @@ spec/active_version/unique_version_collision_spec.rb
 spec/active_version/version_registry_spec.rb
 spec/benchmark/runtime_comparison_spec.rb
 spec/database_helper_spec.rb
+spec/release_spec.rb

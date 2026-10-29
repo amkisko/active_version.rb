@@ -307,7 +307,7 @@ rails g active_version:triggers Post --type=audit
 rails g active_version:triggers Post --type=revision
 ```
 
-PostgreSQL audit triggers capture the full row as JSON. They do not apply Ruby-side `only`, `except`, or `redacted` filters from `has_audits`. Use triggers only when you want complete row snapshots at the database layer, or generate custom trigger SQL that matches your column policy.
+PostgreSQL audit triggers capture complete rows on create and destroy, and changed-field old/new pairs on update. Disable the matching Ruby callbacks with `has_audits auto: false` or `has_revisions auto: false` before installing triggers so each change has one history writer. They do not apply Ruby-side `only`, `except`, or `redacted` filters from `has_audits`. Use triggers only when you want complete row snapshots at the database layer, or generate custom trigger SQL that matches your column policy.
 
 ### Infrastructure Ownership
 

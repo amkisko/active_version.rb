@@ -2,7 +2,7 @@ Test CI skipped specs because the audit job failed on pg 1.6.2 under Ruby 4. App
 
 ## Participants
 
-- amkisko
+Andrei Makarov (@amkisko)
 
 ## Decisions
 
