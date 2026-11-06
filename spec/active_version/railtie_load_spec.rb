@@ -2,6 +2,10 @@ require "spec_helper"
 
 RSpec.describe "ActiveVersion Railtie load guard" do
   it "does not require railtie when only an empty Rails module exists" do
+    if RUBY_ENGINE == "truffleruby"
+      skip("nested bundle exec ruby hangs under TruffleRuby in polyrun shards")
+    end
+
     lib = File.expand_path("../../lib", __dir__)
     script = "module Rails; end; require 'active_version'; print defined?(ActiveVersion::Railtie).inspect"
     output = `bundle exec ruby -I#{lib} -e #{script.inspect}`

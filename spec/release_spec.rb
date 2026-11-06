@@ -3,6 +3,12 @@ require "open3"
 require_relative "../usr/lib/release_version_check"
 
 RSpec.describe ReleaseVersionCheck do
+  before do
+    if RUBY_ENGINE == "truffleruby"
+      skip("subprocess release confirmation hangs under TruffleRuby Open3")
+    end
+  end
+
   let(:bootstrap) do
     <<~RUBY
       require_relative "usr/lib/release_version_check"
