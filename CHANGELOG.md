@@ -1,13 +1,14 @@
 # CHANGELOG
 
-## Unreleased
+## 2.1.1 (2026-11-07)
 
-- Hot path: when audit instance context is empty, use a single shallow `dup` of the merged global context instead of `dup.merge({})`, avoiding an extra `Hash` allocation per write.
-- JSON hot paths: use `ActiveVersion.json_encode` (`JSON.generate`) on audit/revision SQL and serializer paths; `with_transactional_context` uses the same encoder.
-- `Query`: cache `column_mapper` lookups per `(model, kind, field)`; shared identity-map helpers; empty relation via the model class `none` when the version class is missing.
-- Instrumentation: memoize `ActiveSupport::Notifications.listening?` per event name (reset in specs).
-- Audit batch context: `merge!` when the existing context is already a Hash; skip `stringify_keys` when keys are already strings.
-- Remove `AV_PRESSURE_BUILD` / `pressure_build_phase_enabled?` from lib; drop the pressure-cooker harness and its episode docs; keep `benchmarks/load.rb` and `benchmarks/pressure_probe.rb`.
+- Use a single shallow `dup` of the merged global context when audit instance context is empty, instead of `dup.merge({})`.
+- Encode audit/revision SQL and serializer JSON through `ActiveVersion.json_encode` (`JSON.generate`); use the same encoder in `with_transactional_context`.
+- Cache `Query` `column_mapper` lookups per `(model, kind, field)`; share identity-map helpers; return the model class `none` when the version class is missing.
+- Memoize `ActiveSupport::Notifications.listening?` per instrumentation event name (reset in specs).
+- Merge audit batch context with `merge!` when the existing context is already a Hash; skip `stringify_keys` when keys are already strings.
+- Remove `AV_PRESSURE_BUILD` / `pressure_build_phase_enabled?` from lib; drop the pressure-cooker harness and its episode docs.
+- Maintainer load harness: `benchmarks/load.rb` and `benchmarks/pressure_probe.rb` with `make bench-load` / `make bench-fiber`.
 
 ## 2.1.0 (2026-10-29)
 
