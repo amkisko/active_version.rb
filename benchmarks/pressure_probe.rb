@@ -7,8 +7,8 @@ require "json"
 require "active_record"
 require "active_support/json"
 
-_gem_root = File.expand_path("..", __dir__).freeze
-$LOAD_PATH.unshift(File.join(_gem_root, "lib")) unless $LOAD_PATH.include?(File.join(_gem_root, "lib"))
+gem_root = File.expand_path("..", __dir__).freeze
+$LOAD_PATH.unshift(File.join(gem_root, "lib")) unless $LOAD_PATH.include?(File.join(gem_root, "lib"))
 require "active_version"
 
 module ActiveVersion

@@ -23,6 +23,7 @@ module ActiveVersion
   def self.json_encode(value)
     JSON.generate(value)
   end
+
   class ConfigurationError < Error; end
   class VersionNotFoundError < Error; end
   class ReadonlyVersionError < Error; end
