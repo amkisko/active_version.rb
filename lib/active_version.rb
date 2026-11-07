@@ -1,4 +1,5 @@
 require "logger"
+require "json"
 require "active_support"
 begin
   require "active_record"
@@ -17,6 +18,11 @@ require "active_version/unique_version_collision"
 # Main entry point for ActiveVersion
 module ActiveVersion
   class Error < StandardError; end
+
+  # Stdlib JSON encoding helper (hot paths share this entry point).
+  def self.json_encode(value)
+    JSON.generate(value)
+  end
   class ConfigurationError < Error; end
   class VersionNotFoundError < Error; end
   class ReadonlyVersionError < Error; end
@@ -229,7 +235,8 @@ module ActiveVersion
 
     # Set PostgreSQL session variable
     if connection.open_transactions.positive?
-      encoded_context = connection.quote(ActiveSupport::JSON.encode(context))
+      payload = json_encode(context)
+      encoded_context = connection.quote(payload)
       connection.execute("SET LOCAL active_version.context = #{encoded_context}")
     end
 

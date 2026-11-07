@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## Unreleased
+
+- Hot path: when audit instance context is empty, use a single shallow `dup` of the merged global context instead of `dup.merge({})`, avoiding an extra `Hash` allocation per write.
+- JSON hot paths: use `ActiveVersion.json_encode` (`JSON.generate`) on audit/revision SQL and serializer paths; `with_transactional_context` uses the same encoder.
+- `Query`: cache `column_mapper` lookups per `(model, kind, field)`; shared identity-map helpers; empty relation via the model class `none` when the version class is missing.
+- Instrumentation: memoize `ActiveSupport::Notifications.listening?` per event name (reset in specs).
+- Audit batch context: `merge!` when the existing context is already a Hash; skip `stringify_keys` when keys are already strings.
+- Remove `AV_PRESSURE_BUILD` / `pressure_build_phase_enabled?` from lib; drop the pressure-cooker harness and its episode docs; keep `benchmarks/load.rb` and `benchmarks/pressure_probe.rb`.
+
 ## 2.1.0 (2026-10-29)
 
 - Record PostgreSQL audit updates as changed-field pairs and support quoted table and column names.

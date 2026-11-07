@@ -36,6 +36,17 @@ RSpec.describe ActiveVersion::Query do
       expect(result.first).to be_a(PostAudit)
     end
 
+    it "returns an empty relation when audit_class is absent" do
+      plain_class = Class.new(ApplicationRecord) do
+        self.table_name = "posts"
+        def self.name = "NoAuditQueryPost"
+        def self.audit_class = nil
+      end
+
+      plain = plain_class.create!(title: "Hello")
+      expect(described_class.audits(plain)).to eq(plain_class.none)
+    end
+
     it "falls back to record.id when custom audit identity method is unavailable" do
       plain_class = Class.new(ApplicationRecord) do
         self.table_name = "posts"
@@ -121,6 +132,17 @@ RSpec.describe ActiveVersion::Query do
       expect(result.first).to be_a(PostTranslation)
     end
 
+    it "returns an empty relation when translation_class is absent" do
+      plain_class = Class.new(ApplicationRecord) do
+        self.table_name = "posts"
+        def self.name = "NoTranslationQueryPost"
+        def self.translation_class = nil
+      end
+
+      plain = plain_class.create!(title: "Hello")
+      expect(described_class.translations(plain)).to eq(plain_class.none)
+    end
+
     it "falls back to record.id when custom translation foreign key resolver is unavailable" do
       plain_class = Class.new(ApplicationRecord) do
         self.table_name = "posts"
@@ -194,6 +216,17 @@ RSpec.describe ActiveVersion::Query do
       result = described_class.revisions(post)
       expect(result).to be_a(ActiveRecord::Relation)
       expect(result.first).to be_a(PostRevision)
+    end
+
+    it "returns an empty relation when revision_class is absent" do
+      plain_class = Class.new(ApplicationRecord) do
+        self.table_name = "posts"
+        def self.name = "NoRevisionQueryPost"
+        def self.revision_class = nil
+      end
+
+      plain = plain_class.create!(title: "v1")
+      expect(described_class.revisions(plain)).to eq(plain_class.none)
     end
 
     it "falls back to record.id and applies explicit version filter when resolver is unavailable" do

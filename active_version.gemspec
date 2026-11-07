@@ -37,7 +37,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "pg", "~> 1.5"
   spec.add_development_dependency "sequel", "~> 5.84"
   spec.add_development_dependency "benchmark", ">= 0.4"
-  spec.add_development_dependency "polyrun", ">= 2.2.0"
+  spec.add_development_dependency "polyrun", ">= 2.2.9"
   spec.add_development_dependency "prosopite", "~> 2.0"
   spec.add_development_dependency "standard", "~> 1.52"
   spec.add_development_dependency "standard-custom", "~> 1.0"

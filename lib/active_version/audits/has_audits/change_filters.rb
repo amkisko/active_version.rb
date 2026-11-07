@@ -107,7 +107,9 @@ module ActiveVersion
           h = changes.each_with_object({}) do |(k, v), acc|
             acc[k] = v.last if v.is_a?(Array)
             acc[k] = v unless v.is_a?(Array)
-            acc[k] = JSON.generate(acc[k]) if acc[k].is_a?(Hash) || acc[k].is_a?(Array)
+            if acc[k].is_a?(Hash) || acc[k].is_a?(Array)
+              acc[k] = ActiveVersion.json_encode(acc[k])
+            end
           end
           # Arel INSERT uses keys as column names; stringify so :action / mirror :attrs match
           # string keys from column_mapper and so symbol + string for the same column cannot

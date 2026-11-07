@@ -16,6 +16,11 @@ module ActiveVersion
     }.freeze
 
     class << self
+      # Clear memoized `listening?` probes (tests stub the notifier between examples).
+      def reset_listening_cache!
+        @listening_cache = nil
+      end
+
       # Instrument a translation creation
       def instrument_translation_created(translation, source)
         instrument_event(:translation_created) do
@@ -201,7 +206,10 @@ module ActiveVersion
       end
 
       def listening?(event_name)
-        ActiveSupport::Notifications.notifier.listening?(event_name)
+        @listening_cache ||= {}
+        return @listening_cache[event_name] if @listening_cache.key?(event_name)
+
+        @listening_cache[event_name] = ActiveSupport::Notifications.notifier.listening?(event_name)
       rescue => e
         log_debug("listener probe failed for #{event_name}: #{e.class}: #{e.message}; assuming listeners may exist")
         true

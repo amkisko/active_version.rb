@@ -42,7 +42,7 @@ module ReleaseVersionCheck
   def changelog_includes_version?(version, path: "CHANGELOG.md")
     return false unless File.file?(path)
 
-    File.foreach(path) do |line|
+    File.foreach(path, encoding: "UTF-8") do |line|
       next if line.match?(/Unreleased/i)
       return true if changelog_line_has_version?(line, version)
     end

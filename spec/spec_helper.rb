@@ -139,6 +139,7 @@ RSpec.configure do |config|
   # Do NOT clear the registry: models register at load time and revision/audit
   # callbacks rely on class state; clearing breaks integration specs when run in full suite.
   config.before do
+    ActiveVersion::Instrumentation.reset_listening_cache! if defined?(ActiveVersion::Instrumentation)
     ActiveVersion.context = {}
     ActiveVersion.clear_context!
     ActiveVersion.auditing_enabled = true

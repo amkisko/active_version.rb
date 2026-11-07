@@ -41,8 +41,13 @@ module ActiveVersion
           else
             {}
           end
-          # Merge: global context first, then instance context (instance takes precedence)
-          captured_context = global_context.dup.merge(instance_context)
+          # Merge: global context first, then instance context (instance takes precedence).
+          # `dup.merge({})` allocates twice; shallow `dup` alone matches semantics when instance is empty.
+          captured_context = if instance_context.empty?
+            global_context.dup
+          else
+            global_context.dup.merge!(instance_context)
+          end
 
           self.audit_comment = nil
           self.audit_context = nil
@@ -102,8 +107,16 @@ module ActiveVersion
                 batch_context = batch_state.dig(:options, :context)
                 if batch_context.is_a?(Hash)
                   merged_context = insert_attrs[context_column]
-                  merged_context = {} unless merged_context.is_a?(Hash)
-                  insert_attrs[context_column] = merged_context.merge(batch_context.stringify_keys)
+                  batch_keys = if batch_context.keys.all? { |k| k.is_a?(String) }
+                    batch_context
+                  else
+                    batch_context.stringify_keys
+                  end
+                  if merged_context.is_a?(Hash)
+                    merged_context.merge!(batch_keys)
+                  else
+                    insert_attrs[context_column] = batch_keys
+                  end
                 end
               end
 

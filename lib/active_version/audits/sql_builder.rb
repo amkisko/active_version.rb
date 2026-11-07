@@ -250,7 +250,7 @@ module ActiveVersion
         def prepare_sql_value(value)
           case value
           when Hash, Array
-            JSON.generate(value)
+            ActiveVersion.json_encode(value)
           when Time, DateTime
             value.utc
           when Date

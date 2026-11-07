@@ -175,9 +175,11 @@ module ActiveVersion
           conn = audit_class.connection
           table_name = audit_class.table_name
           updates = []
-          updates << "#{conn.quote_column_name(changes_column)} = #{conn.quote(JSON.generate(combined_changes))}"
+          enc_changes = ActiveVersion.json_encode(combined_changes)
+          updates << "#{conn.quote_column_name(changes_column)} = #{conn.quote(enc_changes)}"
           if combined_context.any?
-            updates << "#{conn.quote_column_name(context_column)} = #{conn.quote(JSON.generate(combined_context))}"
+            enc_ctx = ActiveVersion.json_encode(combined_context)
+            updates << "#{conn.quote_column_name(context_column)} = #{conn.quote(enc_ctx)}"
           end
           target_id = conn.quote(combine_target.read_attribute(:id))
           sql = "UPDATE #{conn.quote_table_name(table_name)} SET #{updates.join(", ")} WHERE id = #{target_id}"
@@ -195,7 +197,7 @@ module ActiveVersion
               # Use raw SQL with proper escaping to bypass ActiveRecord's readonly checks
               conn = audit_class.connection
               table_name = audit_class.table_name
-              empty_json_str = JSON.generate({})
+              empty_json_str = ActiveVersion.json_encode({})
               empty_json = conn.quote(empty_json_str)
               quoted_comment = conn.quote(combined_comment)
 

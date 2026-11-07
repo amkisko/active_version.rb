@@ -26,7 +26,7 @@ module ActiveVersion
           def dump(value)
             return value unless value.is_a?(Hash) || value.is_a?(Array)
 
-            JSON.generate(value)
+            ActiveVersion.json_encode(value)
           end
         end
 
