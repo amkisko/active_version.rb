@@ -46,6 +46,7 @@ RSpec.describe "ActiveVersion jsonb audit payload storage", type: :integration d
 
     audit_class = Class.new(ApplicationRecord) do
       include ActiveVersion::Audits::AuditRecord
+
       self.table_name = "jsonb_payload_post_audits"
       def self.name = "JsonbPayloadPostAudit"
     end
@@ -53,6 +54,7 @@ RSpec.describe "ActiveVersion jsonb audit payload storage", type: :integration d
 
     post_class = Class.new(ApplicationRecord) do
       include ActiveVersion::Audits::HasAudits
+
       self.table_name = "jsonb_payload_posts"
       def self.name = "JsonbPayloadPost"
       has_audits as: JsonbPayloadPostAudit, class_name: "JsonbPayloadPost"
@@ -109,6 +111,7 @@ RSpec.describe "ActiveVersion jsonb audit payload storage", type: :integration d
 
     audit_class = Class.new(ApplicationRecord) do
       include ActiveVersion::Audits::AuditRecord
+
       self.table_name = "jsonb_legacy_audits"
       def self.name = "JsonbLegacyAudit"
       configure_audit do

@@ -10,6 +10,7 @@ spec/integration/audit_combiner_spec.rb
 spec/integration/configurable_identity_spec.rb
 spec/integration/custom_fields_spec.rb
 spec/integration/generators_end_to_end_spec.rb
+spec/integration/jsonb_audit_payload_spec.rb
 spec/integration/migrators_base_spec.rb
 spec/integration/partitioned_tables_postgresql_spec.rb
 spec/integration/payload_serializer_spec.rb
@@ -22,6 +23,7 @@ spec/active_version/adapters/active_record/base_spec.rb
 spec/active_version/adapters/active_record/revisions_spec.rb
 spec/active_version/adapters/sequel/versioning_spec.rb
 spec/active_version/audit_hardening_spec.rb
+spec/active_version/audits/audit_record/serializers_spec.rb
 spec/active_version/audits/audit_record_spec.rb
 spec/active_version/audits/callback_ordering_spec.rb
 spec/active_version/audits/has_audits/audit_combiner_spec.rb
