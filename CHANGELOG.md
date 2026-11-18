@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## Unreleased
+## 2.1.2 (2026-11-18)
 
 - Fix audit `json` / `jsonb` writes so payloads stay native objects; text-backed columns still store JSON strings, and string-shaped legacy rows still decode on read.
 

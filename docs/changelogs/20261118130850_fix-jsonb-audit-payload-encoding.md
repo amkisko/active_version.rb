@@ -15,7 +15,7 @@ Andrei Makarov
 
 ## Next
 
-- Release after CI; consumers on jsonb should upgrade and re-check SQL key operators on new writes.
+- Cut in 2.1.2; run `make release`. Consumers on jsonb should re-check SQL key operators on new writes after upgrade.
 
 ## Source
 
