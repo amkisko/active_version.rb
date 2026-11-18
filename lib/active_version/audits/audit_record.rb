@@ -353,6 +353,16 @@ module ActiveVersion
           serializer_for_column(column_name).dump(value)
         end
 
+        def native_json_payload_column?(column_name)
+          column = columns_hash[column_name.to_s]
+          return false unless column
+
+          type = column.type.to_s.downcase
+          type == "json" || type == "jsonb"
+        rescue *ActiveVersion::Runtime.active_record_connection_errors
+          false
+        end
+
         def audit_column_for(concept)
           schema = active_version_audit_schema || {}
           schema_key = :"#{concept}_column"
@@ -384,7 +394,9 @@ module ActiveVersion
 
         def default_storage_provider_registry
           {
-            json_column: ->(_audit_class, _column_name) { AuditRecord::Serializers::Json.new },
+            json_column: ->(audit_class, column_name) {
+              AuditRecord::Serializers::Json.new(native: audit_class.native_json_payload_column?(column_name))
+            },
             yaml_column: ->(_audit_class, _column_name) { AuditRecord::Serializers::Yaml.new },
             mirror_columns: ->(_audit_class, _column_name) { AuditRecord::Serializers::Identity.new }
           }

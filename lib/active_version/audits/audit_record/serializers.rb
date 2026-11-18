@@ -11,6 +11,10 @@ module ActiveVersion
         end
 
         class Json
+          def initialize(native: false)
+            @native = native
+          end
+
           def load(value)
             return {} if value.nil?
             return value unless value.is_a?(String)
@@ -23,8 +27,12 @@ module ActiveVersion
             value
           end
 
+          # Text columns need a JSON string. Native json/jsonb columns must keep
+          # Hash/Array so ActiveRecord encodes once; a pre-encoded string becomes
+          # a jsonb string scalar and SQL key operators miss fields.
           def dump(value)
             return value unless value.is_a?(Hash) || value.is_a?(Array)
+            return value if @native
 
             ActiveVersion.json_encode(value)
           end

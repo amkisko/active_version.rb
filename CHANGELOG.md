@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## Unreleased
+
+- Fix audit `json` / `jsonb` writes so payloads stay native objects; text-backed columns still store JSON strings, and string-shaped legacy rows still decode on read.
+
 ## 2.1.1 (2026-11-07)
 
 - Use a single shallow `dup` of the merged global context when audit instance context is empty, instead of `dup.merge({})`.

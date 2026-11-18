@@ -221,6 +221,12 @@ RSpec.describe ActiveVersion::Audits::AuditRecord do
       expect(serializer).to be_a(ActiveVersion::Audits::AuditRecord::Serializers::Json)
     end
 
+    it "encodes text-backed json_column payloads as JSON strings" do
+      expect(audit_class.native_json_payload_column?(:audited_changes)).to eq(false)
+      dumped = audit_class.serialize_audit_payload({"title" => ["a", "b"]}, column_name: :audited_changes)
+      expect(dumped).to eq(ActiveVersion.json_encode({"title" => ["a", "b"]}))
+    end
+
     it "supports custom storage provider objects" do
       provider = Class.new do
         def load(value) = "loaded:#{value}"
